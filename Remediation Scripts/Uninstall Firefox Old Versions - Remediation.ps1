@@ -138,6 +138,3 @@ if ($uninstallStrings.Count -gt 0) {
     Log-Message "No installed versions of Mozilla Firefox were found on this machine."
 }
 
-# Display the log file contents for each PC
-Get-Content -Path $logFilePath
-#>
