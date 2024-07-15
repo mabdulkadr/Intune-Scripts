@@ -17,6 +17,12 @@
     Version: 1.0
 #>
 
+# Check if C:\Intune exists and create it if not found
+if (-not (Test-Path "C:\Intune")) {
+    New-Item -ItemType Directory -Path "C:\Intune"
+    Write-Output "Created directory: C:\Intune"
+}
+
 # Define log file path
 $logFilePath = "C:\Intune\FirefoxRemediationLog.txt"
 
