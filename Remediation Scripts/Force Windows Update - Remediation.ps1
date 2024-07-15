@@ -11,45 +11,52 @@
 
 .NOTES
     Author: M.omar
+    Website: momar.tech
     Date: 2024-07-14
 #>
 
-# Check if running as an administrator
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Warning "You do not have Administrator rights to run this script!`nPlease re-run this script as an Administrator."
-    exit 1
+# Remediation script
+$logPath = "C:\Intune\Updates\RemediatePendingWindowsUpdates.log"
+if (!(Test-Path "C:\Intune\Updates")) {
+    New-Item -ItemType Directory -Path "C:\Intune\Updates" -Force
 }
 
-# Ensure PSWindowsUpdate module is installed
-if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Write-Output "PSWindowsUpdate module is not installed. Installing..."
-    Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
-    Import-Module PSWindowsUpdate
-    Write-Output "PSWindowsUpdate module installed successfully."
-} else {
-    Import-Module PSWindowsUpdate
-}
+$UpdateSession = New-Object -ComObject Microsoft.Update.Session
+$UpdateSearcher = $UpdateSession.CreateUpdateSearcher()
+$UpdateDownloader = $UpdateSession.CreateUpdateDownloader()
+$UpdateInstaller = $UpdateSession.CreateUpdateInstaller()
 
-# Search for updates
-try {
-    Write-Output "Searching for updates..."
-    $pendingUpdates = Get-WUList | Where-Object {$_.Status -ne "Installed" -and $_.Title -notmatch "firmware"}
-
-    # Check if there are updates available
-    if ($pendingUpdates.Count -eq 0) {
-        Write-Output "No updates available."
-        exit 0
-    } else {
-        Write-Output "$($pendingUpdates.Count) updates found."
+$SearchResult = $UpdateSearcher.Search("IsInstalled=0 AND Type='Software' AND IsHidden=0")
+if ($SearchResult.Updates.Count -gt 0) {
+    $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl
+    foreach ($Update in $SearchResult.Updates) {
+        if ($Update.Type -ne 'Driver') { # Exclude firmware updates
+            $UpdatesToInstall.Add($Update) | Out-Null
+            $Update.Title | Out-File -FilePath $logPath -Append
+        }
     }
-
-    # Download and install updates
-    Write-Output "Downloading and installing updates..."
-    Install-WindowsUpdate -AcceptAll -AutoReboot -IgnoreReboot
-
-    Write-Output "Windows Update completed."
+    
+    if ($UpdatesToInstall.Count -gt 0) {
+        $UpdateDownloader.Updates = $UpdatesToInstall
+        $DownloadResult = $UpdateDownloader.Download()
+        
+        if ($DownloadResult.ResultCode -eq 2) { # 2 means some updates failed to download
+            Write-Output "Some updates failed to download." | Out-File -FilePath $logPath -Append
+            exit 1
+        }
+        
+        $UpdateInstaller.Updates = $UpdatesToInstall
+        $InstallResult = $UpdateInstaller.Install()
+        
+        if ($InstallResult.ResultCode -eq 2) { # 2 means some updates failed to install
+            Write-Output "Some updates failed to install." | Out-File -FilePath $logPath -Append
+            exit 1
+        }
+    } else {
+        Write-Output "No applicable updates to install." | Out-File -FilePath $logPath -Append
+        exit 0
+    }
+} else {
+    Write-Output "No updates pending." | Out-File -FilePath $logPath -Append
     exit 0
-} catch {
-    Write-Error "An error occurred during the update process: $_"
-    exit 1
 }

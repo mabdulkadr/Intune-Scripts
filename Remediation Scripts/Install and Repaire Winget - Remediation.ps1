@@ -1,4 +1,4 @@
-﻿﻿<#
+﻿<#
 .SYNOPSIS
     This script installs Winget components, updates all installed applications, installs the Microsoft Company Portal, and performs necessary setup steps.
 

@@ -1,12 +1,13 @@
 <#
 .SYNOPSIS
-    This script detects all installed versions of Mozilla Firefox on a machine.
+    This script detects all installed versions of Mozilla Firefox on a machine and checks for the existence of specific Firefox-related directories.
 
 .DESCRIPTION
     The script performs the following actions:
     1. Searches the Windows registry for installed versions of Mozilla Firefox.
     2. Outputs a list of installed versions along with their details.
     3. Logs the detection process and results to a specified log file.
+    4. Checks for the existence of remaining Firefox directories, including "C:\Program Files (x86)\Mozilla Firefox" and "C:\Program Files (x86)\Mozilla Maintenance Service".
 
 .NOTES
     Author: M.omar
@@ -69,4 +70,18 @@ if ($installedVersions.Count -gt 0) {
     }
 } else {
     Log-Message "No installed versions of Mozilla Firefox were found on this machine."
+}
+
+# Check for existence of remaining Firefox directories
+$firefoxDirs = @(
+    "$env:ProgramFiles\Mozilla Firefox",
+    "$env:ProgramFiles(x86)\Mozilla Firefox",
+    "$env:ProgramFiles\Mozilla Maintenance Service",
+    "$env:ProgramFiles(x86)\Mozilla Maintenance Service"
+)
+
+foreach ($dir in $firefoxDirs) {
+    if (Test-Path $dir) {
+        Log-Message "Remaining directory found: $dir"
+    }
 }
