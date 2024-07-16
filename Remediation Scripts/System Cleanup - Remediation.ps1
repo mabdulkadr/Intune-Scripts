@@ -31,7 +31,7 @@ function Log {
     param (
         [string]$message
     )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $timestamp = Get-Date -Format "ddyyyy-MM-dd HH:mm:ss"
     $logMessage = "$timestamp - $message"
     Write-Output $logMessage
     Add-Content -Path $logFile -Value $logMessage
@@ -133,15 +133,6 @@ foreach ($folder in $otherTempFolders) {
 
 Log "System cleanup completed."
 
-#------------------------------------------------------------------#
-#- Create a completion file                                        #
-#------------------------------------------------------------------#
-
-$completionFilePath = "C:\Intune\SystemCleanup.txt"
-if (-not (Test-Path $completionFilePath)) {
-    New-Item -Path $completionFilePath -ItemType File -Value "System cleanup completed."
-    Log "Created completion file: $completionFilePath"
-}
 
 #------------------------------------------------------------------#
 #- Clear-GlobalWindowsCache                                        #
