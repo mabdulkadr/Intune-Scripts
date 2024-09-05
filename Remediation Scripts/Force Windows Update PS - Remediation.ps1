@@ -35,23 +35,14 @@ Ensure-Module -ModuleName "PSWindowsUpdate"
 # Import the PSWindowsUpdate module
 Import-Module PSWindowsUpdate
 
-# Get the list of available updates, excluding firmware updates
-$Updates = Get-WindowsUpdate -ComputerName localhost -AcceptAll
+# Get the list of available updates
+$Updates = Get-WindowsUpdate -ComputerName localhost -AcceptAll -Install -Silent -Verbose
 
 # Check if there are any pending updates
-if ($Updates.Count -gt 0) {
+
     # Install all pending updates
     Write-Output "Installing $($Updates.Count) pending Windows Updates..."
-    Install-WindowsUpdate -AcceptAll -AutoReboot 
-    # Reboot the system if needed
-    if ($LastExitCode -eq 3010) {
-        Write-Output "The system requires a reboot to complete the update installation. Rebooting now..."
-        Restart-Computer -Force
-    } else {
-        Write-Output "Updates installed successfully. No reboot required."
-    }
-} else {
-    Write-Output "No pending Windows Updates to install"
-}
+    Install-WindowsUpdate -AcceptAll
+    
 
 # This script installs all pending updates and may require a reboot.
