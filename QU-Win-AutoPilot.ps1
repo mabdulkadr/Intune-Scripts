@@ -8,6 +8,7 @@ Note that it is normal for the resulting CSV file to not collect a Windows Produ
 Only the serial number and hardware hash will be populated.
 
 #>
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
 
 [CmdletBinding(DefaultParameterSetName = 'Default')]
 param(
