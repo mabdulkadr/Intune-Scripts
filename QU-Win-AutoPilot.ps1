@@ -6,10 +6,7 @@ DESCRIPTION
 This script uses WMI to retrieve properties needed for a customer to register a device with Windows Autopilot. 
 Note that it is normal for the resulting CSV file to not collect a Windows Product ID (PKID) value since this is not required to register a device. 
 Only the serial number and hardware hash will be populated.
-
 #>
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
-
 [CmdletBinding(DefaultParameterSetName = 'Default')]
 param(
 	[Parameter(Mandatory=$False,ValueFromPipeline=$True,ValueFromPipelineByPropertyName=$True,Position=0)][alias("DNSHostName","ComputerName","Computer")] [String[]] $Name = @("localhost"),
@@ -40,6 +37,7 @@ param(
 Begin
 
 {
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
 
     clear
     Write-Host ""
