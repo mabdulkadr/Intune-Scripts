@@ -1,1 +1,12 @@
 # Intune
+This repository provides a variety of scripts, configurations, and resources for Microsoft Intune to help IT administrators manage and automate tasks in a secure, efficient, and scalable way. From application deployment to policy management, these tools empower organizations to get the most out of Intune.
+
+# Overview
+This repository is designed to centralize resources related to Microsoft Intune management, helping administrators and IT professionals deploy applications, enforce compliance, manage policies, and gather reports on managed devices. By utilizing PowerShell, Microsoft Graph API, and Intune’s REST API, these resources provide efficient and automated solutions for Intune management.
+
+# Features
+Application Deployment: Automate application deployment, updates, and management through Intune.
+Device Compliance: Scripts to ensure devices meet company compliance requirements.
+Policy Management: Automate the creation, deployment, and management of Intune policies.
+Reporting and Monitoring: Gather detailed reports on device compliance, application statuses, and policy deployment.
+Remediation Scripts: Easily remediate issues on non-compliant devices using automation.
