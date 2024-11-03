@@ -34,10 +34,6 @@ param (
     [string]$AppSecret = "<Your Client Secret>"
 )
 
-# This script automates the process of installing the necessary Microsoft Graph PowerShell modules,
-# authenticating to Microsoft Graph using app-based authentication,
-# fetching Windows driver updates that require review,
-# and automatically approving them for deployment in Microsoft Intune.
 
 ####################################################
 # Install and Import Microsoft Graph Modules
