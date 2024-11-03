@@ -18,8 +18,9 @@
     .\IntuneDriverApproveBulk -AppAuth.ps1 -TenantID "your-tenant-id" -AppID "your-app-id" -AppSecret "your-app-secret"
 
 .NOTES
-    Author: Your Name
-    Date: 2024-11-03
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-03
 #>
 
 # Define script parameters with default values

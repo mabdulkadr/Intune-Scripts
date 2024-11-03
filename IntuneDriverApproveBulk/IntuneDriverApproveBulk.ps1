@@ -9,8 +9,9 @@
     .\IntuneDriverApproveBulk.ps1
 
 .NOTES
-    Author: Your Name
-    Date: 2024-11-03
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-03
 #>
 
 
