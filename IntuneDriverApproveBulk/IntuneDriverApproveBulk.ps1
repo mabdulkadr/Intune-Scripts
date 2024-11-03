@@ -13,10 +13,6 @@
     Date: 2024-11-03
 #>
 
-# This script automates the process of installing the necessary Microsoft Graph PowerShell modules,
-# authenticating to Microsoft Graph using a user account (supports MFA),
-# fetching Windows driver updates that require review,
-# and automatically approving them for deployment in Microsoft Intune.
 
 ####################################################
 # Install and Import Microsoft Graph Modules
