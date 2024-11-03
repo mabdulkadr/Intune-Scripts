@@ -126,13 +126,6 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
-
-For questions or suggestions, feel free to contact:
-
-- **Author**: Mohammad Omar
-- **Website**: [momar.tech](https://momar.tech)
-
 ## Disclaimer
 
 These scripts are provided "as is" without warranty of any kind. Use them at your own risk. Always test scripts in a controlled environment before deploying them in a production environment.
