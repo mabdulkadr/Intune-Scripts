@@ -1,76 +1,102 @@
-
 # Automate Windows Driver Update Approvals in Microsoft Intune
 
-This PowerShell script automates the process of fetching Windows driver updates that require review and approving them for deployment in Microsoft Intune using Microsoft Graph API.
+This repository contains two PowerShell scripts that automate the approval of pending Windows driver updates in Microsoft Intune using the Microsoft Graph API.
 
+- **`IntuneDriverApproveBulk.ps1`**: Uses user-based authentication (supports MFA).
+- **`IntuneDriverApproveBulk-AppAuth.ps1`**: Uses app-based authentication with Azure AD application credentials.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Scripts Description](#scripts-description)
+  - [IntuneDriverApproveBulk.ps1](#intunedriverapprovebulkps1)
+  - [IntuneDriverApproveBulk-AppAuth.ps1](#intunedriverapprovebulk-appauthps1)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Using IntuneDriverApproveBulk.ps1](#using-intunedriverapprovebulkps1)
+  - [Using IntuneDriverApproveBulk-AppAuth.ps1](#using-intunedriverapprovebulk-appauthps1)
+- [Permissions](#permissions)
+- [Authentication Methods](#authentication-methods)
+- [Script Breakdown](#script-breakdown)
+- [Error Handling](#error-handling)
+- [Security Considerations](#security-considerations)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
 
 ## Overview
 
-Managing driver updates in an enterprise environment can be time-consuming. This script simplifies the process by:
-
-- Installing necessary Microsoft Graph PowerShell modules.
-- Authenticating to Microsoft Graph using a user account (supports MFA).
-- Fetching Windows driver updates that are pending review.
-- Automatically approving these driver updates for deployment in Microsoft Intune.
-- Handling pagination and ensuring all applicable drivers are processed.
+Managing driver updates in an enterprise environment can be complex and time-consuming. These scripts simplify the process by automating the approval of Windows driver updates that require review in Microsoft Intune.
 
 ## Prerequisites
 
-Before using this script, ensure you have the following:
+- **Operating System**: Windows 10 or later.
+- **PowerShell Version**: 5.1 or higher (PowerShell Core is also supported).
+- **Microsoft .NET Framework**: 4.7.2 or later.
+- **Network Access**: Internet connectivity to access the PowerShell Gallery and Microsoft Graph API.
+- **Azure AD Account/App Registration**:
+  - For user-based authentication: An account with the necessary permissions.
+  - For app-based authentication: An Azure AD application with appropriate permissions and admin consent.
 
-- **Operating System:** Windows 10 or later.
-- **PowerShell Version:** 5.1 or higher (PowerShell Core is also supported).
-- **Microsoft .NET Framework:** 4.7.2 or later.
-- **Network Access:** Internet connectivity to access the PowerShell Gallery and Microsoft Graph API.
-- **Azure AD Account:** An account with the necessary permissions to manage Intune driver updates.
+## Scripts Description
+
+### IntuneDriverApproveBulk.ps1
+
+- **Authentication Method**: User-based authentication (supports MFA).
+- **Purpose**: Connects to Microsoft Graph using a user account, fetches pending driver updates, and approves them for deployment in Intune.
+- **Use Case**: Ideal for scenarios where you prefer to authenticate interactively or when MFA is enforced.
+
+### IntuneDriverApproveBulk-AppAuth.ps1
+
+- **Authentication Method**: App-based authentication using Azure AD application credentials.
+- **Purpose**: Connects to Microsoft Graph using app credentials (Tenant ID, App ID, App Secret), fetches pending driver updates, and approves them for deployment in Intune.
+- **Use Case**: Suitable for automation scenarios where interactive sign-in is not feasible, such as scheduled tasks or CI/CD pipelines.
 
 ## Installation
 
-1. **Clone the Repository:**
+1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone https://github.com/mabdulkadr/IntuneDriverApproveBulk.git
    ```
 
-2. **Navigate to the Script Location:**
+2. **Navigate to the Script Location**:
 
    ```bash
-   cd your-repo-name
+   cd IntuneDriverApproveBulk
    ```
 
-3. **Verify Script Execution Policy:**
+3. **Verify Script Execution Policy**:
 
-   Ensure your PowerShell execution policy allows running scripts. You can check and set it using:
+   Ensure your PowerShell execution policy allows running scripts.
 
    ```powershell
    Get-ExecutionPolicy
    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
 
-## Authentication
-
-The script uses user-based authentication to connect to Microsoft Graph, which supports Multi-Factor Authentication (MFA).
-
-- **Scopes Requested:** `DeviceManagementConfiguration.ReadWrite.All`
-- **Permissions Required:** The account must have at least the `Intune Administrator` role or equivalent permissions in Azure AD.
-
 ## Usage
 
-1. **Run the Script:**
+### Using IntuneDriverApproveBulk.ps1
 
-   Open PowerShell with appropriate privileges and execute the script:
+#### Steps:
+
+1. **Run the Script**:
 
    ```powershell
-   .\Approve-IntuneDriverUpdates.ps1
+   .\IntuneDriverApproveBulk.ps1
    ```
 
-2. **Authentication Prompt:**
+2. **Authentication Prompt**:
 
    - A sign-in window will appear.
    - Log in with your Azure AD account that has the necessary permissions.
    - Complete any MFA prompts if required.
 
-3. **Script Execution:**
+3. **Script Execution**:
 
    - The script will install any missing modules.
    - It will connect to Microsoft Graph.
@@ -78,37 +104,162 @@ The script uses user-based authentication to connect to Microsoft Graph, which s
    - Approve the drivers for deployment.
    - Disconnect from Microsoft Graph upon completion.
 
-4. **Monitoring Progress:**
+4. **Monitoring Progress**:
 
    - The console will display messages indicating the progress and any errors encountered.
    - Successful approvals will be highlighted in green.
    - Any failures will be highlighted in red.
 
+### Using IntuneDriverApproveBulk-AppAuth.ps1
+
+#### Steps:
+
+1. **Prepare Azure AD App Registration**:
+
+   - **Register an Application** in Azure AD.
+   - **Assign API Permissions**:
+     - `DeviceManagementConfiguration.ReadWrite.All` (Application permission).
+   - **Grant Admin Consent** for the application permissions.
+   - **Generate a Client Secret** and note the value.
+
+2. **Update Script Parameters**:
+
+   - Open `IntuneDriverApproveBulk-AppAuth.ps1` in a text editor.
+   - Replace the placeholder values in the `param` block at the top of the script with your actual credentials:
+
+     ```powershell
+     param (
+         [Parameter(Mandatory = $true)]
+         [string]$TenantID = "your-tenant-id",
+
+         [Parameter(Mandatory = $true)]
+         [string]$AppID = "your-app-id",
+
+         [Parameter(Mandatory = $true)]
+         [string]$AppSecret = "your-app-secret"
+     )
+     ```
+
+3. **Run the Script**:
+
+   ```powershell
+   .\IntuneDriverApproveBulk-AppAuth.ps1
+   ```
+
+   Alternatively, pass the parameters directly:
+
+   ```powershell
+   .\IntuneDriverApproveBulk-AppAuth.ps1 -TenantID "your-tenant-id" -AppID "your-app-id" -AppSecret "your-app-secret"
+   ```
+
+4. **Script Execution**:
+
+   - The script will install any missing modules.
+   - It will connect to Microsoft Graph using app-based authentication.
+   - Fetch driver updates needing review.
+   - Approve the drivers for deployment.
+   - Disconnect from Microsoft Graph upon completion.
+
+5. **Monitoring Progress**:
+
+   - Similar to the user-based script, monitor the console output for progress and errors.
 
 ## Permissions
 
-Ensure the account used to run this script has the necessary permissions:
+- **For User-Based Authentication**:
+  - **Azure AD Role**: Intune Administrator or equivalent.
+  - **Microsoft Graph Permissions**: `DeviceManagementConfiguration.ReadWrite.All` (Delegated permission).
+- **For App-Based Authentication**:
+  - **Azure AD App Registration** with:
+    - **Application Permission**: `DeviceManagementConfiguration.ReadWrite.All`.
+    - **Admin Consent** granted for the permission.
 
-- **Azure AD Role:** Intune Administrator or equivalent.
-- **Microsoft Graph Permissions:** `DeviceManagementConfiguration.ReadWrite.All`
+## Authentication Methods
+
+- **User-Based Authentication**:
+  - Interactive login.
+  - Supports Multi-Factor Authentication (MFA).
+  - Requires a user account with necessary permissions.
+- **App-Based Authentication**:
+  - Non-interactive login using client credentials flow.
+  - Suitable for automation and scripts running unattended.
+  - Requires Azure AD app registration with appropriate permissions.
+
+## Script Breakdown
+
+Both scripts perform the following actions:
+
+1. **Module Installation and Import**:
+   - Ensures that the necessary Microsoft Graph PowerShell modules are installed and imported:
+     - `Microsoft.Graph.Authentication`
+     - `Microsoft.Graph.Beta.DeviceManagement.Actions`
+
+2. **Authentication**:
+   - **IntuneDriverApproveBulk.ps1**: Uses `Connect-MgGraph` with user-based authentication.
+   - **IntuneDriverApproveBulk-AppAuth.ps1**: Includes a `Connect-ToGraph` function to authenticate using app credentials.
+
+3. **Fetching and Approving Driver Updates**:
+   - Retrieves all Windows driver update profiles.
+   - For each profile, fetches driver inventories needing review.
+   - Approves each driver by executing the "Approve" action via Microsoft Graph API.
+   - Handles pagination to process all drivers.
+
+4. **Disconnecting**:
+   - Cleanly disconnects from Microsoft Graph to free up resources.
+
+## Error Handling
+
+- **Module Installation Errors**:
+  - If a module fails to install, the script outputs an error message and exits.
+- **Driver Approval Errors**:
+  - If a driver fails to approve, the script outputs an error message but continues processing other drivers.
+- **General Exceptions**:
+  - The scripts use try-catch blocks to handle exceptions and provide meaningful error messages.
+
+## Security Considerations
+
+- **App Secrets**:
+  - Avoid hardcoding sensitive information like `AppSecret` in scripts.
+  - Consider using secure methods to store and retrieve secrets, such as Azure Key Vault or encrypted credential stores.
+- **Script Storage**:
+  - Store scripts securely and restrict access to authorized personnel.
+- **Version Control**:
+  - If using version control systems (e.g., Git), ensure that secrets are not committed to the repository.
+- **Testing**:
+  - Always test scripts in a non-production environment before running them in production.
 
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
 
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature/your-feature-name`.
-3. Commit your changes: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature/your-feature-name`.
-5. Open a pull request.
+1. **Fork the Repository**.
+
+2. **Create a New Branch**:
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Commit Your Changes**:
+
+   ```bash
+   git commit -am 'Add new feature'
+   ```
+
+4. **Push to the Branch**:
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+5. **Open a Pull Request**.
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
+
 ---
 
-**Disclaimer:** Use this script at your own risk. Ensure you understand its impact before running it in a production environment. Always test in a controlled setting.
-
-
+**Disclaimer**: Use these scripts at your own risk. Ensure you understand their impact before running them in a production environment. Always review and test scripts thoroughly.
 
