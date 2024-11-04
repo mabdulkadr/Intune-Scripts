@@ -37,12 +37,6 @@ This PowerShell script checks if IPv6 is currently disabled on all network adapt
 .\Detect-IPv6Disabled.ps1
 ```
 
-#### Notes
-
-- **Author**: Mohammad Abdulkader Omar
-- **Website**: [momar.tech](https://momar.tech)
-- **Date**: 2023-11-04
-
 ### Remediation Script: `Remediate-DisableIPv6.ps1`
 
 #### Synopsis
@@ -58,12 +52,6 @@ This PowerShell script automates the process of disabling IPv6 bindings on all n
 ```powershell
 .\Remediate-DisableIPv6.ps1
 ```
-
-#### Notes
-
-- **Author**: Mohammad Abdulkader Omar
-- **Website**: [momar.tech](https://momar.tech)
-- **Date**: 2023-11-04
 
 ## Usage Instructions
 
