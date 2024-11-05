@@ -45,9 +45,6 @@ Run the script with administrator privileges:
 - `0`: Sufficient free space available.
 - `1`: Free space below the threshold.
 
-**Example Usage in Automation**:
-
-You can use this script in conjunction with task schedulers or monitoring tools to trigger cleanup operations when disk space is low.
 
 ### 2. Remediation Script
 
