@@ -1,5 +1,5 @@
 
-# Get-CleanUpDisk
+# CleanUpDisk
 
 ## Overview
 
