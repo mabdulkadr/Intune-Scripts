@@ -2,17 +2,6 @@
 
 **IntuneWinAppUtilGUI** is a graphical user interface (GUI) for the **Microsoft Win32 Content Prep Tool**, a tool that packages Win32 applications for deployment via **Microsoft Intune**. This utility simplifies the application packaging process by providing a user-friendly interface, making it easier for IT administrators to package and deploy applications in an Intune-managed environment.
 
-## 📄 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Overview
 
 The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep Tool** (`IntuneWinAppUtil.exe`) and wraps it with a GUI for easier packaging of applications for deployment through Intune. By streamlining the process of creating `.intunewin` files, this tool saves time and reduces potential errors in application packaging.
@@ -75,25 +64,6 @@ The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep 
 - **Missing `IntuneWinAppUtil.exe`**: Ensure `IntuneWinAppUtil.exe` is in the same directory as the GUI.
 - **Permission Errors**: Run the GUI with administrative privileges if you encounter access issues.
 - **Incomplete Packaging**: Double-check that the source folder and setup file paths are correctly specified.
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork the Repository**.
-2. **Create a New Branch**:
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-3. **Commit Your Changes**:
-   ```bash
-   git commit -m "Add your message here"
-   ```
-4. **Push to Your Branch**:
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
-5. **Open a Pull Request**.
 
 ## License
 
