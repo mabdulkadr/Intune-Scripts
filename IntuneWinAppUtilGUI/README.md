@@ -26,7 +26,7 @@ The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep 
 1. **Launch the GUI**:
 
    ```powershell
-   .\IntuneDriverApproveBulk.ps1
+   .\PSGUIIntuneWinAppUtility.ps1
    ```
 
 2. **Select Source Folder**:
