@@ -238,7 +238,6 @@ $bsourcefile.Add_Click({
     $tsourcefile.isenabled=$true
     $openSourceFileDialog = New-Object -TypeName System.Windows.Forms.OpenFileDialog
     $openSourceFileDialog.initialDirectory = $sourceFolderPath
-    $openSourceFileDialog.filter = 'Executable Files|*.exe;*.msi;*.ps1;*.bat'
     $openSourceFileDialog.ShowDialog() | Out-Null
     $global:sourceFilePath = $openSourceFileDialog.filename
     $tsourcefile.text = $sourceFilePath
