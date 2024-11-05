@@ -3,19 +3,6 @@
 
 Automate the detection and updating of essential software applications using PowerShell and Winget.
 
-## 📄 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Scheduling](#scheduling)
-- [Customization](#customization)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Overview
 
 This repository contains PowerShell scripts to **detect** and **update** a set of essential software applications within an organization. Leveraging the Windows Package Manager (`winget.exe`), these scripts ensure that critical applications remain up-to-date, enhancing security and performance with minimal manual effort.
@@ -38,17 +25,6 @@ This repository contains PowerShell scripts to **detect** and **update** a set o
   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
   ```
 - **Internet Connectivity:** Required for downloading updates via Winget.
-
-## Installation
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/yourusername/software-update-scripts.git
-   ```
-2. **Navigate to the Directory:**
-   ```bash
-   cd software-update-scripts
-   ```
 
 ## Usage
 
@@ -80,18 +56,6 @@ Updates the specified applications to their latest versions.
 .\Remediate-SoftwareUpdates.ps1
 ```
 
-## Scheduling
-
-Automate script execution using **Task Scheduler**:
-
-1. **Open Task Scheduler** (`taskschd.msc`).
-2. **Create a New Task** with appropriate triggers (e.g., daily at 2 AM).
-3. **Set Actions** to run PowerShell with the desired script:
-   ```powershell
-   -ExecutionPolicy Bypass -File "C:\Path\To\Script\Detect-SoftwareUpdates.ps1"
-   ```
-4. **Configure Security Options** to run with highest privileges.
-
 ## Customization
 
 ### Adding More Applications
@@ -116,22 +80,6 @@ Automate script execution using **Task Scheduler**:
 - **Execution Policy Restrictions:** Adjust using `Set-ExecutionPolicy`.
 - **Application Not Updating:** Verify Winget ID and check for specific update requirements.
 
-## Contributing
-
-Contributions are welcome! To contribute:
-
-1. **Fork the Repository.**
-2. **Create a New Branch:**
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-3. **Make Your Changes.**
-4. **Commit and Push:**
-   ```bash
-   git commit -m "Add your message here"
-   git push origin feature/YourFeatureName
-   ```
-5. **Open a Pull Request.**
 
 ## License
 
