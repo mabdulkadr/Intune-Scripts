@@ -38,24 +38,6 @@ Ensure that the Azure AD application or user account has the following Microsoft
 - `DeviceManagementManagedDevices.ReadWrite.All`
 - `DeviceManagementManagedDevices.PrivilegedOperations.All`
 
-## Installation
-
-1. **Clone the Repository**
-
-   ```bash
-   git clone https://github.com/mabdulkadr/SynAllIntunedevices.git
-   ```
-
-2. **Navigate to the Directory**
-
-   ```bash
-   cd IntuneDeviceSync
-   ```
-
-3. **Install Required Modules**
-
-   The scripts will automatically install the required Microsoft Graph modules if they are not already installed.
-
 ## Usage
 
 ### SynsAllIntuneDevices.ps1 (User-Based Authentication)
