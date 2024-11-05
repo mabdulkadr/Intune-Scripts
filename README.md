@@ -11,22 +11,6 @@ This repository is designed to centralize resources related to Microsoft Intune 
 - **Reporting and Monitoring:** Gather detailed reports on device compliance, application statuses, and policy deployment.
 - **Remediation Scripts:** Easily remediate issues on non-compliant devices using automation.
 
-## Contributing
-
-Contributions are welcome! To contribute:
-
-1. **Fork the Repository.**
-2. **Create a New Branch:**
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-3. **Make Your Changes.**
-4. **Commit and Push:**
-   ```bash
-   git commit -m "Add your message here"
-   git push origin feature/YourFeatureName
-   ```
-5. **Open a Pull Request.**
 
 ## License
 
