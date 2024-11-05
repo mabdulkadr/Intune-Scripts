@@ -5,28 +5,6 @@ This repository contains two PowerShell scripts that automate the approval of pe
 - **`IntuneDriverApproveBulk.ps1`**: Uses user-based authentication (supports MFA).
 - **`IntuneDriverApproveBulk-AppAuth.ps1`**: Uses app-based authentication with Azure AD application credentials.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Scripts Description](#scripts-description)
-  - [IntuneDriverApproveBulk.ps1](#intunedriverapprovebulkps1)
-  - [IntuneDriverApproveBulk-AppAuth.ps1](#intunedriverapprovebulk-appauthps1)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Using IntuneDriverApproveBulk.ps1](#using-intunedriverapprovebulkps1)
-  - [Using IntuneDriverApproveBulk-AppAuth.ps1](#using-intunedriverapprovebulk-appauthps1)
-- [Permissions](#permissions)
-- [Authentication Methods](#authentication-methods)
-- [Script Breakdown](#script-breakdown)
-- [Error Handling](#error-handling)
-- [Security Considerations](#security-considerations)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-
----
-
 ## Overview
 
 Managing driver updates in an enterprise environment can be complex and time-consuming. These scripts simplify the process by automating the approval of Windows driver updates that require review in Microsoft Intune.
@@ -55,28 +33,6 @@ Managing driver updates in an enterprise environment can be complex and time-con
 - **Purpose**: Connects to Microsoft Graph using app credentials (Tenant ID, App ID, App Secret), fetches pending driver updates, and approves them for deployment in Intune.
 - **Use Case**: Suitable for automation scenarios where interactive sign-in is not feasible, such as scheduled tasks or CI/CD pipelines.
 
-## Installation
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone https://github.com/mabdulkadr/IntuneDriverApproveBulk.git
-   ```
-
-2. **Navigate to the Script Location**:
-
-   ```bash
-   cd IntuneDriverApproveBulk
-   ```
-
-3. **Verify Script Execution Policy**:
-
-   Ensure your PowerShell execution policy allows running scripts.
-
-   ```powershell
-   Get-ExecutionPolicy
-   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
 
 ## Usage
 
@@ -228,31 +184,6 @@ Both scripts perform the following actions:
 - **Testing**:
   - Always test scripts in a non-production environment before running them in production.
 
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork the Repository**.
-
-2. **Create a New Branch**:
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Commit Your Changes**:
-
-   ```bash
-   git commit -am 'Add new feature'
-   ```
-
-4. **Push to the Branch**:
-
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-5. **Open a Pull Request**.
 
 ## License
 
