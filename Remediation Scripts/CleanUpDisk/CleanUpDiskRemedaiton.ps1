@@ -24,7 +24,7 @@
     Administrator
 
 .EXAMPLE
-    .\Get-CleanUpDiskRemedaiton.ps1
+    .\CleanUpDiskRemedaiton.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
