@@ -20,28 +20,14 @@ The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep 
 - **Microsoft Win32 Content Prep Tool**: `IntuneWinAppUtil.exe` should be downloaded and placed in the same directory as the script.
   - You can download the Win32 Content Prep Tool from the Microsoft official site: [Download Here](https://learn.microsoft.com/mem/intune/apps/apps-win32-app-management#prepare-the-win32-app-content)
 
-## Installation
-
-1. **Download the Repository**:
-   ```bash
-   git clone https://github.com/mabdulkadr/Intune.git
-   ```
-
-2. **Navigate to the IntuneWinAppUtilGUI Folder**:
-   ```bash
-   cd Intune/IntuneWinAppUtilGUI
-   ```
-
-3. **Place `IntuneWinAppUtil.exe` in the Directory**:
-   - Download `IntuneWinAppUtil.exe` from the Microsoft official site and save it in the same directory as the script.
-
-4. **Run the Script**:
-   - Double-click `IntuneWinAppUtilGUI.exe` to launch the GUI.
 
 ## Usage
 
 1. **Launch the GUI**:
-   - Open the application by double-clicking `IntuneWinAppUtilGUI.exe`.
+
+   ```powershell
+   .\IntuneDriverApproveBulk.ps1
+   ```
 
 2. **Select Source Folder**:
    - Choose the folder containing the application files to be packaged.
