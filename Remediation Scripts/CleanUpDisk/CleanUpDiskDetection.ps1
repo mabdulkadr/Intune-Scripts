@@ -12,7 +12,7 @@
     Administrator
 
 .EXAMPLE
-    .\Get-CleanUpDiskDetection.ps1
+    .\CleanUpDiskDetection.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
