@@ -1,4 +1,7 @@
 # Intune Device Sync Scripts
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-7.0%2B-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
 Automates the synchronization of all enrolled devices in Microsoft Intune via Microsoft Graph API.
 
