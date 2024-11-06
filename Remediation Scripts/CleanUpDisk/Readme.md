@@ -1,6 +1,10 @@
 
 # CleanUpDisk
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-7.0%2B-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+
 ## Overview
 
 `CleanUpDisk` is a set of PowerShell scripts designed to monitor disk space and perform automated cleanup of unnecessary files on Windows systems. These scripts help maintain optimal disk utilization by checking available space and executing disk cleanup tasks when needed.
