@@ -1,4 +1,7 @@
 # IntuneWinAppUtilGUI
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-7.0%2B-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
 **IntuneWinAppUtilGUI** is a graphical user interface (GUI) for the **Microsoft Win32 Content Prep Tool**, a tool that packages Win32 applications for deployment via **Microsoft Intune**. This utility simplifies the application packaging process by providing a user-friendly interface, making it easier for IT administrators to package and deploy applications in an Intune-managed environment.
 
