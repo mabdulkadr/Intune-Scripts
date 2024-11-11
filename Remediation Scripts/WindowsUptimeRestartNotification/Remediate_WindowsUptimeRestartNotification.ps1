@@ -1,7 +1,24 @@
-﻿<#
-Script: Remediate_WindowsUptimeRestartNotification.ps1
-Description: Checks the device's uptime in days. If it has been 7 days or more since the last reboot, it shows a Windows notification prompting the user to restart. The notification supports both English and Arabic languages based on the system language settings and includes "Restart Now" and "Restart Later" buttons.
-Version 1.2: Added "Restart Now" and "Restart Later" buttons with language support
+﻿
+<#
+.SYNOPSIS
+    Checks the device's uptime and notifies the user if a reboot is recommended.
+
+.DESCRIPTION
+    This script evaluates the device's uptime in days. If the system has not been rebooted for 7 days or more, it displays a Windows toast notification prompting the user to restart. The notification supports both English and Arabic languages based on the system language settings and includes "Restart Now" and "Restart Later" buttons.
+
+.HINT
+    This is a community script. There is no guarantee for this. Please check thoroughly before running.
+
+.RUN AS
+    User
+
+.EXAMPLE
+    .\Remediate_WindowsUptimeRestartNotification.ps1
+
+.NOTES
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-11
 #>
 
 function Display-ToastNotification() {

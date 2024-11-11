@@ -1,8 +1,25 @@
 <#
-Script: Detect_WindowsUptimeRestartNotification.ps1
-Description: Checks the device uptime days. If its 7 days or more it shows a windows notification to the user that he should reboot.
-Hint: This is a community script. There is no guarantee for this. Please check thoroughly before running.
-#> 
+.SYNOPSIS
+    Checks the device uptime and exits with a code indicating if a reboot is recommended.
+
+.DESCRIPTION
+    This script evaluates the device's uptime in days. If the system has not been rebooted for 7 days or more, it exits with code 1, indicating that a reboot is recommended. Otherwise, it exits with code 0.
+
+.HINT
+    This is a community script. There is no guarantee for this. Please check thoroughly before running.
+
+.RUN AS
+    User
+
+.EXAMPLE
+    .\Detect_WindowsUptimeRestartNotification.ps1
+
+.NOTES
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-11
+
+#>
 
 $Uptime= get-computerinfo | Select-Object OSUptime 
 if ($Uptime.OsUptime.Days -ge 7){
