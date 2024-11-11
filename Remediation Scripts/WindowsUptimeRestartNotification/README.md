@@ -28,7 +28,6 @@ This repository contains two PowerShell scripts designed to monitor your Windows
 - **Custom Imagery**: Displays custom logos and hero images in the notification.
 - **User-Friendly Messages**: Provides detailed information on why a reboot is necessary.
 
-#
 
 ## Prerequisites
 
