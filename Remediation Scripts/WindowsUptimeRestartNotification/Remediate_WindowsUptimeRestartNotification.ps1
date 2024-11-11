@@ -6,9 +6,6 @@
 .DESCRIPTION
     This script evaluates the device's uptime in days. If the system has not been rebooted for 7 days or more, it displays a Windows toast notification prompting the user to restart. The notification supports both English and Arabic languages based on the system language settings and includes "Restart Now" and "Restart Later" buttons.
 
-.HINT
-    This is a community script. There is no guarantee for this. Please check thoroughly before running.
-
 .RUN AS
     User
 
