@@ -12,7 +12,6 @@ This repository contains two PowerShell scripts designed to notify users about t
 
 2. **Remediate_Windows11UpgradeNotification.ps1**: A remediation script that displays a Windows toast notification informing the user that the Windows 11 upgrade is available. The notification supports both English and Arabic languages based on the system language settings.
 
----
 
 ## Scripts
 
@@ -63,7 +62,6 @@ This script shows a Windows toast notification indicating that a Windows 11 upgr
 - **Execution Policy**: Scripts should be allowed to run (`RemoteSigned` or `Unrestricted`).
 - **Internet Access**: The remediation script downloads images from the internet. Ensure the device has internet connectivity or modify the script to use local images.
 
----
 
 ## Usage
 
@@ -89,7 +87,6 @@ This script shows a Windows toast notification indicating that a Windows 11 upgr
    - Displays a Windows toast notification informing the user about the Windows 11 upgrade availability.
    - The notification includes a button that opens Windows Update settings when clicked.
 
----
 
 ## Notes
 
@@ -99,7 +96,6 @@ This script shows a Windows toast notification indicating that a Windows 11 upgr
   - Adjust notification text to suit your organization's messaging.
   - Localize the notification to additional languages if needed.
 
----
 
 ## Troubleshooting
 
