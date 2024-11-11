@@ -4,6 +4,7 @@
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
+
 ## Introduction
 
 This repository contains two PowerShell scripts designed to notify users about the availability of the Windows 11 upgrade. The scripts are intended to work together:
@@ -54,6 +55,7 @@ This script shows a Windows toast notification indicating that a Windows 11 upgr
   ```powershell
   .\Remediate_Windows11UpgradeNotification.ps1
   ```
+
 
 ## Prerequisites
 
