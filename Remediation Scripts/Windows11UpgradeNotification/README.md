@@ -37,13 +37,6 @@ This script checks the current operating system version. If the device is runnin
   - `0`: No action needed (device is not running Windows 10).
   - `1`: Remediation needed (device is running Windows 10).
 
-#### Notes
-
-- **Author**: Mohammad Abdulkader Omar
-- **Website**: [momar.tech](https://momar.tech)
-- **Date**: 2024-11-11
-
-
 
 ### 2. Remediate_Windows11UpgradeNotification.ps1
 
@@ -62,14 +55,6 @@ This script shows a Windows toast notification indicating that a Windows 11 upgr
   ```powershell
   .\Remediate_Windows11UpgradeNotification.ps1
   ```
-
-#### Notes
-
-- **Author**: Mohammad Abdulkader Omar
-- **Website**: [momar.tech](https://momar.tech)
-- **Date**: 2024-11-11
-
-
 
 ## Prerequisites
 
