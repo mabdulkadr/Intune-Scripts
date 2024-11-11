@@ -1,5 +1,5 @@
 ﻿<#
-Script: WindowsUptimeRestartNotification.ps1
+Script: Remediate_WindowsUptimeRestartNotification.ps1
 Description: Checks the device's uptime in days. If it has been 7 days or more since the last reboot, it shows a Windows notification prompting the user to restart. The notification supports both English and Arabic languages based on the system language settings and includes "Restart Now" and "Restart Later" buttons.
 Version 1.2: Added "Restart Now" and "Restart Later" buttons with language support
 #>
