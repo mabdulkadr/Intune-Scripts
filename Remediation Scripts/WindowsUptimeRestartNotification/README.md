@@ -50,6 +50,13 @@ This repository contains two PowerShell scripts designed to monitor your Windows
 - **Restart Now**: Initiates a system restart immediately.
 - **Restart Later**: Dismisses the notification.
 
+## Notes
+
+- **Permissions**: Ensure the user running the scripts has the necessary permissions, especially when modifying registry entries.
+- **Customization**:
+  - Modify image URLs to use your organization's logos or images.
+  - Adjust notification text to suit your organization's messaging.
+  - Localize the notification to additional languages if needed.
 
 ## Troubleshooting
 

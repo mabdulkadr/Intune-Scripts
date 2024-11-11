@@ -5,6 +5,9 @@
 .DESCRIPTION
     This script evaluates the device's uptime in days. If the system has not been rebooted for 7 days or more, it exits with code 1, indicating that a reboot is recommended. Otherwise, it exits with code 0.
 
+.HINT
+    This is a community script. There is no guarantee for this. Please check thoroughly before running.
+
 .RUN AS
     User
 
