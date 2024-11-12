@@ -5,10 +5,13 @@
 .DESCRIPTION
     This script checks if a folder with the current date (formatted as yyyy-MM-dd) exists at the specified OneDrive backup path.
 
+.EXAMPLE
+    .\Detect_OneDriveBackaup.ps1
+
 .NOTES
-    Author: Your Name
-    Date: YYYY-MM-DD
-    Version: 1.0
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-04
 #>
 
 # ============================
