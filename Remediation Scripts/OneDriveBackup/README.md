@@ -10,7 +10,7 @@
 This repository contains two PowerShell scripts designed for use with Microsoft Intune's Proactive Remediation feature. The scripts help ensure that users' OneDrive for Business folders are properly backed up by detecting the presence of daily backup folders and creating backups when necessary.
 
 - **Detect_OneDriveBackup.ps1**: Detects whether a backup folder with today's date exists in the specified OneDrive backup path.
-- **Remediate_OneDriveBackup.ps1**: Creates a backup of the user's OneDrive Desktop folder to their OneDrive for Business account and manages backup retention.
+- **Remediate_OneDriveBackup.ps1**: Creates a backup of the user's OneDrive folders to their OneDrive for Business account and manages backup retention.
 
 ## Scripts
 
