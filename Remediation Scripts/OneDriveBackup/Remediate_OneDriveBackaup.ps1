@@ -7,9 +7,13 @@
     uploads files from the specified local folders, and retains backups for the last three days by cleaning up older backups.
     It includes robust error handling, chunked uploads for large files, and logging for troubleshooting.
 
+.EXAMPLE
+    .\Remediate_OneDriveBackaup.ps1
+
 .NOTES
-    Author: Your Name
-    Version: 2.1
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-11-04
 #>
 
 # ============================
