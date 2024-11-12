@@ -46,9 +46,9 @@ $todayFolderPath = Join-Path -Path $basePath -ChildPath $todayDate
 
 # Check if the folder with today's date exists
 if (Test-Path -Path $todayFolderPath) {
-    Write-Host "Folder with today's date ($todayDate) found at $todayFolderPath."
+    Write-Host "Folder with today's date ($todayDate) found at $todayFolderPath." -ForegroundColor Green
     exit 0  # Return 0 if the folder exists (compliant)
 } else {
-    Write-Host "Folder with today's date ($todayDate) not found at $todayFolderPath."
+    Write-Host "Folder with today's date ($todayDate) not found at $todayFolderPath." -ForegroundColor Red
     exit 1  # Return 1 if the folder does not exist (non-compliant)
 }
