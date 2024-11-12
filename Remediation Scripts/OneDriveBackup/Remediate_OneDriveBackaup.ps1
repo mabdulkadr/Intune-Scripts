@@ -24,7 +24,7 @@ $AppSecret             = ""       # Replace with your Application Secret (use se
 # Backup Configuration
 $BackupFolderName     = "OneDriveBackups"     # Name of the backup folder in OneDrive
 $BackupDateFormat     = "yyyy-MM-dd"          # Date format for backup folders
-$RetentionDays         = 3                    # Number of days to retain backups
+$RetentionDays        = 3                    # Number of days to retain backups
 
 # ============================
 #     MODULE IMPORT & SETUP
