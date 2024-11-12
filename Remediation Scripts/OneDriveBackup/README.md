@@ -116,6 +116,34 @@ Both scripts require configuration of certain variables to match your environmen
 
 ## Usage
 
+### Running Locally
+
+1. **Clone the Repository**:
+
+   ```bash
+   git clone https://github.com/Intune/Remediation%20Scripts/OneDriveBackupScripts.git
+   cd OneDriveBackupScripts
+   ```
+
+2. **Configure Scripts**:
+
+   - Open each script in a text editor.
+   - Update the variables as per your environment and Azure AD application details.
+
+3. **Execute Scripts**:
+
+   - **Detection**:
+
+     ```powershell
+     .\Detect_OneDriveBackup.ps1
+     ```
+
+   - **Remediation**:
+
+     ```powershell
+     .\Remediate_OneDriveBackup.ps1
+     ```
+     
 ### Deployment with Intune
 
 1. **Prepare Scripts**:
@@ -152,4 +180,39 @@ This project is licensed under the [MIT License](LICENSE).
 ---
 
 **Disclaimer**: Use these scripts at your own risk. Ensure you understand their impact before running them in a production environment. Always review and test scripts thoroughly.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
