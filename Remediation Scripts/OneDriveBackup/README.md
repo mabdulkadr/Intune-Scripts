@@ -121,8 +121,8 @@ Both scripts require configuration of certain variables to match your environmen
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/Intune/Remediation%20Scripts/OneDriveBackupScripts.git
-   cd OneDriveBackupScripts
+   git clone https://github.com/Intune/Remediation%20Scripts/OneDriveBackup.git
+   cd OneDriveBackup
    ```
 
 2. **Configure Scripts**:
