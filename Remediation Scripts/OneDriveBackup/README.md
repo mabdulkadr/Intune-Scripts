@@ -35,11 +35,11 @@ This script checks if a folder with the current date (formatted as `yyyy-MM-dd`)
 
 #### Description
 
-This script performs the backup of the user's OneDrive Desktop folder to their OneDrive for Business account. It includes functionality to:
+This script performs the backup of the user's OneDrive folders to their OneDrive for Business account. It includes functionality to:
 
 - Authenticate with Microsoft Graph using app-only authentication.
 - Create a backup folder with the current date.
-- Upload files from the local OneDrive Desktop folder to the backup location.
+- Upload files from the local OneDrive folders to the backup location.
 - Retain backups for a specified number of days and remove older backups.
 - Handle large file uploads using chunked upload sessions.
 
@@ -79,21 +79,18 @@ Both scripts require configuration of certain variables to match your environmen
 
 - `$BackupFolderName`: Name of the backup folder in OneDrive (default: `"OneDriveBackups"`).
 - `$BackupDateFormat`: Date format for backup folders (default: `"yyyy-MM-dd"`).
-- `$OneDriveFolderName`: Name of the OneDrive folder (e.g., `"OneDrive - Your Organization"`).
 
 #### Remediate_OneDriveBackup.ps1
 
 - **Azure AD Application Details**:
-  - `$TenantID`: Your Azure AD Tenant ID.
-  - `$AppID`: Your Azure AD Application (Client) ID.
-  - `$AppSecret`: Your Azure AD Application Secret. **Ensure this is stored securely.**
+  - `$TenantID`  : Your Azure AD Tenant ID.
+  - `$AppID`     : Your Azure AD Application (Client) ID.
+  - `$AppSecret` : Your Azure AD Application Secret. **Ensure this is stored securely.**
 
 - **Backup Configuration**:
-  - `$BackupFolderName`: Name of the backup folder in OneDrive (default: `"OneDriveBackups"`).
-  - `$BackupDateFormat`: Date format for backup folders (default: `"yyyy-MM-dd"`).
-  - `$RetentionDays`: Number of days to retain backups (default: `3`).
-
-- `$OneDriveFolderName`: Name of the OneDrive folder (e.g., `"OneDrive - Your Organization"`).
+  - `$BackupFolderName` : Name of the backup folder in OneDrive (default: `"OneDriveBackups"`).
+  - `$BackupDateFormat` : Date format for backup folders (default: `"yyyy-MM-dd"`).
+  - `$RetentionDays`    : Number of days to retain backups (default: `3`).
 
 ### Setting Up Azure AD Application
 
