@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Detection script for Intune proactive remediation to check if a folder with today's date exists.
 
@@ -6,7 +6,7 @@
     This script checks if a folder with the current date (formatted as yyyy-MM-dd) exists at the specified OneDrive backup path.
 
 .EXAMPLE
-    .\Detect_OneDriveBackaup.ps1
+    .\Detect_OneDriveBackup.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
@@ -22,15 +22,21 @@
 $BackupFolderName         = "OneDriveBackups"                # Name of the backup folder in OneDrive
 $BackupDateFormat         = "yyyy-MM-dd"                     # Date format for backup folders
 
-# OneDrive Path Configuration
-$OneDriveFolderName       = "OneDrive - Your Organization"   # Replace with your OneDrive folder name
-
 # ============================
 #        DETECTION LOGIC
 # ============================
 
-# Define the base path where the backup folders are stored
-$basePath = "C:\Users\$env:USERNAME\$OneDriveFolderName\$BackupFolderName"
+# Automatically detect the OneDrive path using the OneDrive environment variable
+$OneDrivePath = [System.Environment]::GetEnvironmentVariable("OneDrive")
+
+# Check if OneDrive path is found
+if (-not $OneDrivePath) {
+    Write-Host "OneDrive path not found for the user."
+    exit 1  # Exit with non-compliance if OneDrive is not set up
+}
+
+# Define the backup folder path
+$basePath = Join-Path -Path $OneDrivePath -ChildPath $BackupFolderName
 
 # Get today's date in the format yyyy-MM-dd
 $todayDate = (Get-Date).ToString($BackupDateFormat)
