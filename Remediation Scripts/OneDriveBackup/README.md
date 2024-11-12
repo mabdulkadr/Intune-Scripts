@@ -1,4 +1,4 @@
-```markdown
+
 # OneDrive Backup Detection and Remediation Scripts
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -153,4 +153,3 @@ This project is licensed under the [MIT License](LICENSE).
 
 **Disclaimer**: Use these scripts at your own risk. Ensure you understand their impact before running them in a production environment. Always review and test scripts thoroughly.
 
-```
