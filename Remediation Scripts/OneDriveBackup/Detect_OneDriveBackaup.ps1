@@ -19,11 +19,11 @@
 # ============================
 
 # Backup Configuration
-$BackupFolderName = "OneDriveBackups"               # Name of the backup folder in OneDrive
-$BackupDateFormat = "yyyy-MM-dd"                    # Date format for backup folders
+$BackupFolderName         = "OneDriveBackups"                # Name of the backup folder in OneDrive
+$BackupDateFormat         = "yyyy-MM-dd"                     # Date format for backup folders
 
 # OneDrive Path Configuration
-$OneDriveFolderName = "OneDrive - Your Organization"  # Replace with your OneDrive folder name
+$OneDriveFolderName       = "OneDrive - Your Organization"   # Replace with your OneDrive folder name
 
 # ============================
 #        DETECTION LOGIC
