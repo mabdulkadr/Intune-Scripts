@@ -38,50 +38,72 @@ if (Get-Module -ListAvailable -Name Microsoft.Graph.Authentication) {
 # Load the Graph module
 Import-Module Microsoft.Graph.Authentication
 
+# Connects to Microsoft Graph using app-only authentication
 Function Connect-ToGraph {
-    [CmdletBinding()]
-    param(
+
+    [cmdletbinding()]
+    param
+    (
         [Parameter(Mandatory = $false)] [string]$Tenant,
         [Parameter(Mandatory = $false)] [string]$AppId,
         [Parameter(Mandatory = $false)] [string]$AppSecret,
-        [Parameter(Mandatory = $false)] [string]$Scopes
+        [Parameter(Mandatory = $false)] [string]$scopes
     )
 
     Process {
+        # Import the Microsoft Graph Authentication module
         Import-Module Microsoft.Graph.Authentication
+
+        # Get the major version of the Microsoft Graph Authentication module
         $version = (Get-Module Microsoft.Graph.Authentication | Select-Object -ExpandProperty Version).Major
 
         if ($AppId -ne "") {
-            # App-based authentication
+            # If AppId is provided, use app-only authentication
+
+            # Prepare the body for the OAuth 2.0 token request
             $body = @{
-                grant_type    = "client_credentials"
-                client_id     = $AppId
-                client_secret = $AppSecret
-                scope         = "https://graph.microsoft.com/.default"
+                grant_type    = "client_credentials";
+                client_id     = $AppId;
+                client_secret = $AppSecret;
+                scope         = "https://graph.microsoft.com/.default";
             }
 
-            $response = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$Tenant/oauth2/v2.0/token" -Body $body
+            # Request an access token from Azure AD
+            $response = Invoke-RestMethod -Method Post -Uri https://login.microsoftonline.com/$Tenant/oauth2/v2.0/token -Body $body
+
+            # Extract the access token from the response
             $accessToken = $response.access_token
 
+            # Output the access token (for debugging purposes)
+            $accessToken
+
             if ($version -eq 2) {
+                # For version 2 of the module, convert the access token to a secure string
                 Write-Host "Version 2 module detected"
-                $accessTokenFinal = ConvertTo-SecureString -String $accessToken -AsPlainText -Force
-            } else {
+                $accesstokenfinal = ConvertTo-SecureString -String $accessToken -AsPlainText -Force
+            }
+            else {
+                # For version 1 of the module, select the Beta profile
                 Write-Host "Version 1 Module Detected"
                 Select-MgProfile -Name Beta
-                $accessTokenFinal = $accessToken
+                $accesstokenfinal = $accessToken
             }
-            $graph = Connect-MgGraph -AccessToken $accessTokenFinal
-            Write-Host "Connected to Intune tenant $Tenant using app-based authentication"
-        } else {
-            # User-based authentication
+
+            # Connect to Microsoft Graph using the access token
+            $graph = Connect-MgGraph -AccessToken $accesstokenfinal 
+
+            Write-Host "Connected to Intune tenant $TenantId using app-based authentication (Azure AD authentication not supported)"
+        }
+        else {
+            # If AppId is not provided, use user authentication (interactive)
             if ($version -eq 2) {
                 Write-Host "Version 2 module detected"
-            } else {
+            }
+            else {
                 Write-Host "Version 1 Module Detected"
                 Select-MgProfile -Name Beta
             }
-            $graph = Connect-MgGraph -Scopes $Scopes
+            $graph = Connect-MgGraph -Scopes $scopes
             Write-Host "Connected to Intune tenant $($graph.TenantId)"
         }
     }
