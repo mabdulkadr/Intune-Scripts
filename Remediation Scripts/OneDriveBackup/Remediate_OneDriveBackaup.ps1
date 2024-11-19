@@ -29,7 +29,7 @@
 # Azure AD Application Details
 $TenantID            = ""      # Replace with your Tenant ID
 $AppID               = ""      # Replace with your Application (Client) ID
-$AppSecret           = ""  # Replace with your Application Secret (use secure storage)
+$AppSecret           = ""      # Replace with your Application Secret (use secure storage)
 
 # Backup Configuration
 $BackupFolderName    = "OneDriveBackups"  # The parent folder in OneDrive where backups will be stored
