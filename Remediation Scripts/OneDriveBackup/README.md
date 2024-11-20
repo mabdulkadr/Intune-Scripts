@@ -1,5 +1,5 @@
 
-# OneDrive Backup Detection and Remediation Scripts
+# OneDrive Backup via Microsoft Graph API
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
@@ -7,167 +7,163 @@
 
 ## Overview
 
-This repository contains two PowerShell scripts designed for use with Microsoft Intune's Proactive Remediation feature. The scripts help ensure that users' OneDrive for Business folders are properly backed up by detecting the presence of daily backup folders and creating backups when necessary.
+This project provides a solution to back up local OneDrive folders to OneDrive cloud storage using Microsoft Graph API. It includes:
 
-- **Detect_OneDriveBackup.ps1**: Detects whether a backup folder with today's date exists in the specified OneDrive backup path.
-- **Remediate_OneDriveBackup.ps1**: Creates a backup of the user's OneDrive folders to their OneDrive for Business account and manages backup retention.
+- **Detection Script**: Determines if a backup is necessary by checking for files that need to be uploaded.
+- **Remediation Script**: Performs the backup operation, uploading files to OneDrive while preserving folder structure and skipping existing files.
 
-## Scripts
+The scripts are designed to be deployed as **Proactive Remediation** scripts in Microsoft Intune.
 
-### Detect_OneDriveBackup.ps1
 
-#### Description
+## Features
 
-This script checks if a folder with the current date (formatted as `yyyy-MM-dd`) exists within a specified OneDrive backup directory. It is used as the detection script in Intune's Proactive Remediation to determine compliance.
+- **Automated Backup**: Uploads specified local folders to OneDrive cloud storage.
+- **Folder Structure Preservation**: Maintains the original folder hierarchy in the backup.
+- **Skip Existing Files**: Avoids re-uploading files that already exist in OneDrive.
+- **Localization Support**: Handles folder names in different languages.
+- **Logging**: Records actions and outputs to a log file for auditing and troubleshooting.
+- **Integration with Intune**: Designed to be deployed as proactive remediation scripts in Microsoft Intune.
 
-#### Features
+## Prerequisites
 
-- Verifies the existence of a daily backup folder in OneDrive.
-- Returns an exit code of `0` if the folder exists (compliant) or `1` if it does not (non-compliant).
-
-#### Usage
-
-```powershell
-.\Detect_OneDriveBackup.ps1
-```
-
-### Remediate_OneDriveBackup.ps1
-
-#### Description
-
-This script performs the backup of the user's OneDrive folders to their OneDrive for Business account. It includes functionality to:
-
-- Authenticate with Microsoft Graph using app-only authentication.
-- Create a backup folder with the current date.
-- Upload files from the local OneDrive folders to the backup location.
-- Retain backups for a specified number of days and remove older backups.
-- Handle large file uploads using chunked upload sessions.
-
-#### Features
-
-- **Authentication**: Connects to Microsoft Graph using Azure AD app credentials.
-- **Backup Creation**: Creates a dated backup folder if it doesn't exist.
-- **File Upload**: Uploads files, with support for large files via chunked uploads.
-- **Retention Management**: Deletes backups older than the specified retention period.
-- **Error Handling**: Includes comprehensive error handling and logging.
-
-#### Usage
-
-```powershell
-.\Remediate_OneDriveBackup.ps1
-```
-
-## Requirements
-
-- **Operating System**: Windows 10 or later.
-- **PowerShell Version**: 5.1 or later.
-- **Modules**:
+- **Microsoft Intune**: Access to deploy proactive remediation scripts.
+- **Azure Active Directory Application**: An app registration with the necessary permissions.
+- **Permissions**:
+  - **Microsoft Graph API Permissions**:
+    - `Files.ReadWrite.All` (Application permission)
+    - `User.Read.All` (Application permission)
+- **PowerShell Modules**:
   - `Microsoft.Graph.Authentication`
   - `Microsoft.Graph.Users`
-  - `Microsoft.Graph.Drive`
-- **Azure AD Application**:
-  - Must have appropriate permissions to access OneDrive for Business via Microsoft Graph.
-  - Requires Tenant ID, Application ID, and Application Secret.
+  - `Microsoft.Graph.Files`
+- **Windows Devices**: Target devices running Windows with PowerShell available.
 
 ## Configuration
 
-### Common Variables
+### Azure AD Application Details
 
-Both scripts require configuration of certain variables to match your environment.
+You will need to replace placeholders in the scripts with your actual Azure AD application details:
 
-#### Detect_OneDriveBackup.ps1
+- **Tenant ID**: `"Your-Tenant-ID"`
+- **Application (Client) ID**: `"Your-App-ID"`
+- **Application Secret**: `"<YourAppSecret>"` (Store securely; do not hardcode in scripts)
 
-- `$BackupFolderName`: Name of the backup folder in OneDrive (default: `"OneDriveBackups"`).
-- `$BackupDateFormat`: Date format for backup folders (default: `"yyyy-MM-dd"`).
+### Backup Configuration
 
-#### Remediate_OneDriveBackup.ps1
+- **Backup Folder Name**: `"OneDriveBackups"` (The parent folder in OneDrive where backups will be stored)
 
-- **Azure AD Application Details**:
-  - `$TenantID`  : Your Azure AD Tenant ID.
-  - `$AppID`     : Your Azure AD Application (Client) ID.
-  - `$AppSecret` : Your Azure AD Application Secret. **Ensure this is stored securely.**
+## Deployment Instructions
 
-- **Backup Configuration**:
-  - `$BackupFolderName` : Name of the backup folder in OneDrive (default: `"OneDriveBackups"`).
-  - `$BackupDateFormat` : Date format for backup folders (default: `"yyyy-MM-dd"`).
-  - `$RetentionDays`    : Number of days to retain backups (default: `3`).
+### 1. Prepare Azure AD Application
 
-### Setting Up Azure AD Application
-
-1. **Register an Application** in Azure AD:
-   - Navigate to **Azure Portal** > **Azure Active Directory** > **App registrations** > **New registration**.
-   - Provide a name and register the application.
+1. **Register a New App in Azure AD**:
+   - Navigate to **Azure Active Directory** > **App registrations** > **New registration**.
+   - Provide a name (e.g., "OneDrive Backup App") and register the application.
 
 2. **Configure API Permissions**:
-   - Add **Microsoft Graph** permissions:
+   - Go to the **API permissions** section of your app.
+   - Add the following **Application permissions** under **Microsoft Graph**:
      - `Files.ReadWrite.All`
-     - `Sites.ReadWrite.All`
-   - Grant admin consent for the permissions.
+     - `User.Read.All`
+   - Click **Grant admin consent**.
 
-3. **Create a Client Secret**:
-   - Navigate to **Certificates & secrets**.
-   - Create a new client secret and note it down securely.
+3. **Create Client Secret**:
+   - In the **Certificates & secrets** section, create a new client secret.
+   - **Store the secret securely**; you'll need it for the scripts.
 
-4. **Assign Variables**:
-   - Update the scripts with your `TenantID`, `AppID`, and `AppSecret`.
+4. **Gather Application Details**:
+   - **Tenant ID**: Found in **Azure Active Directory** > **Properties**.
+   - **Application ID**: Found on the **Overview** page of your app registration.
+   - **Client Secret**: The value you saved earlier.
 
-## Usage
+### 2. Configure the Scripts
 
-### Running Locally
+- **Replace Placeholders**:
+  - Open both the detection and remediation scripts.
+  - Replace `"Your-Tenant-ID"` with your actual Tenant ID.
+  - Replace `"Your-App-ID"` with your actual Application ID.
+  - **Securely reference** the `AppSecret`; avoid hardcoding it in the script.
 
-1. **Clone the Repository**:
+- **Securely Store App Secret**:
+  - Use a secure method to provide the App Secret to the script, such as:
+    - Storing it in an environment variable.
+    - Using Azure Key Vault.
+    - Prompting for it securely within the script.
 
-   ```bash
-   git clone https://github.com/Intune/Remediation%20Scripts/OneDriveBackup.git
-   cd OneDriveBackup
-   ```
+### 3. Deploy via Intune
 
-2. **Configure Scripts**:
+1. **Access Intune Portal**:
+   - Navigate to **Microsoft Endpoint Manager admin center**.
 
-   - Open each script in a text editor.
-   - Update the variables as per your environment and Azure AD application details.
+2. **Create Proactive Remediation**:
+   - Go to **Devices** > **Script and remediations**.
+   - Click **+ Create**.
 
-3. **Execute Scripts**:
+3. **Configure Script Package**:
+   - **Name**: Provide a meaningful name (e.g., "OneDrive Backup").
+   - **Description**: Optionally, add a description.
 
-   - **Detection**:
+4. **Upload Scripts**:
+   - **Detection Script**: Upload the detection script (`DetectionScript.ps1`).
+   - **Remediation Script**: Upload the remediation script (`RemediationScript.ps1`).
 
-     ```powershell
-     .\Detect_OneDriveBackup.ps1
-     ```
+5. **Script Settings**:
+   - **Run this script using the logged-on credentials**: **No** (runs as System).
+   - **Enforce script signature check**: **No** (unless your scripts are signed).
+   - **Run script in 64-bit PowerShell**: **Yes**.
 
-   - **Remediation**:
+6. **Scope Tags**:
+   - Assign any scope tags if necessary.
 
-     ```powershell
-     .\Remediate_OneDriveBackup.ps1
-     ```
-     
-### Deployment with Intune
+7. **Assignments**:
+   - Assign the script to the desired device groups.
 
-1. **Prepare Scripts**:
+8. **Schedule**:
+   - Set the frequency for the script to run (e.g., daily, weekly).
 
-   - Ensure both scripts are signed if required by your organization's policies.
+9. **Review and Create**:
+   - Review your settings and click **Create**.
 
-2. **Add Scripts to Intune**:
+## Script Details
 
-   - Navigate to **Microsoft Endpoint Manager Admin Center**.
-   - Go to **Devices** > **Scripts and remediations** > **Add** > **Windows 10 and later** > **Add**.
+### Detection Script
 
-3. **Configure Detection Script**:
+- **Purpose**: Checks if there are files in the specified local folders that need to be backed up.
+- **Operation**:
+  - Scans user profiles for specified folders.
+  - If files are found, outputs a detection result indicating remediation is needed.
+- **Output**: JSON string `{ "DetectionResult": true }` or `{ "DetectionResult": false }`.
 
-   - Upload `Detect_OneDriveBackup.ps1` as the detection script.
+### Remediation Script
 
-4. **Configure Remediation Script**:
+- **Purpose**: Performs the backup operation, uploading files to OneDrive.
+- **Operation**:
+  - Connects to Microsoft Graph using app-only authentication.
+  - Iterates through user profiles and specified folders.
+  - Uploads files to OneDrive, preserving folder structure.
+  - Skips files that already exist in OneDrive.
+  - Logs actions to `C:\Intune\BackupLog.txt`.
+- **Logging**: Records detailed logs for auditing and troubleshooting.
 
-   - Upload `Remediate_OneDriveBackup.ps1` as the remediation script.
+## Notes
 
-5. **Assign to Device Groups**:
+- **Localization Support**: The scripts handle folder names in different languages, such as Arabic.
+- **User Profiles**: Scripts iterate through all user profiles except system and default accounts.
+- **Error Handling**: Scripts include error handling to log and continue past errors without stopping the entire process.
 
-   - Assign the remediation script to the relevant device or user groups.
 
-6. **Monitor Deployment**:
+## Testing
 
-   - Use Intune's monitoring features to track the compliance and remediation status.
+Before deploying to production, perform thorough testing:
 
+1. **Test in a Controlled Environment**:
+   - Use virtual machines or test devices that mimic your production environment.
+2. **Monitor Logs**:
+   - Check `C:\Intune\BackupLog.txt` for any errors or issues.
+3. **Verify OneDrive Backup**:
+   - Confirm that files are correctly uploaded to the specified OneDrive accounts.
+4. **Adjust as Necessary**:
+   - Modify scripts based on testing outcomes to address any issues.
 
 ## License
 

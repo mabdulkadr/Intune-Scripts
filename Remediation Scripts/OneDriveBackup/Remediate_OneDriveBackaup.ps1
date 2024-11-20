@@ -1,40 +1,62 @@
-# PowerShell Script to Backup Local OneDrive Folders to OneDrive via Microsoft Graph API
-#
-# Description:
-# This script connects to Microsoft Graph using application-only authentication and uploads
-# specific folders from the user's local OneDrive folder to OneDrive cloud storage.
-# It preserves the folder structure and skips files that already exist in OneDrive.
-#
-# The script performs the following steps:
-# - Ensures required PowerShell modules are installed.
-# - Connects to Microsoft Graph using app-only authentication.
-# - Detects the current user's User Principal Name (UPN).
-# - Automatically detects the local OneDrive base path.
-# - Defines the folders to back up (Documents, Desktop, Pictures, etc.).
-# - Loops through each folder, uploads files to OneDrive while preserving the folder structure,
-#   and skips files that already exist.
-# - Disconnects from Microsoft Graph upon completion.
-#
-# Note:
-# - Ensure that the Azure AD application has the necessary permissions to access users' OneDrive data.
-# - The AppSecret should be securely stored; hardcoding secrets in scripts is not recommended.
-#
-# Author: [Your Name]
-# Date: [Date]
+﻿<#
+.SYNOPSIS
+    Backs up local OneDrive folders to OneDrive cloud storage via Microsoft Graph API.
+
+.DESCRIPTION
+    This script connects to Microsoft Graph using application-only authentication and uploads
+    specific folders from the user's local OneDrive folder to OneDrive cloud storage.
+    It preserves the folder structure and skips files that already exist in OneDrive.
+
+    The script performs the following steps:
+    - Ensures required PowerShell modules are installed.
+    - Connects to Microsoft Graph using app-only authentication.
+    - Detects the current user's User Principal Name (UPN).
+    - Automatically detects the local OneDrive base path.
+    - Defines the folders to back up (Documents, Desktop, Pictures, etc.).
+    - Loops through each folder, uploads files to OneDrive while preserving the folder structure,
+      and skips files that already exist.
+    - Disconnects from Microsoft Graph upon completion.
+    - Logs all actions and outputs to a log file in C:\Intune.
+
+.HINT
+    - Ensure that the Azure AD application has the necessary permissions to access users' OneDrive data.
+    - The AppSecret should be securely stored; hardcoding secrets in scripts is not recommended.
+    - Run this script as an administrator.
+
+.RUN AS
+    Administrator
+
+.EXAMPLE
+    .\OneDriveBackupScript.ps1
+
+.NOTES
+    Author  : [Your Name]
+    Date    : [Date]
+#>
 
 # ============================
 #        CONFIGURATION
 # ============================
-
 # Azure AD Application Details
-$TenantID            = ""      # Replace with your Tenant ID
-$AppID               = ""      # Replace with your Application (Client) ID
-$AppSecret           = ""      # Replace with your Application Secret (use secure storage)
+$TenantID            = "b5a22fae-154c-4046-a3aa-f9665748a0fd"      # Replace with your Tenant ID
+$AppID               = "ae7399ca-cd5c-4004-b978-39867f11762b"      # Replace with your Application (Client) ID
+$AppSecret           = "Yr68Q~FJn0bwyX3eTc2IDryWJ9BLCCP9SKMpJbCj"  # Replace with your Application Secret (use secure storage)
 
 # Backup Configuration
 $BackupFolderName    = "OneDriveBackups"  # The parent folder in OneDrive where backups will be stored
 
+# ============================
+#        LOGGING SETUP
+# ============================
 
+# Ensure that the folder C:\Intune exists
+if (-not (Test-Path -Path "C:\Intune")) {
+    New-Item -ItemType Directory -Path "C:\Intune" -Force
+}
+
+# Start logging
+$logFile = "C:\Intune\BackupLog.txt"
+Start-Transcript -Path $logFile -Append
 
 # Check if the current policy is 'Bypass' or 'Unrestricted'
 $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
@@ -45,7 +67,6 @@ if ($currentPolicy -eq 'Bypass' -or $currentPolicy -eq 'Unrestricted') {
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
     Write-Host "Execution policy has been set to 'Unrestricted'." -ForegroundColor Green
 }
-
 
 # ============================
 #     MODULE IMPORT & SETUP
@@ -142,6 +163,7 @@ Function Connect-ToGraph {
         }
     }
 }
+
 
 # Detects the currently logged-in user's UPN (User Principal Name)
 function Get-CurrentUserUPN {
@@ -248,7 +270,7 @@ $userUPN = Get-CurrentUserUPN
 Write-Host "Successfully connected to Microsoft Graph" -ForegroundColor Green
 
 # Automatically detect the local OneDrive base path
-$oneDriveBasePath = Get-ChildItem -Path "$env:USERPROFILE" -Directory -Filter "OneDrive - *" -ErrorAction SilentlyContinue | Select-Object -First 1
+$oneDriveBasePath = Get-ChildItem -Path "$env:USERPROFILE" -Directory -Filter "OneDrive*" -ErrorAction SilentlyContinue | Select-Object -First 1
 
 if ($null -eq $oneDriveBasePath) {
     Write-Host "OneDrive folder not found under user profile path." -ForegroundColor Red
@@ -266,8 +288,6 @@ $foldersToBackup = @(
     @{ LocalPath = Join-Path -Path $oneDriveBasePath.FullName -ChildPath "Pictures";  OneDriveFolder = "Pictures" }
     @{ LocalPath = Join-Path -Path $oneDriveBasePath.FullName -ChildPath "الصور";  OneDriveFolder = "الصور" }
 
-
-   
     @{ LocalPath = Join-Path -Path "$env:USERPROFILE" -ChildPath "Downloads"; OneDriveFolder = "Downloads" }
     @{ LocalPath = Join-Path -Path "$env:USERPROFILE" -ChildPath "التنزيلات"; OneDriveFolder = "التنزيلات" }
 
@@ -276,7 +296,6 @@ $foldersToBackup = @(
 
     @{ LocalPath = Join-Path -Path "$env:USERPROFILE" -ChildPath "Music"; OneDriveFolder = "Music" }
     @{ LocalPath = Join-Path -Path "$env:USERPROFILE" -ChildPath "الموسيقى"; OneDriveFolder = "الموسيقى" }
-
 )
 
 # Loop through each folder and upload files to OneDrive, preserving folder structure
@@ -312,3 +331,8 @@ Write-Host "OneDrive backup process completed successfully" -ForegroundColor Gre
 Disconnect-MgGraph
 Write-Host "Disconnected from Microsoft Graph." -ForegroundColor Cyan
 Write-Host "OneDrive backup process completed successfully" -ForegroundColor Green
+
+# Stop logging
+Stop-Transcript
+
+exit 0
