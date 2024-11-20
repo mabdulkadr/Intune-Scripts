@@ -38,12 +38,12 @@
 #        CONFIGURATION
 # ============================
 # Azure AD Application Details
-$TenantID            = "b5a22fae-154c-4046-a3aa-f9665748a0fd"      # Replace with your Tenant ID
-$AppID               = "ae7399ca-cd5c-4004-b978-39867f11762b"      # Replace with your Application (Client) ID
-$AppSecret           = "Yr68Q~FJn0bwyX3eTc2IDryWJ9BLCCP9SKMpJbCj"  # Replace with your Application Secret (use secure storage)
+$TenantID            = "Your-Tenant-ID"      # Replace with your Tenant ID
+$AppID               = "Your-App-ID"         # Replace with your Application (Client) ID
+$AppSecret           = "<YourAppSecret>"     # Replace with your Application Secret (use secure storage)
 
 # Backup Configuration
-$BackupFolderName    = "OneDriveBackups"  # The parent folder in OneDrive where backups will be stored
+$BackupFolderName    = "OneDriveBackups"     # The parent folder in OneDrive where backups will be stored
 
 # ============================
 #        LOGGING SETUP
