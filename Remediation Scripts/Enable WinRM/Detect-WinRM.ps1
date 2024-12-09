@@ -10,6 +10,11 @@
     Exit codes:
     0 = WinRM/PSRemoting is enabled
     1 = WinRM/PSRemoting is not enabled
+
+.NOTES
+    Author: M.omar
+    Website: momar.tech
+    Date: 2024-07-14
 #>
 
 # Attempt to test PSRemoting
