@@ -19,12 +19,6 @@
     Date: 2024-07-14
 #>
 
-# Check if running as administrator
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "Error: Please run this script as Administrator." -ForegroundColor Red
-    exit 1
-}
-
 Write-Host "`n*** Starting WinRM Configuration ***`n" -ForegroundColor Cyan
 
 # Step 1: Check and Start WinRM Service
