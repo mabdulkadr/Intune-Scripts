@@ -13,7 +13,7 @@
     -Force                 Suppresses confirmation prompts.
     -SkipNetworkProfileCheck Allows enabling PSRemoting regardless of current network profile.
 
-.Author
+.NOTES
     Author: M.omar
     Website: momar.tech
     Date: 2024-07-14
