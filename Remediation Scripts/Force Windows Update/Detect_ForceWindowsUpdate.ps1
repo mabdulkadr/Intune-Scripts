@@ -15,6 +15,22 @@
     Date: 2024-07-14
 #>
 
+#----------------------------- Set execution policy -----------------------------  
+
+# Check the current execution policy                                          
+$currentPolicy = Get-ExecutionPolicy
+
+# If the execution policy is not 'Restricted', change it to 'Unrestricted'
+if ($currentPolicy -ne 'Restricted') {
+    Write-Host "Current Execution Policy is: $currentPolicy. Changing to Unrestricted..." -ForegroundColor Yellow
+    # Set the execution policy to 'Unrestricted'
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+    Write-Host "Execution Policy changed to Unrestricted." -ForegroundColor Green
+} else {
+    Write-Host "Current Execution Policy is Restricted. No changes made." -ForegroundColor Cyan
+}
+
+#----------------------------- Ensure Module -----------------------------  
 # Function to check if a module is installed, and install it if not
 function Ensure-Module {
     param (
@@ -38,6 +54,7 @@ Import-Module PSWindowsUpdate
 # Get the list of available updates
 $Updates = Get-WindowsUpdate -ComputerName localhost -AcceptAll
 
+#----------------------------- Pending Update Check ----------------------------- 
 # Check if there are any pending updates
 if ($Updates.Count -gt 0) {
     Write-Output "There are $($Updates.Count) pending Windows Updates."
