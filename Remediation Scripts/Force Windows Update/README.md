@@ -5,7 +5,7 @@
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
-This repository contains two PowerShell scripts designed to manage Windows Updates effectively:
+This documentation describes two PowerShell scripts designed for managing Windows updates on a local system:
 
 1. **Detect_ForceWindowsUpdate.ps1** - Detects pending Windows updates.
 2. **Remediate_ForceWindowsUpdate.ps1** - Installs all pending Windows updates on the system.
