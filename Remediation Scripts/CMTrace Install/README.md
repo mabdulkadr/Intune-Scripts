@@ -9,23 +9,23 @@
 This repository contains two PowerShell scripts designed to manage and monitor the installation and compliance of CMTrace.exe on Windows systems. CMTrace is a useful tool for analyzing log files in SCCM (System Center Configuration Manager) environments.
 
 ### Scripts Included
-1. **install-cmtrace-remediate.ps1**
+1. **Remediate-cmtrace.ps1**
    - Installs CMTrace.exe to the `C:\Windows\System32` directory from a specified repository URL.
-2. **detect-cmtrace-compliance.ps1**
+2. **Detect-cmtrace.ps1**
    - Detects whether CMTrace.exe is present on the system and outputs compliance status.
 
 ---
 
 ## Scripts Details
 
-### 1. `install-cmtrace-remediate.ps1`
+### 1. `Remediate-cmtrace.ps1`
 
 #### Purpose
 Downloads CMTrace.exe from a repository and installs it into the `C:\Windows\System32` directory.
 
 #### How to Run
 ```powershell
-.\install-cmtrace-remediate.ps1
+.\Remediate-cmtrace.ps1.ps1
 ```
 
 #### Outputs
@@ -35,14 +35,14 @@ Downloads CMTrace.exe from a repository and installs it into the `C:\Windows\Sys
 
 ---
 
-### 2. `detect-cmtrace-compliance.ps1`
+### 2. `Detect-cmtrace.ps1`
 
 #### Purpose
 Checks if CMTrace.exe exists in the `C:\Windows\System32` directory and reports the compliance status.
 
 #### How to Run
 ```powershell
-.\detect-cmtrace-compliance.ps1
+.\detect-cmtrace.ps1
 ```
 
 #### Outputs
