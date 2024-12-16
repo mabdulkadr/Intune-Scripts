@@ -6,10 +6,6 @@
     This script retrieves the CMTrace executable from a specified repository URL and saves it in the System32 folder. 
     CMTrace is a log viewer tool used for troubleshooting in System Center Configuration Manager (SCCM) environments.
 
-.EXAMPLE
-    .\install-cmtrace-remediate.ps1
-    Downloads CMTrace.exe and installs it to the System32 directory.
-
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
