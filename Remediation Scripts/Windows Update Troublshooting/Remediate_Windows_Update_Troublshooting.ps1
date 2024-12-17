@@ -16,9 +16,8 @@
 
 .EXAMPLE
     Run the script in PowerShell:
-    ```
     .\WindowsUpdate-Troubleshoot.ps1
-    ```
+
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
