@@ -6,7 +6,7 @@
 ![Version](https://img.shields.io/badge/version-1.1-green.svg)
 
 ## Overview
-This repository contains two PowerShell scripts designed to manage and monitor the installation and compliance of CMTrace.exe on Windows systems. CMTrace is a useful tool for analyzing log files in SCCM (System Center Configuration Manager) environments.
+This Project contains two PowerShell scripts designed to manage and monitor the installation and compliance of CMTrace.exe on Windows systems. CMTrace is a useful tool for analyzing log files in SCCM (System Center Configuration Manager) environments.
 
 ### Scripts Included
 1. **Remediate-cmtrace.ps1**
