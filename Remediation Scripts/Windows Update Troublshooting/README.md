@@ -78,8 +78,10 @@ The remediation script automatically fixes issues detected by the detection scri
 - Logs are saved for troubleshooting purposes.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-**Disclaimer**: Use this script at your own risk. Test thoroughly before deployment.
+**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+
