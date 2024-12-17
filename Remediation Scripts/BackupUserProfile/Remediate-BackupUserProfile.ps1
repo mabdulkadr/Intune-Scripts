@@ -20,7 +20,7 @@
 # Variables
 $DirectoryToCreate = "C:\backup-restore"
 $BackupScriptUrl = "https://raw.githubusercontent.com/mabdulkadr/Intune/refs/heads/main/Remediation%20Scripts/BackupUserProfile/backup.bat"
-$RestoreScriptUrl = "https://raw.githubusercontent.com/mabdulkadr/Intune/refs/heads/main/Remediation%20Scripts/BackupUserProfile/NEWrestore.bat"
+$RestoreScriptUrl = "https://raw.githubusercontent.com/mabdulkadr/Intune/refs/heads/main/Remediation%20Scripts/BackupUserProfile/restore.bat"
 $LaunchScriptUrl = "https://raw.githubusercontent.com/mabdulkadr/Intune/refs/heads/main/Remediation%20Scripts/BackupUserProfile/run-invisible.vbs"
 $BackupScriptPath = Join-Path $DirectoryToCreate "backup.bat"
 $RestoreScriptPath = Join-Path $DirectoryToCreate "restore.bat"
