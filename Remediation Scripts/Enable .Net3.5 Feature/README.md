@@ -5,7 +5,7 @@
 ![Version](https://img.shields.io/badge/version-1.0-green.svg)
 
 ## Overview
-This repository contains two PowerShell scripts designed to detect and remediate the installation of **.NET Framework 3.5** on Windows 10 and Windows 11 devices. These scripts are intended for deployment via Microsoft Intune using the **Devices | Scripts and remediations** feature.
+This Project contains two PowerShell scripts designed to detect and remediate the installation of **.NET Framework 3.5** on Windows 10 and Windows 11 devices. These scripts are intended for deployment via Microsoft Intune using the **Devices | Scripts and remediations** feature.
 
 ---
 
