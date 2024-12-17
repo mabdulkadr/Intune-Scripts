@@ -21,8 +21,10 @@
     ```
 
 .NOTES
-    Author: [Your Name]
-    Date: 2024-06-17
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-12-17
+    
     Logs: Saved in C:\ProgramData\Microsoft\IntuneManagementExtension\Logs\
 #>
 
