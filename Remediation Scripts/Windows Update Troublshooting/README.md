@@ -77,6 +77,8 @@ The remediation script automatically fixes issues detected by the detection scri
 - Scripts require administrative privileges to execute correctly.
 - Logs are saved for troubleshooting purposes.
 
+---
+
 ## License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
