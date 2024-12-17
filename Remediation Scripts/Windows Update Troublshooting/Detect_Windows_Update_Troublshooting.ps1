@@ -9,9 +9,8 @@
 
 .EXAMPLE
     Run the script in PowerShell:
-    ```
     .\Check-WindowsUpdateStatus.ps1
-    ```
+
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
