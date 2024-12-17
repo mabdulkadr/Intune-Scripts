@@ -56,9 +56,12 @@ Checks if CMTrace.exe exists in the `C:\Windows\System32` directory and reports 
 - Ensure you have administrative privileges to run these scripts.
 - Verify internet connectivity before running the installation script to download CMTrace.exe.
 
+---
+
 ## License
-This project is licensed under the [MIT License](https://opensource.org/license/mit).
+
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-**Disclaimer**: Use these scripts at your own risk. Always test scripts in a lab environment before deploying them in production.
+**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
