@@ -1,103 +1,67 @@
-::Name - Restore Script
-::Description - Restores Up favourites, music, signatures, Outlook settings, templates, UI settings, stickynotes, chrome bookmarks, email signature and mapped drives from OneDrive to local machine
+@echo off
+::Name - Complete Restore Script
+::Description - Restores all user files and settings from the "Backup-%USERNAME%" folder in OneDrive.
 ::Inputs - None
-::Outputs - Logs to a restore script and error log on OneDrive
-::Version - 1.4
-::Created By - Andrew Taylor
-::Updates - Initial Update
-::Updated 27-01 - Added error logging and links
-::Updated added XLStart and WordStartup
+::Outputs - Logs restore operations and errors to OneDrive.
 
+:: Set Paths
+SET OneDrivePath=%OneDrive%
+SET BackupDir=%OneDrivePath%\Backup-%USERNAME%
+SET RestoreLog=%BackupDir%\restore-log.txt
+SET ErrorLog=%BackupDir%\restore-errorlog.txt
 
-
-::GET FAVOURITES
-set error="%OneDriveCommercial%\backup\restoreerrorlog.txt" 
-
-echo CopyingFavourites >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BFav=%USERPROFILE%\Favorites
-SET RFav=%OneDriveCommercial%\Favorites
-XCopy "%RFav%\*" "%BFav%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::GET MUSIC
-echo CopyingMusic >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BMus=%USERPROFILE%\Music
-SET RMus=%OneDriveCommercial%\Music
-XCopy "%RMus%\*" "%BMus%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::GET SIGNATURES
-echo CopyingSignatures >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BSig=%APPDATA%\Microsoft\Signatures
-SET RSig=%OneDriveCommercial%\Backup\Signature
-if not exist "%APPDATA%\Microsoft\Signatures" mkdir "%APPDATA%\Microsoft\Signatures"
-XCopy "%RSig%\*" "%BSig%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-
-::GET Outlook-Autocorrect
-echo CopyingOutlookComplete >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BAuto=%LOCALAPPDATA%\Microsoft\Outlook\RoamCache
-SET RAuto=%OneDriveCommercial%\Backup\Roam
-if not exist "%LOCALAPPDATA%\Microsoft\Outlook\RoamCache" mkdir "%LOCALAPPDATA%\Microsoft\Outlook\RoamCache"
-XCopy "%RAuto%\*" "%BAuto%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-
-::GET NORMALDOT
-echo CopyingNormalDot >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BWord=%APPDATA%\Microsoft\Templates
-SET RWord=%OneDriveCommercial%\Backup\Templates
-if not exist "%APPDATA%\Microsoft\Templates" mkdir "%APPDATA%\Microsoft\Templates"
-XCopy "%RWord%\*" "%BWord%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::GET Links
-echo CopyingLinks >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BLinks=B%USERPROFILE%\Links
-SET RLinks=%OneDriveCommercial%\Backup\Links
-if not exist "%APPDATA%\Microsoft\Templates" mkdir "%APPDATA%\Microsoft\Templates"
-XCopy "%RWord%\*" "%BWord%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-
-::GET ExcelStart
-echo CopyingExcelStart >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET Bxlstart=%APPDATA%\Microsoft\Excel\XLStart
-SET Rxlstart=%OneDriveCommercial%\Backup\XLStart
-if not exist "%APPDATA%\Microsoft\Excel\XLStart" mkdir "%APPDATA%\Microsoft\Excel\XLStart"
-XCopy "%Rxlstart%\*" "%Bxlstart%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::GET WordStart
-echo CopyingWordStart >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BWordst=%APPDATA%\Microsoft\Word\Startup
-SET RWordst=%OneDriveCommercial%\Backup\Wordstartup
-if not exist "%APPDATA%\Microsoft\Word\Startup" mkdir "%APPDATA%\Microsoft\Word\Startup"
-XCopy "%RWordst%\*" "%BWordst%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::GET UI
-echo CopyingUI >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BUI=%LOCALAPPDATA%\Microsoft\Office
-SET RUI=%OneDriveCommercial%\Backup\UI
-if not exist "%LOCALAPPDATA%\Microsoft\Office" mkdir "%LOCALAPPDATA%\Microsoft\Office"
-XCopy "%RUI%\*.customUI" "%BUI%" /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-XCopy "%RUI%\*.officeUI" "%BUI%" /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-
-::GET SICKYNOTES
-echo CopyingStickyNotes >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BSticky=%LOCALAPPDATA%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\legacy
-SET RSticky=%OneDriveCommercial%\Backup\Sticky
-if not exist "%LOCALAPPDATA%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\legacy" mkdir "%LOCALAPPDATA%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\legacy"
-XCopy /s "%RSticky%" "%BSticky%" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-copy "%BSticky%\StickyNotes.snt" "%BSticky%\ThresholdNotes.snt"
-
-::GET CHROME BOOKMARKS
-echo CopyingChromeBookmarks >> "%OneDriveCommercial%\backup\restorelog.txt"
-SET BChrome=%LOCALAPPDATA%\Google\Chrome\User Data\Default
-SET RChrome=%OneDriveCommercial%\Backup\Chrome
-if not exist "%OneDriveCommercial%\Backup\Chrome" mkdir "%OneDriveCommercial%\Backup\Chrome"
-XCopy "%RChrome%\Bookmarks*" "%BChrome%\Bookmarks*" /E /Y /C /Z /D >> "%OneDriveCommercial%\backup\restorelog.txt" 2>> %error% 
-
-::Set Signature
-FOR %%f IN (%APPDATA%\Microsoft\Signatures\*.htm) DO (
- set filename=%%~nf
- goto tests
+:: Initialize Logs
+IF NOT EXIST "%BackupDir%" (
+    echo ERROR: Backup directory "%BackupDir%" not found. >> "%ErrorLog%"
+    echo Restore operation failed. Check "%ErrorLog%".
+    exit /b
 )
-:tests
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\XX.X\Common\MailSettings\16.0\Common\MailSettings" /v NewSignature /t REG_EXPAND_SZ /d %filename%
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Office\XX.X\Common\MailSettings\16.0\Common\MailSettings" /v ReplySignature /t REG_EXPAND_SZ /d %filename%
+echo Starting Full Restore: %DATE% %TIME% > "%RestoreLog%"
+echo Errors will be logged to "%ErrorLog%". > "%ErrorLog%"
+
+:: Function for Folder Restore
+:RestoreFolder
+SET Source=%1
+SET Destination=%2
+SET Description=%3
+echo Restoring %Description% to "%Destination%" >> "%RestoreLog%"
+IF EXIST "%Source%" (
+    XCOPY "%Source%\*" "%Destination%\" /E /Y /C /Z /D >> "%RestoreLog%" 2>> "%ErrorLog%"
+) ELSE (
+    echo WARNING: %Description% source "%Source%" not found. >> "%ErrorLog%"
+)
+GOTO :EOF
+
+:: Function for Registry Import
+:RestoreRegistry
+SET RegFile=%1
+SET Description=%2
+echo Importing %Description% Registry... >> "%RestoreLog%"
+IF EXIST "%RegFile%" (
+    reg import "%RegFile%" >> "%RestoreLog%" 2>> "%ErrorLog%"
+) ELSE (
+    echo WARNING: Registry file "%RegFile%" not found. >> "%ErrorLog%"
+)
+GOTO :EOF
+
+:: Restore Key Folders
+CALL :RestoreFolder "%BackupDir%\Desktop" "%USERPROFILE%\Desktop" "Desktop"
+CALL :RestoreFolder "%BackupDir%\Documents" "%USERPROFILE%\Documents" "Documents"
+CALL :RestoreFolder "%BackupDir%\Music" "%USERPROFILE%\Music" "Music"
+CALL :RestoreFolder "%BackupDir%\Favorites" "%USERPROFILE%\Favorites" "Favorites"
+CALL :RestoreFolder "%BackupDir%\Links" "%USERPROFILE%\Links" "Links"
+CALL :RestoreFolder "%BackupDir%\Signatures" "%APPDATA%\Microsoft\Signatures" "Signatures"
+CALL :RestoreFolder "%BackupDir%\OutlookRoamCache" "%LOCALAPPDATA%\Microsoft\Outlook\RoamCache" "Outlook RoamCache"
+CALL :RestoreFolder "%BackupDir%\WordStartup" "%APPDATA%\Microsoft\Word\STARTUP" "Word Startup"
+CALL :RestoreFolder "%BackupDir%\ExcelXLStart" "%APPDATA%\Microsoft\Excel\XLStart" "Excel XLStart"
+CALL :RestoreFolder "%BackupDir%\StickyNotes" "%APPDATA%\Microsoft\Sticky Notes" "Sticky Notes"
+CALL :RestoreFolder "%BackupDir%\ChromeBookmarks" "%LOCALAPPDATA%\Google\Chrome\User Data\Default" "Chrome Bookmarks"
+CALL :RestoreFolder "%BackupDir%\OfficeUI" "%LOCALAPPDATA%\Microsoft\Office" "Office UI"
+
+:: Restore Registry for Taskbar
+CALL :RestoreRegistry "%BackupDir%\TaskbarConfig.reg" "Taskbar Configuration"
+
+:: Finalize
+echo Restore Completed Successfully: %DATE% %TIME% >> "%RestoreLog%"
+echo All files and settings have been restored from "%BackupDir%".
+pause
