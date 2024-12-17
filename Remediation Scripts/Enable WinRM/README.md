@@ -100,9 +100,9 @@ If any errors occur, they will be displayed in red for quick identification.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
-
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-**Disclaimer**: Use these scripts at your own risk. Ensure you understand their impact before running them in a production environment. Always review and test scripts thoroughly.
+**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+
