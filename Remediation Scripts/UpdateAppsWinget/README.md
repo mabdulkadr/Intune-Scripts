@@ -86,8 +86,9 @@ Updates the specified applications to their latest versions.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-*Maintaining up-to-date software is crucial for security and performance. These scripts provide an automated solution to manage updates efficiently.*
+**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+
