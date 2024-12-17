@@ -57,7 +57,7 @@ Checks if CMTrace.exe exists in the `C:\Windows\System32` directory and reports 
 - Verify internet connectivity before running the installation script to download CMTrace.exe.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://opensource.org/license/mit).
 
 ---
 
