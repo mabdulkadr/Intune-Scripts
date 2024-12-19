@@ -11,13 +11,13 @@
 
 .EXAMPLE
     Detects compliance for time-related settings:
-    ```powershell
     .\Detect-TimeIssues.ps1
-    ```
+
 
 .NOTES
-    Author: [Your Name]
-    Date: [Today's Date]
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Date    : 2024-12-19
 #>
 
 # Define variables
