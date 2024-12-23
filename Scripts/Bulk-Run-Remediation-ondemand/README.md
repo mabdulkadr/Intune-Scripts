@@ -5,12 +5,12 @@
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0-green.svg)
 
-##Overview  
+## Overview  
 The **`bulk-run-remediation-ondemand.ps1`** script allows IT administrators to **trigger remediation scripts on multiple Intune-managed devices simultaneously** using the **Microsoft Graph API**. This script is designed for large-scale environments, enabling quick fixes, enforcing compliance, and ensuring consistency across managed endpoints.
 
 ---
 
-##Reference  
+## Reference  
 
 - **Script Source:** [bulk-run-remediation-ondemand.ps1 on GitHub](https://github.com/andrew-s-taylor/public/blob/main/Powershell%20Scripts/Intune/bulk-run-remediation-ondemand.ps1)  
 - **Microsoft Graph API Documentation:** [Microsoft Graph API Overview](https://learn.microsoft.com/en-us/graph/overview)  
@@ -18,7 +18,7 @@ The **`bulk-run-remediation-ondemand.ps1`** script allows IT administrators to *
 
 ---
 
-## 🚀 Key Features  
+## Key Features  
 
  **Bulk Remediation Execution:** Trigger remediation scripts across multiple devices simultaneously.  
  **Microsoft Graph API Integration:** Secure and efficient communication with Intune backend.  
@@ -28,7 +28,7 @@ The **`bulk-run-remediation-ondemand.ps1`** script allows IT administrators to *
 
 ---
 
-##Prerequisites  
+## Prerequisites  
 
 Before running the script, ensure the following prerequisites are met:
 
@@ -42,7 +42,7 @@ Before running the script, ensure the following prerequisites are met:
 
 ---
 
-##Script Details  
+## Script Details  
 
 ### **1. bulk-run-remediation-ondemand.ps1**
 
@@ -80,7 +80,7 @@ This script executes remediation tasks on-demand across Intune-managed devices. 
 - **Error Log:** Devices where execution failed, along with error details.  
 - **Execution Summary:** Overview of success and failure rates across devices.
 
-**Sample Output Log:**
+** Sample Output Log:**
 ```plaintext
 [INFO] Device ID: device-id-1 - Remediation triggered successfully.
 [ERROR] Device ID: device-id-2 - API Error: 403 Forbidden.
@@ -88,7 +88,7 @@ This script executes remediation tasks on-demand across Intune-managed devices. 
 
 ---
 
-##CSV File Format  
+## CSV File Format  
 
 The **DeviceList.csv** file should follow this structure:
 
@@ -103,7 +103,7 @@ device-id-3
 
 ---
 
-##Authentication Guide  
+## Authentication Guide  
 
 ### **Option 1: Azure AD Interactive Login**  
 1. Use the **Microsoft Graph Explorer** or **Azure Portal** to acquire a token.  
@@ -118,7 +118,7 @@ For more details, refer to the [Microsoft Graph API Documentation](https://learn
 
 ---
 
-##Example Workflow  
+## Example Workflow  
 
 1. **Prepare Device List:** Export device IDs into a CSV file.  
 2. **Acquire Script ID:** Locate the remediation script ID from Intune portal or via Graph API.  
@@ -128,7 +128,7 @@ For more details, refer to the [Microsoft Graph API Documentation](https://learn
 
 ---
 
-##Troubleshooting  
+## Troubleshooting  
 
 | **Issue**               | **Cause**                      | **Solution**                          |
 |-------------------------|--------------------------------|---------------------------------------|
@@ -139,7 +139,7 @@ For more details, refer to the [Microsoft Graph API Documentation](https://learn
 
 ---
 
-##Best Practices  
+## Best Practices  
 
 - Validate the **DeviceList.csv** file before running the script.  
 - Always use a secure method for storing API tokens.  
@@ -148,7 +148,7 @@ For more details, refer to the [Microsoft Graph API Documentation](https://learn
 
 ---
 
-##Documentation and References  
+## Documentation and References  
 
 - [Microsoft Graph API Documentation](https://learn.microsoft.com/en-us/graph/overview)  
 - [Intune Remediation Scripts Overview](https://learn.microsoft.com/en-us/mem/intune/protect/remediation-scripts)  
@@ -156,7 +156,7 @@ For more details, refer to the [Microsoft Graph API Documentation](https://learn
 
 ---
 
-##License  
+## License  
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).  
 
