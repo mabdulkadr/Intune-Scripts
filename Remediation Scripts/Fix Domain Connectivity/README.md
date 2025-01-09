@@ -1,5 +1,4 @@
-# Secure Channel Detection and Remediation Scripts for Intune Proactive Remediations
-
+# Secure Channel Detection and Remediation Scripts for Intune
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.1-green.svg)
