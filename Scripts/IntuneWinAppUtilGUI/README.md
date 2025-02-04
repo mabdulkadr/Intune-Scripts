@@ -9,6 +9,9 @@
 
 The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep Tool** (`IntuneWinAppUtil.exe`) and wraps it with a GUI for easier packaging of applications for deployment through Intune. By streamlining the process of creating `.intunewin` files, this tool saves time and reduces potential errors in application packaging.
 
+## **Screenshot**
+![Screenshot](Screenshot.png)
+
 ## Features
 
 - **User-Friendly GUI**: Simplifies the Win32 app packaging process.
