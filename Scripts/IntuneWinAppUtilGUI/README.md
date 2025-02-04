@@ -58,9 +58,9 @@ The **IntuneWinAppUtilGUI** script leverages the **Microsoft Win32 Content Prep 
 - **Incomplete Packaging**: Double-check that the source folder and setup file paths are correctly specified.
 
 ## License
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+## Disclaimer
+These scripts are provided as-is. Test them in a staging environment before applying them to production. The author is not responsible for any unintended outcomes resulting from their use.
 
----
 
-*With IntuneWinAppUtilGUI, packaging Win32 applications for Intune has never been easier! Use this tool to simplify and streamline your application deployments.*
