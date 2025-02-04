@@ -11,7 +11,8 @@
     .\Detect-KBUpdate.ps1
 
 .NOTES
-    Author: Your Name
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
     Date: 2025-02-04
 #>
 
