@@ -1,0 +1,18 @@
+{
+    "Rules": [
+        {
+            "SettingName": "Installed",
+            "Operator": "IsEquals",
+            "DataType": "Boolean",
+            "Operand": false,
+            "MoreInfoUrl": "https://www.momar.tech",
+            "RemediationStrings": [
+                {
+                    "Language": "en_US",
+                    "Title": "App is not installed on the system.",
+                    "Description": "App on the device"
+                }
+            ]
+        }
+    ]
+}
