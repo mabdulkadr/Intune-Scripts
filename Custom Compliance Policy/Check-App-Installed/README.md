@@ -70,7 +70,7 @@ Defines the compliance policy rule that checks whether an application is install
 ### Modify the PowerShell Script
 Edit the `$applicationName` array in `Check-App-Installed.ps1` to include the applications you want to check.
 ```powershell
-[array]$applicationName = @("Google Chrome", "7-Zip", "Mozilla Firefox", "Zoom")
+[array]$applicationName = @("Google Chrome")
 ```
 
 ## Notes
