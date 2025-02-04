@@ -1,4 +1,32 @@
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
+<#
+.SYNOPSIS
+    IntuneWin Application Utility - A GUI tool to create .intunewin packages from .exe or .msi installers.
+
+.DESCRIPTION
+    This script provides a graphical user interface (GUI) to simplify the process of creating Win32 applications for Microsoft Intune.
+    It allows users to browse for source folders, select installer files, specify output folders, and generate the required .intunewin package.
+
+.FEATURES
+    - Browse for source and output folders using a GUI.
+    - Select an executable or MSI installer for packaging.
+    - Displays real-time logs and messages.
+    - Color-coded status messages for better visibility.
+    - Uses `IntuneWinAppUtil.exe` to generate IntuneWin packages.
+    - Provides a progress indicator for packaging status.
+    - Supports folder selection validation and error handling.
+
+.AUTHOR
+    Developed by Shishir Kushawaha
+    
+.NOTES
+    - Ensure `IntuneWinAppUtil.exe` is in the same directory as the script.
+    - Requires PowerShell execution policy set to `Unrestricted` in the process scope.
+
+#>
+
+# Set PowerShell Execution Policy for this session
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process -Force
+
 
 function displayRichText($text)
 {
