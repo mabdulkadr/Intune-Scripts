@@ -38,7 +38,6 @@ The generator produces **PowerShell scripts and JSON configuration files** that 
 - Click **Remove** to delete applications from the list.
 - Click **Next** to proceed.
 
-![GUI Application Selection](https://github.com/LeeViewB/CheckComplianceScripts/blob/main/screenshots/app-selection.png)
 
 ---
 
@@ -48,14 +47,12 @@ The generator produces **PowerShell scripts and JSON configuration files** that 
 - Choose **HKCU (user-based install)** or **HKLM (machine-wide install)** based on the app’s installation method.
 - Click **Next** to continue.
 
-![Compliance Type Selection](https://github.com/LeeViewB/CheckComplianceScripts/blob/main/screenshots/compliance-type.png)
 
 ---
 
 ### 4. Enter Minimum Version (If Selected)
 If you selected **Check app version**, you will be prompted to enter the **minimum required version** for each application.
 
-![Enter Minimum Version](https://github.com/LeeViewB/CheckComplianceScripts/blob/main/screenshots/enter-version.png)
 
 - Enter the required version numbers.
 - Click **OK** to proceed.
