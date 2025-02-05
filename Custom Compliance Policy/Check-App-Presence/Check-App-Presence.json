@@ -4,7 +4,7 @@
                       "SettingName":  "Google Chrome",
                       "Operator":  "IsEquals",
                       "DataType":  "Boolean",
-                      "Operand":  false,
+                      "Operand":  true,
                       "MoreInfoUrl":  "https://www.liviubarbat.info",
                       "RemediationStrings":  [
                                                  {
