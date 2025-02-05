@@ -78,7 +78,7 @@ If ($userProfileApp) {
                 break  # No need to check further once found
             }
         }
-        $application = $application + " Installed"
+        $application = $application
         @{
             $application = $appInstalled
         }
