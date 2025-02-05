@@ -71,8 +71,8 @@ Execute the PowerShell script to check for the specified application(s).
 ---
 
 ## Deployment in Intune
-1. **Upload `Check-App-Version.ps1`** as a detection script in Intune.
-2. **Upload `Check-App-Version.json`** as the compliance policy rule.
+1. **Upload `Check-App-Presence.ps1`** as a detection script in Intune.
+2. **Upload `Check-App-Presence.json`** as the compliance policy rule.
 3. Assign the compliance policy to target devices.
 4. Monitor compliance reports in the Intune admin center.
 
