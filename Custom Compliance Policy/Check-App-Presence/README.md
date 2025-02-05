@@ -11,7 +11,6 @@ The **Check-App-Presence** script is a **PowerShell-based detection tool** desig
 
 This script is particularly useful for **Microsoft Intune** compliance policies, allowing organizations to ensure that unauthorized software is not installed on managed devices.
 
-> **Example:** In this documentation, **Google Chrome** is used as an example. However, you can customize the script to detect any other application by modifying the JSON file.
 
 ---
 
