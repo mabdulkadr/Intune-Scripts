@@ -96,6 +96,13 @@ This script uses **app-based authentication** with Azure AD application credenti
 .\SynsAllIntuneDevices-AppAuth.ps1 -TenantID "12345678-90ab-cdef-1234-567890abcdef" -AppID "abcdef12-3456-7890-abcd-ef1234567890" -AppSecret "your-app-secret"
 ```
 
+---
+
+## References
+- [Sync All Intune Devices Script by Andrew S. Taylor](https://github.com/andrew-s-taylor/public/blob/main/Powershell%20Scripts/Intune/SyncAllIntuneDevices.ps1)
+
+---
+
 ## Notes
 
 - **Security Warning**: Avoid hardcoding sensitive information like `AppSecret` in scripts. Consider using secure methods to store and retrieve secrets, such as Azure Key Vault or encrypted credential files.
