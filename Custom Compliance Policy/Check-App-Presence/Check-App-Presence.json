@@ -1,0 +1,18 @@
+﻿{
+    "Rules":  [
+                  {
+                      "SettingName":  "Google Chrome",
+                      "Operator":  "IsEquals",
+                      "DataType":  "Boolean",
+                      "Operand":  false,
+                      "MoreInfoUrl":  "https://www.liviubarbat.info",
+                      "RemediationStrings":  [
+                                                 {
+                                                     "Language":  "en_US",
+                                                     "Title":  "Google Chrome is installed.",
+                                                     "Description":  "Please uninstall this software"
+                                                 }
+                                             ]
+                  }
+              ]
+}
