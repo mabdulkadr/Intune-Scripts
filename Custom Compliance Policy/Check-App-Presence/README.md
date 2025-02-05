@@ -104,8 +104,9 @@ To enforce compliance policies in **Microsoft Intune**, follow these steps:
 ---
 
 ## Example Use Cases
+- **Ensure critical applications are Installed** (e.g., Antivirus software, Security tools).
 - **Block unauthorized software** (e.g., **Google Chrome, Zoom, TeamViewer**).
-- **Ensure critical applications are removed** (e.g., legacy apps no longer allowed).
+- **Ensure unwanted applications are removed** (e.g., legacy apps no longer allowed).
 - **Improve security** by restricting non-compliant software.
 
 ---
