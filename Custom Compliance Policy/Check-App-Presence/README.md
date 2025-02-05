@@ -62,24 +62,6 @@ Execute the PowerShell script to check for the specified application(s).
 
 ---
 
-### 3. Understanding the Output
-The script returns a **compliance status** based on application detection:
-
-✅ **Compliance (Exit Code 0):** The application is **not installed** (allowed).  
-❌ **Non-Compliance (Exit Code 1):** The application **is installed** (blocked).  
-
-#### Example Output:
-If **Google Chrome** is found:
-```
-Google Chrome is installed.
-```
-If **Google Chrome** is **not** found:
-```
-None of the specified applications were found.
-```
-
----
-
 ## Customization
 
 1. **To detect a different application,** update `Check-App-Presence.json` with the application's name.
