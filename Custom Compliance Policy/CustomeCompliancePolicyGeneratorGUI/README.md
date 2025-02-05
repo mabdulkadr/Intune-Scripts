@@ -14,6 +14,11 @@ The generator produces **PowerShell scripts and JSON configuration files** that 
 
 ---
 
+## **Screenshot**
+![Screenshot](Screenshot.png)
+
+---
+
 ## Features
 ✔️ **Easy-to-use GUI** for generating compliance detection files.  
 ✔️ **Supports multiple applications** in a single compliance policy.  
