@@ -8,7 +8,7 @@
 ![Version](https://img.shields.io/badge/version-1.0-green.svg)
 
 ## Overview
-The **CustomeCompliancePolicyGeneratorGUI** is a **GUI-based tool** designed to simplify the creation of **Intune compliance detection scripts** for multiple applications. This tool allows IT administrators to easily define compliance rules for **application presence or version requirements**, ensuring compliance with corporate policies.
+The **Check-ComplianceMultipleAppsFilesGenerator** is a **GUI-based tool** designed to simplify the creation of **Intune compliance detection scripts** for multiple applications. This tool allows IT administrators to easily define compliance rules for **application presence or version requirements**, ensuring compliance with corporate policies.
 
 The generator produces **PowerShell scripts and JSON configuration files** that can be used as **custom compliance policies in Microsoft Intune**. This eliminates the need for manual script writing and ensures consistency across managed devices.
 
@@ -34,7 +34,7 @@ The generator produces **PowerShell scripts and JSON configuration files** that 
 ## Installation & Usage
 
 ### 1. Download & Run
-- Download **CustomeCompliancePolicyGeneratorGUI.exe**.
+- Download **Check-ComplianceMultipleAppsFilesGenerator.exe**.
 - Run the **.exe** file (**No installation required**).
 
 ### 2. Select Applications for Compliance Check
