@@ -70,14 +70,11 @@ Execute the PowerShell script to check for the specified application(s).
 
 ---
 
-## Intune Deployment Guide
-This script can be used in **Microsoft Intune** as a **custom compliance policy**:
-
-1. **Go to:** Intune Admin Center → Devices → Compliance policies.
-2. **Create a new policy** for Windows 10/11.
-3. **Select "Custom Compliance"** and upload both `Check-App-Presence.ps1` and `Check-App-Presence.json`.
-4. Define the remediation action (e.g., notify users, restrict access).
-5. Assign the policy to the desired **user/device group**.
+## Deployment in Intune
+1. **Upload `Check-App-Version.ps1`** as a detection script in Intune.
+2. **Upload `Check-App-Version.json`** as the compliance policy rule.
+3. Assign the compliance policy to target devices.
+4. Monitor compliance reports in the Intune admin center.
 
 ---
 
