@@ -65,10 +65,6 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.Graph.Beta.DeviceManagement.
 Import-Module Microsoft.Graph.Authentication
 Import-Module Microsoft.Graph.Beta.DeviceManagement.Actions
 
-####################################################
-# Authenticate with an MFA enabled account
-####################################################
-Connect-MgGraph -Scopes "DeviceManagementConfiguration.ReadWrite.All"
 
 ####################################################
 # Function to Connect to Microsoft Graph
