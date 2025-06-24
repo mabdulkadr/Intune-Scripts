@@ -23,18 +23,12 @@
     Date    : 2024-11-03
 #>
 
-# Define script parameters with default values
-param (
-    [Parameter(Mandatory = $true)]
-    [string]$TenantID = "<Your Tenant ID>",
-
-    [Parameter(Mandatory = $true)]
-    [string]$AppID = "<Your Application (Client) ID>",
-
-    [Parameter(Mandatory = $true)]
-    [string]$AppSecret = "<Your Client Secret>"
-)
-
+####################################################
+# Automatically Connect to Microsoft Graph using App-based Authentication
+####################################################
+$tenantID = "c2b04da6-8487-41cc-8803-90321048a772"
+$appID = "6c70c0c3-e3a6-489c-973e-51e8138540f9"          #ClientID
+$appSecret = "Uoj8Q~1_acd.7WU4Ol3vOczrfeYQbdHR_mzhTb6n"  #Client Secret
 
 ####################################################
 # Install and Import Microsoft Graph Modules
@@ -54,7 +48,7 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.Graph.Authentication)) {
     Write-Host "Microsoft Graph Authentication Module Already Installed" -ForegroundColor Green
 }
 
-# Install Microsoft.Graph.Beta.DeviceManagement.Actions Module if not installed
+# Install Microsoft.Graph.Beta.DeviceManagement.Actions if not installed
 if (-not (Get-Module -ListAvailable -Name Microsoft.Graph.Beta.DeviceManagement.Actions)) {
     try {
         Install-Module -Name Microsoft.Graph.Beta.DeviceManagement.Actions -Scope CurrentUser -Repository PSGallery -Force
@@ -67,9 +61,14 @@ if (-not (Get-Module -ListAvailable -Name Microsoft.Graph.Beta.DeviceManagement.
     Write-Host "Microsoft Graph Beta Device Management Module Already Installed" -ForegroundColor Green
 }
 
-# Import the installed Microsoft Graph modules into the current session
+# Import necessary modules
 Import-Module Microsoft.Graph.Authentication
 Import-Module Microsoft.Graph.Beta.DeviceManagement.Actions
+
+####################################################
+# Authenticate with an MFA enabled account
+####################################################
+Connect-MgGraph -Scopes "DeviceManagementConfiguration.ReadWrite.All"
 
 ####################################################
 # Function to Connect to Microsoft Graph
@@ -82,7 +81,6 @@ function Connect-ToGraph {
         [Parameter(Mandatory = $false)] [string]$Scopes = "DeviceManagementConfiguration.ReadWrite.All"
     )
 
-    # Determine the version of the Microsoft Graph module
     $version = (Get-Module microsoft.graph.authentication).Version.Major
 
     if ($AppId) {
@@ -94,7 +92,6 @@ function Connect-ToGraph {
             scope         = "https://graph.microsoft.com/.default"
         }
 
-        # Obtain the access token using client credentials flow
         $response = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$Tenant/oauth2/v2.0/token" -Body $body
         $accessToken = $response.access_token
 
@@ -106,8 +103,6 @@ function Connect-ToGraph {
             Select-MgProfile -Name Beta
             $accessTokenFinal = $accessToken
         }
-
-        # Connect to Microsoft Graph using the access token
         Connect-MgGraph -AccessToken $accessTokenFinal
         Write-Host "Connected to Intune tenant $Tenant using App-based Authentication" -ForegroundColor Green
     } else {
@@ -118,63 +113,44 @@ function Connect-ToGraph {
             Write-Host "Version 1 Module Detected" -ForegroundColor Yellow
             Select-MgProfile -Name Beta
         }
-
-        # Prompt the user to authenticate with Microsoft Graph
         Connect-MgGraph -Scopes $Scopes
         Write-Host "Connected to Intune tenant $((Get-MgTenant).TenantId)" -ForegroundColor Green
     }
 }
 
-####################################################
-# Automatically Connect to Microsoft Graph using App-based Authentication
-####################################################
 
-# Call the Connect-ToGraph function with the provided parameters
-Connect-ToGraph -Tenant $TenantID -AppId $AppID -AppSecret $AppSecret
+Connect-ToGraph -Tenant $tenantID -AppId $appID -AppSecret $appSecret
 
 ####################################################
 # Fetch and Approve Windows Driver Updates
 ####################################################
 Write-Host "Fetching and Approving Driver Updates" -ForegroundColor Cyan
 
-# Define the URL to fetch all Windows driver update profiles from Microsoft Graph
+# Fetch all driver update profiles
 $profileUrl = "https://graph.microsoft.com/beta/deviceManagement/windowsDriverUpdateProfiles/"
-
-# Send a GET request to retrieve all driver update profiles
 $response = Invoke-MgGraphRequest -Uri $profileUrl -Method GET
 
-# Loop through each driver update profile retrieved from the response
+# Loop through each driver profile
 foreach ($driverProfile in $response.value) {
-    # Extract the ID of the current driver update profile
     $driverProfileID = $driverProfile.id
-
-    # Construct the URL to fetch driver inventories that need review and belong to the 'other' category
     $url = "https://graph.microsoft.com/beta/deviceManagement/windowsDriverUpdateProfiles/$driverProfileID/driverInventories?\$filter=category eq 'other' and approvalStatus eq 'needsreview'"
 
-    # Initialize a loop to handle paginated results (if any)
     do {
-        # Send a GET request to retrieve driver inventories matching the specified criteria
         $response2 = Invoke-MgGraphRequest -Uri $url -Method GET
 
-        # Loop through each driver inventory item that needs review
         foreach ($item in $response2.value) {
-            # Extract the ID of the driver that requires approval
             $driverID = $item.id
-
-            # Prepare the parameters required to approve the driver update
             $params = @{
-                actionName     = "Approve"                          # Action to perform
-                driverIds      = @($driverID)                       # Driver IDs to approve
-                deploymentDate = (Get-Date).ToString("o")           # Deployment date in ISO 8601 format
+                actionName    = "Approve"
+                driverIds     = @($driverID)
+                # Format deploymentDate as an ISO 8601 DateTimeOffset string
+                deploymentDate = (Get-Date).ToString("o") # ISO 8601 format for DateTimeOffset
             }
 
-            # Construct the URL to execute the approval action on the driver profile
+            # Use REST API to approve the driver update
             $approvalUrl = "https://graph.microsoft.com/beta/deviceManagement/windowsDriverUpdateProfiles/$driverProfileID/microsoft.graph.executeAction"
-
-            # Send a POST request to approve the driver update
             $response = Invoke-MgGraphRequest -Uri $approvalUrl -Method POST -Body ($params | ConvertTo-Json -Depth 3)
 
-            # Check if the approval was successful and display the appropriate message
             if ($response) {
                 Write-Host "Driver $driverID approved for deployment" -ForegroundColor Green
             } else {
@@ -182,9 +158,8 @@ foreach ($driverProfile in $response.value) {
             }
         }
 
-        # Update the URL with the next page link if more results are available (pagination)
         $url = $response2.'@odata.nextLink'
-    } while ($null -ne $url)  # Continue looping until all pages are processed
+    } while ($null -ne $url)
 }
 
 ####################################################
