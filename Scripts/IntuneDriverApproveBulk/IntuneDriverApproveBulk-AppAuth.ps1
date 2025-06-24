@@ -26,9 +26,9 @@
 ####################################################
 # Automatically Connect to Microsoft Graph using App-based Authentication
 ####################################################
-$tenantID = "c2b04da6-8487-41cc-8803-90321048a772"
-$appID = "6c70c0c3-e3a6-489c-973e-51e8138540f9"          #ClientID
-$appSecret = "Uoj8Q~1_acd.7WU4Ol3vOczrfeYQbdHR_mzhTb6n"  #Client Secret
+$tenantID = "<Your Tenant ID>"                     #Tenant ID
+$appID = "<Your Application (Client) ID>"          #Client ID
+$appSecret = "<Your Client Secret>"                #Client Secret
 
 ####################################################
 # Install and Import Microsoft Graph Modules
