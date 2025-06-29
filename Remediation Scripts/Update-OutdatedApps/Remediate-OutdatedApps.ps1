@@ -119,7 +119,8 @@ function Update-Apps {
     }
 
     # Final Audit Table
-    Log "======== Full App Audit & Update Table ========"
+    $StartTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Log "========  Full App Audit & Update Table [$StartTime]  ========"
     Log "AppName                 PackageId                     CurrentVer      Native    Upgradable  LatestVer      UpdateStatus"
     Log "----------------------  ----------------------------  -------------- ---------  ----------  ------------  ------------"
     foreach ($r in $results | Sort-Object AppName) {
