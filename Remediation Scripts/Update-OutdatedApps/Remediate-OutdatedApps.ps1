@@ -37,14 +37,14 @@ function Log($msg) {
     "$msg" | Tee-Object -FilePath $logFile -Append
 }
 
-# Resolve WinGet executable path
+# -------- Resolve WinGet executable path -------- 
 function Get-WingetPath {
     (Resolve-Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*") | ForEach-Object {
         Join-Path $_.Path "winget.exe"
     } | Where-Object { Test-Path $_ } | Select-Object -Last 1
 }
 
-# Retrieve installed apps
+# -------- Retrieve installed apps -------- 
 function Get-Apps($winget) {
     $lines = & $winget list --accept-source-agreements | Where-Object { $_ -match '\S' -and $_ -notmatch '^[-|]+' }
     $header = ($lines | Select-String 'Name\s+Id').LineNumber
@@ -62,7 +62,7 @@ function Get-Apps($winget) {
     }
 }
 
-# Retrieve upgradable apps
+# -------- Retrieve upgradable apps -------- 
 function Get-Upgrades($winget) {
     $lines = & $winget upgrade --accept-source-agreements --accept-package-agreements | Where-Object { $_ -match '\S' -and $_ -notmatch '^[-|]+' }
     $header = ($lines | Select-String 'Name\s+Id').LineNumber
@@ -90,7 +90,7 @@ function Update-Apps {
     $apps = Get-Apps $winget
     $upgMap = Get-Upgrades $winget
 
-    # Process each app
+    # -------- Process each app -------- 
     $results = foreach ($app in $apps) {
         $excluded = $ExcludeNames -contains $app.AppName -or $ExcludeWingetIds -contains $app.PackageId
         $app | Add-Member -NotePropertyName IsExcluded -NotePropertyValue $excluded
@@ -118,7 +118,7 @@ function Update-Apps {
         $app
     }
 
-    # Final Audit Table
+    # -------- Final Audit Table -------- 
     $StartTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Log "========  Full App Audit & Update Table [$StartTime]  ========"
     Log "AppName                 PackageId                     CurrentVer      Native    Upgradable  LatestVer      UpdateStatus"
