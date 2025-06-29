@@ -17,58 +17,44 @@
     Version : 2.0
 #>
 
-# ===== Winget Check =====
-if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
-    Write-Output "Winget not found. Device is Non-Compliant."
+# -------- Resolve Winget --------
+$ResolveWingetPath = Resolve-Path "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe" -ErrorAction SilentlyContinue
+if (-not $ResolveWingetPath) {
+    Write-Output "Winget not found. Non-Compliant"
     exit 1
 }
+$WingetPath = $ResolveWingetPath[-1].Path
+$Winget = "$WingetPath\winget.exe"
 
-# ===== Get Upgrade List =====
-try {
-    $wingetOutput = winget upgrade --accept-source-agreements --accept-package-agreements 2>&1
-} catch {
-    Write-Output "Error running winget. Device is Non-Compliant."
-    exit 1
-}
-
-# ===== Clean spinner/art lines, find table header =====
-function Remove-ArtLines { param($lines)
-    $lines | Where-Object { $_ -notmatch '^\s*[\|\\/\-]+\s*$' -and $_.Trim() -ne "" }
-}
-$cleanOutput = Remove-ArtLines $wingetOutput
-$headerIdx = ($cleanOutput | Select-String -Pattern '^\s*Name\s+Id(\s+Version)?' | Select-Object -First 1).LineNumber
-if (-not $headerIdx) {
+# -------- Run upgrade check --------
+$upgrades = & $Winget upgrade --accept-source-agreements --accept-package-agreements 2>&1
+if (-not $upgrades) {
     Write-Output "Compliant"
     exit 0
 }
-$dataLines = $cleanOutput[$headerIdx..($cleanOutput.Count-1)] | Where-Object { $_ -notmatch '^-+$' }
 
-# ===== Parse as [Name] [Id] ([Version] ...) =====
-$apps = @()
-foreach ($line in $dataLines) {
-    $columns = $line -split '\s{2,}'
-    if ($columns.Count -ge 2) {
-        $apps += [PSCustomObject]@{
-            Name    = $columns[0].Trim()
-            Id      = $columns[1].Trim()
-        }
+# -------- Clean output and check --------
+$filtered = $upgrades | Where-Object {
+    $_ -notmatch '^\s*[\|\\/\-]+\s*$' -and $_.Trim() -ne ""
+}
+$header = ($filtered | Select-String -Pattern '^\s*Name\s+Id' | Select-Object -First 1).LineNumber
+if (-not $header) {
+    Write-Output "Compliant"
+    exit 0
+}
+$data = $filtered[$header..($filtered.Count - 1)]
+$apps = foreach ($line in $data) {
+    $cols = $line -split '\s{2,}'
+    if ($cols.Count -ge 2) {
+        [PSCustomObject]@{ Name = $cols[0]; Id = $cols[1] }
     }
 }
 
-if (-not $apps) {
-    Write-Output "Compliant"
-    exit 0
-}
-
-# ===== Exclude Java and non-Win32 apps =====
-$javaPattern = '(?i)java|openjdk|adoptopenjdk|oraclejdk|azul|corretto|graalvm|jdk|jre'
 $appsToCheck = $apps | Where-Object {
-    $_.Name -notmatch $javaPattern -and $_.Id -notmatch $javaPattern -and
-    $_.Id -notmatch '^(ARP|MSIX|XP|XPFCG|XP8B|XPFC|MSIX\\|MSIX/)' -and
-    $_.Id -match '\.'               # Only vendor.ids (Google.Chrome, etc.)
+    $_.Id -match '\.' -and $_.Id -notmatch '^(MSIX|ARP|XP)' -and $_.Name -notmatch '(?i)java|jdk|jre|openjdk|graalvm|oraclejdk'
 }
 
-if ($appsToCheck) {
+if ($appsToCheck.Count -gt 0) {
     Write-Output "Non-Compliant"
     exit 1
 } else {
