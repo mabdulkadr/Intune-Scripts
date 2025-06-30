@@ -1,5 +1,5 @@
 
-# Adobe Flash Player Removal
+# Adobe Flash Player Uninstallation Detection and Remediation Scripts
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
