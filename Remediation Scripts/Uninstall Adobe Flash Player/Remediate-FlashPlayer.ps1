@@ -18,8 +18,7 @@ $ErrorActionPreference = 'Stop'
 $DownloadUrl      = "https://download.macromedia.com/get/flashplayer/current/support/uninstall_flash_player.exe"
 $LocalUninstaller = "$env:TEMP\uninstall_flash_player.exe"
 $LogDir           = "C:\Intune"
-$LogFile          = "$LogDir\flash_uninstall.log"
-$ErrorLogFile     = "$LogDir\flash_uninstall_error.log"
+$LogFile          = "$LogDir\FlashPlayer_Uninstall.txt"
 
 if (-not (Test-Path $LogDir)) {
     New-Item -Path $LogDir -ItemType Directory -Force
@@ -63,7 +62,7 @@ foreach ($p in $FilePaths) {
             Remove-Item -Path $p -Recurse -Force
             "$((Get-Date)) - Removed: $p" | Tee-Object -FilePath $LogFile -Append
         } catch {
-            "$((Get-Date)) - Error deleting $p : $_" | Tee-Object -FilePath $ErrorLogFile -Append
+            "$((Get-Date)) - Error deleting $p : $_" | Tee-Object -FilePath $LogFile -Append
         }
     }
 }
@@ -76,7 +75,7 @@ foreach ($r in $RegistryPaths) {
             "$((Get-Date)) - Deleted registry key: $r" | Tee-Object -FilePath $LogFile -Append
         }
     } catch {
-        "$((Get-Date)) - Error deleting registry $r : $_" | Tee-Object -FilePath $ErrorLogFile -Append
+        "$((Get-Date)) - Error deleting registry $r : $_" | Tee-Object -FilePath $LogFile -Append
     }
 }
 
