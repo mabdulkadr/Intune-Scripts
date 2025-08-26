@@ -18,7 +18,7 @@
     - Audits Windows update deployment errors and Windows 365 device usage.
     - Validates Intune service health status and active issues.
     - Generates a HTML report with formatted tables for better readability.
-    - Sends the report via email using SendGrid API.
+    - Sends the report via email.
 
 .INPUTS
     - Tenant      : The Microsoft Entra ID tenant ID.
