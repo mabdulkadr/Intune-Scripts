@@ -127,7 +127,7 @@ Generates **detailed PDF reports** of 150+ Intune policies with settings, assign
 
 ## 🤝 Contributing
 This list is **community-driven**.  
-If you know a useful Intune tool that’s missing, please **open an issue or PR**.
+If you know a useful Intune tool not listed here, feel free to **open an issue or pull request**.
 
 ---
 
