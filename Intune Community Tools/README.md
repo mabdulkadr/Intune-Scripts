@@ -1,7 +1,6 @@
 # 🌐 Intune Community Tools
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)
 ![Contributions](https://img.shields.io/badge/contributions-welcome-green.svg)
 
 A **community-driven collection of tools, scripts, and dashboards** for Microsoft Intune & Endpoint Manager.  
