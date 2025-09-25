@@ -908,12 +908,97 @@ $FooterRight.Text  = "$year $CopyrightBy - All Rights Reserved"
 # ---------------------------
 # region [Wire up UI events]
 # ---------------------------
+# ---------------------------
+# region [Wire up UI events]
+# ---------------------------
 $Window.Add_Loaded({
-  Refresh-DeviceInfo
+
+  # Fast paint
   Update-MainGraphUI
   $TxtSaveFolder.Text = $Paths.HwId
-  Add-Log "Ready." "INFO"
+  Add-Log "UI loaded. Collecting device info in background..." "INFO"
+
+  # Track the job and timer in script scope so handlers can see them
+  $script:DevInfoJob  = $null
+  $script:TimerDev    = $null
+
+  # Kick off background collection
+  $script:DevInfoJob = Start-Job -ScriptBlock {
+    # Collect device info (no UI objects here)
+    try {
+      $cs    = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+      $bios  = Get-CimInstance Win32_BIOS -ErrorAction SilentlyContinue
+      $disks = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue
+      $tpm   = Get-CimInstance -Namespace root\cimv2\security\microsofttpm -Class Win32_Tpm -ErrorAction SilentlyContinue
+
+      $free = 0; if ($disks) { foreach ($d in $disks) { if ($d.FreeSpace) { $free += [int64]$d.FreeSpace } } }
+
+      [pscustomobject]@{
+        Model         = $cs.Model
+        Name          = $cs.Name
+        Manufacturer  = $cs.Manufacturer
+        Serial        = $bios.SerialNumber
+        FreeGB        = [math]::Round($free/1GB,0)
+        Tpm           = if ($tpm.SpecVersion) { $tpm.SpecVersion } elseif ($tpm.ManufacturerVersion) { $tpm.ManufacturerVersion } else { "Not present" }
+        NetConnected  = (try { (New-Object Net.Sockets.TcpClient).BeginConnect('www.microsoft.com',443,$null,$null).AsyncWaitHandle.WaitOne(2000,$false) } catch { $false })
+      }
+    } catch {
+      [pscustomobject]@{ Error = $_.Exception.Message }
+    }
+  }
+
+  # Poll for completion on the UI thread
+  $script:TimerDev = New-Object Windows.Threading.DispatcherTimer
+  $script:TimerDev.Interval = [TimeSpan]::FromMilliseconds(600)
+  $script:TimerDev.Add_Tick({
+    param($s,$e)  # $s is the timer (sender)
+
+    try {
+      if (-not $script:DevInfoJob) { return }
+
+      if ($script:DevInfoJob.State -eq 'Completed') {
+        $res = Receive-Job $script:DevInfoJob -ErrorAction SilentlyContinue
+        Remove-Job  $script:DevInfoJob -Force -ErrorAction SilentlyContinue
+        $script:DevInfoJob = $null
+
+        if ($res -and $res.Error) {
+          Add-Log ("Device info error: " + $res.Error) "WARN"
+        } elseif ($res) {
+          # Safely update labels
+          $LblDevModel.Text     = ($res.Model         | ForEach-Object { $_ })  ?? '-'
+          $LblDevName.Text      = ($res.Name          | ForEach-Object { $_ })  ?? '-'
+          $LblManufacturer.Text = ($res.Manufacturer  | ForEach-Object { $_ })  ?? '-'
+          $LblSerial.Text       = ($res.Serial        | ForEach-Object { $_ })  ?? '-'
+          $LblFreeGb.Text       = ($res.FreeGB        | ForEach-Object { $_ })  ?? '-'
+          $LblTpm.Text          = ($res.Tpm           | ForEach-Object { $_ })  ?? 'Unknown'
+
+          if ($res.NetConnected) { $LblNet.Text = 'Connected'; $LblNet.Foreground = New-Brush '#0A8A0A' }
+          else                   { $LblNet.Text = 'Not connected'; $LblNet.Foreground = New-Brush '#D13438' }
+
+          Add-Log "Device info collected." "SUCCESS"
+        }
+
+        # Stop via sender (avoids null/closure issues)
+        if ($s -and $s -is [Windows.Threading.DispatcherTimer]) { $s.Stop() }
+        $script:TimerDev = $null
+      }
+    } catch {
+      Add-Log ("Timer error: " + $_.Exception.Message) "ERROR"
+      if ($s -and $s -is [Windows.Threading.DispatcherTimer]) { $s.Stop() }
+      $script:TimerDev = $null
+      if ($script:DevInfoJob) { Remove-Job $script:DevInfoJob -Force -ErrorAction SilentlyContinue; $script:DevInfoJob = $null }
+    }
+  })
+  $script:TimerDev.Start()
 })
+
+# Optional: clean up if window closes early
+$Window.Add_Closed({
+  if ($script:TimerDev)   { try { $script:TimerDev.Stop() } catch {} ; $script:TimerDev = $null }
+  if ($script:DevInfoJob) { try { Remove-Job $script:DevInfoJob -Force } catch {} ; $script:DevInfoJob = $null }
+})
+
+
 
 $BtnClearLog.Add_Click({ $TxtLog.Document.Blocks.Clear() })
 $BtnCopyLog.Add_Click({
