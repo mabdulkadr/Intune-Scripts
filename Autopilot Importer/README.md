@@ -32,6 +32,11 @@ C:\AutopilotGUI{HWID, Logs, Settings}
 
 ---
 
+## **Screenshot**
+![Screenshot](Screenshot.png)
+
+---
+
 ## ✨ Features
 - ✅ **Dual Support** → Run as **script** or **packaged EXE**
 - ✅ **HWID Collector** → CSV compliant with Autopilot requirements
