@@ -1,43 +1,29 @@
 <#! 
 .SYNOPSIS
-    Autopilot Importer — Dual-mode (CLI + GUI) tool for collecting and enrolling Windows devices into Intune Autopilot.
+    Autopilot Importer — Dual-mode (GUI-first with optional CLI ops) for collecting and enrolling Windows devices into Intune Autopilot.
 
 .DESCRIPTION
-    This script provides both a PowerShell CLI and WPF-based GUI to streamline the Windows Autopilot enrollment process. 
-    It enables IT admins to:
-      • Collect hardware hash (HWID) into a compliant CSV file
-      • Connect to Microsoft Graph (interactive or app-only authentication)
+    WPF GUI tool (PowerShell 5.1) to:
+      • Collect Windows Autopilot hardware hash (HWID) into CSV
+      • Connect to Microsoft Graph (Interactive or App-only: secret/cert)
       • Enroll (upload) devices to Intune Autopilot from CSV/JSON
-        - If no file is selected, the tool automatically creates a CSV for the current device
-      • Search existing Autopilot devices by serial number
-      • Display local device information (model, serial, manufacturer, TPM version, disk space, internet status)
-    
-    All working files (HWID exports, logs, settings) are stored under:
-        C:\AutopilotGUI\{HWID, Logs, Settings}
+        - If no file is selected, auto-creates a one-device CSV from the current machine
+      • Look up existing Autopilot devices (by Serial)
+      • Show local device info (model/name/manufacturer/serial, TPM, free disk, internet)
 
-    A packaged EXE version is also provided for GUI-only use.
+    All working files are stored under:
+      C:\AutopilotGUI\{HWID, Logs, Settings}
 
 .EXAMPLE
-    # Run as script (CLI + GUI)
+    # Run the GUI
     .\Autopilot Importer.ps1
-
-    # Collect HWID directly via CLI
-    .\Autopilot Importer.ps1 -CollectHWID -OutPath "C:\HWID"
-
-    # Enroll devices from CSV
-    .\Autopilot Importer.ps1 -Enroll -Path "C:\HWID\AutopilotHWID.csv" -GroupTag "IT-Std"
-
-    # Search for a device by serial number
-    .\Autopilot Importer.ps1 -Find -Serial "PF12345"
 
 .NOTES
     Author  : M. Omar (momar.tech)
     Version : 1.0
-    License : MIT
     Date    : 2025-09-25
-    Modules : Microsoft.Graph.Authentication (required for Graph operations)
+    Requires: Windows PowerShell 5.1, .NET WPF, Microsoft.Graph.Authentication
 #>
-
 
 # -----------------------------
 # region [Bootstrapping / .NET]
@@ -56,7 +42,6 @@ $AppName     = 'Autopilot Importer'
 $AppVersion  = 'v1.0'
 $OrgName     = 'IT Operations'
 $CopyrightBy = 'M.Omar (momar.tech)'
-
 
 # Delegated scopes for interactive Graph auth (sufficient for Autopilot R/W)
 $DefaultScopes = @(
@@ -79,8 +64,8 @@ $Paths.GetEnumerator() | ForEach-Object {
   }
 }
 
-# Daily log file
-$LogFile = Join-Path $Paths.Logs ("app_{0}.log" -f (Get-Date -Format 'yyyyMMdd') + ".log")
+# Daily log file (fix: single .log suffix)
+$LogFile = Join-Path $Paths.Logs ("app_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
 # endregion
 
 # ------------------------------------
@@ -89,6 +74,16 @@ $LogFile = Join-Path $Paths.Logs ("app_{0}.log" -f (Get-Date -Format 'yyyyMMdd')
 function New-Brush([string]$color) {
   $bc = New-Object Windows.Media.BrushConverter
   return $bc.ConvertFromString($color)
+}
+
+function FallbackText {
+  param(
+    $Value,
+    [string]$Fallback = '-'
+  )
+  if ($null -eq $Value) { return $Fallback }
+  if ($Value -is [string] -and [string]::IsNullOrWhiteSpace($Value)) { return $Fallback }
+  return $Value
 }
 
 function Add-Log([string]$text, [string]$level='INFO') {
@@ -109,7 +104,11 @@ function Add-Log([string]$text, [string]$level='INFO') {
     })
   }
 
-  try { Add-Content -LiteralPath $LogFile -Value ("[{0}] {1}" -f $level, $text) } catch { }
+  try {
+    Add-Content -LiteralPath $LogFile -Value ("[{0}] {1}" -f $level, $text)
+  } catch {
+    Write-Warning "Could not write to log file $LogFile : $($_.Exception.Message)"
+  }
 }
 # endregion
 
@@ -123,53 +122,6 @@ function Test-Internet {
     if (-not $ar.AsyncWaitHandle.WaitOne(2000, $false)) { $tcp.Close(); return $false }
     $tcp.EndConnect($ar); $tcp.Close(); return $true
   } catch { return $false }
-}
-
-function Refresh-DeviceInfo {
-  $LblDevModel.Text = '-'
-  $LblDevName.Text  = '-'
-  $LblManufacturer.Text = '-'
-  $LblSerial.Text   = '-'
-  $LblFreeGb.Text   = '-'
-  $LblTpm.Text      = 'Unknown'; $LblTpm.Foreground = New-Brush '#444'
-  $LblNet.Text      = 'Not connected'; $LblNet.Foreground = New-Brush '#D13438'
-
-  try {
-    $cs   = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
-    $bios = Get-CimInstance Win32_BIOS          -ErrorAction SilentlyContinue
-    if ($cs -and $cs.Model)        { $LblDevModel.Text = $cs.Model }
-    if ($cs -and $cs.Name)         { $LblDevName.Text  = $cs.Name }
-    if ($cs -and $cs.Manufacturer) { $LblManufacturer.Text = $cs.Manufacturer }
-    if ($bios -and $bios.SerialNumber) { $LblSerial.Text = $bios.SerialNumber }
-  } catch { }
-
-  try {
-    $disks = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue
-    $free = 0
-    if ($disks) { foreach ($d in $disks) { if ($d.FreeSpace) { $free += [int64]$d.FreeSpace } } }
-    $LblFreeGb.Text = [string]([math]::Round($free/1GB, 0))
-  } catch { }
-
-  try {
-    $tpm = Get-CimInstance -Namespace root\cimv2\security\microsofttpm -Class Win32_Tpm -ErrorAction Stop
-    $spec = $null
-    if ($tpm -and $tpm.SpecVersion)          { $spec = [string]$tpm.SpecVersion }
-    elseif ($tpm -and $tpm.ManufacturerVersion) { $spec = [string]$tpm.ManufacturerVersion }
-    if ($spec) {
-      $LblTpm.Text = $spec
-      if ($spec -match '2\.0') { $LblTpm.Foreground = New-Brush '#0A8A0A' }
-      elseif ($spec -match '1\.2') { $LblTpm.Foreground = New-Brush '#D13438' }
-      else { $LblTpm.Foreground = New-Brush '#444' }
-    } else {
-      $LblTpm.Text = 'Not present'
-      $LblTpm.Foreground = New-Brush '#D13438'
-    }
-  } catch {
-    $LblTpm.Text = 'Unknown'
-    $LblTpm.Foreground = New-Brush '#444'
-  }
-
-  if (Test-Internet) { $LblNet.Text = 'Connected'; $LblNet.Foreground = New-Brush '#0A8A0A' }
 }
 # endregion
 
@@ -227,6 +179,7 @@ $Timer.Add_Tick({
 
       $txt = ($out | Out-String).Trim()
       if (-not $txt) { return }
+
       $obj = $null
       try { $obj = $txt | ConvertFrom-Json } catch { return }
 
@@ -238,6 +191,23 @@ $Timer.Add_Tick({
         if ($obj.CsvCreated -and $obj.CsvPath) { Add-Log ("CSV created: " + $obj.CsvPath) 'INFO' }
         if ($obj.Success) { Add-Log ("Uploaded " + $obj.Uploaded + " record(s) to Autopilot.") 'SUCCESS' }
         else              { Add-Log ("Upload error: " + $obj.Error) 'ERROR' }
+      }
+      elseif ($obj.Action -eq 'devinfo') {
+        if ($obj.Error) {
+          Add-Log ("Device info error: " + $obj.Error) 'WARN'
+        } else {
+          $LblDevModel.Text     = FallbackText $obj.Model
+          $LblDevName.Text      = FallbackText $obj.Name
+          $LblManufacturer.Text = FallbackText $obj.Manufacturer
+          $LblSerial.Text       = FallbackText $obj.Serial
+          $LblFreeGb.Text       = [string](FallbackText $obj.FreeGB)
+          $LblTpm.Text          = FallbackText $obj.Tpm 'Unknown'
+
+          if ($obj.NetConnected) { $LblNet.Text = 'Connected'; $LblNet.Foreground = New-Brush '#0A8A0A' }
+          else                   { $LblNet.Text = 'Not connected'; $LblNet.Foreground = New-Brush '#D13438' }
+
+          Add-Log "Device info collected." "SUCCESS"
+        }
       }
     }
   } catch {
@@ -252,6 +222,48 @@ $Timer.Add_Tick({
 # -------------------------
 # region [Worker scripts]
 # -------------------------
+# 0) Device info (runs after GUI shows; avoids blocking UI)
+$DevInfoWorker = @'
+try{
+  $cs    = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+  $bios  = Get-CimInstance Win32_BIOS -ErrorAction SilentlyContinue
+  $disks = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" -ErrorAction SilentlyContinue
+  $tpm   = Get-CimInstance -Namespace root\cimv2\security\microsofttpm -Class Win32_Tpm -ErrorAction SilentlyContinue
+
+  $free = 0; if ($disks) { foreach ($d in $disks) { if ($d.FreeSpace) { $free += [int64]$d.FreeSpace } } }
+
+  # quick tcp reachability (no ping requirement)
+  $net = $false
+  try {
+    $c = New-Object Net.Sockets.TcpClient
+    $ar = $c.BeginConnect('www.microsoft.com',443,$null,$null)
+    if ($ar.AsyncWaitHandle.WaitOne(2000,$false)) { $c.EndConnect($ar); $net = $true }
+    $c.Close()
+  } catch { $net = $false }
+
+  # Use a sub-expression for IF so PowerShell evaluates the block
+  $tpmText = $(
+    if ($tpm -and $tpm.SpecVersion) { $tpm.SpecVersion }
+    elseif ($tpm -and $tpm.ManufacturerVersion) { $tpm.ManufacturerVersion }
+    else { 'Not present' }
+  )
+
+  [pscustomobject]@{
+    Action        = 'devinfo'
+    Error         = $null
+    Model         = $cs.Model
+    Name          = $cs.Name
+    Manufacturer  = $cs.Manufacturer
+    Serial        = $bios.SerialNumber
+    FreeGB        = [math]::Round($free/1GB,0)
+    Tpm           = $tpmText
+    NetConnected  = $net
+  } | ConvertTo-Json -Compress
+}catch{
+  [pscustomobject]@{Action='devinfo';Error=$_.Exception.Message} | ConvertTo-Json -Compress
+}
+'@
+
 # 1) Collect HWID (CSV)
 $CollectHWIDWorker = @'
 param($OutFolder)
@@ -578,9 +590,9 @@ $Xaml = @"
 
   <Window.Resources>
     <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,0">
-      <GradientStop Color="#2563EB" Offset="0.0"/>   <!-- blue -->
-      <GradientStop Color="#7C3AED" Offset="0.55"/>  <!-- purple -->
-      <GradientStop Color="#06B6D4" Offset="1.0"/>   <!-- cyan -->
+      <GradientStop Color="#2563EB" Offset="0.0"/>
+      <GradientStop Color="#7C3AED" Offset="0.55"/>
+      <GradientStop Color="#06B6D4" Offset="1.0"/>
     </LinearGradientBrush>
     <Style TargetType="TextBox">
       <Setter Property="Height" Value="28"/>
@@ -655,7 +667,6 @@ $Xaml = @"
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-       
         <StackPanel Grid.Column="1">
           <TextBlock Text="Autopilot Importer - Collect / Enroll / Find" Foreground="White" FontSize="23" FontWeight="Bold"/>
           <TextBlock Text="Collect HWID -> Connect Graph -> Enroll or Inspect" Foreground="#FFEAF2FF" FontSize="13"/>
@@ -663,12 +674,12 @@ $Xaml = @"
       </Grid>
     </Border>
 
-   <!-- Footer (gradient, 3 zones) -->
+    <!-- Footer (gradient, 3 zones) -->
     <Border DockPanel.Dock="Bottom" Padding="8">
       <Border.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-          <GradientStop Color="#2563EB" Offset="0.0"/>  <!-- blue -->
-          <GradientStop Color="#06B6D4" Offset="1.0"/>  <!-- cyan -->
+          <GradientStop Color="#2563EB" Offset="0.0"/>
+          <GradientStop Color="#06B6D4" Offset="1.0"/>
         </LinearGradientBrush>
       </Border.Background>
 
@@ -686,7 +697,7 @@ $Xaml = @"
                    Foreground="White" FontSize="12"
                    HorizontalAlignment="Left" Margin="6,0"/>
 
-        <!-- Center zone (shows app + version; can show tenant after connect) -->
+        <!-- Center zone -->
         <TextBlock x:Name="FooterCenter"
                    Grid.Column="1"
                    Text="Autopilot Importer v1.0"
@@ -701,7 +712,6 @@ $Xaml = @"
                    HorizontalAlignment="Right" Margin="0,0,6,0"/>
       </Grid>
     </Border>
-
 
     <Grid Margin="14">
       <Border Padding="16" CornerRadius="14" Background="White" BorderBrush="#FFDDE3EA" BorderThickness="1">
@@ -862,8 +872,7 @@ $FooterLeft      = $Window.FindName('FooterLeft')
 $FooterCenter    = $Window.FindName('FooterCenter')
 $FooterRight     = $Window.FindName('FooterRight')
 
-
-# Device info
+# Device info labels
 $LblDevModel     = $Window.FindName('LblDevModel')
 $LblDevName      = $Window.FindName('LblDevName')
 $LblManufacturer = $Window.FindName('LblManufacturer')
@@ -897,22 +906,52 @@ $BtnClearLog        = $Window.FindName('BtnClearLog')
 $BtnCopyLog         = $Window.FindName('BtnCopyLog')
 $TxtLog             = $Window.FindName('TxtLog'); $TxtLog.Document = New-Object Windows.Documents.FlowDocument
 
-# Footer
+# Footer text
 $year = (Get-Date).Year
 $FooterLeft.Text   = $OrgName
 $FooterCenter.Text = "$AppName $AppVersion"
 $FooterRight.Text  = "$year $CopyrightBy - All Rights Reserved"
-
 # endregion
 
 # ---------------------------
 # region [Wire up UI events]
 # ---------------------------
 $Window.Add_Loaded({
-  Refresh-DeviceInfo
+  # Fast paint; then do device info in background via runspace (no Start-Job)
   Update-MainGraphUI
   $TxtSaveFolder.Text = $Paths.HwId
+
+  # Placeholder text while loading
+  $LblDevModel.Text     = '...'
+  $LblDevName.Text      = '...'
+  $LblManufacturer.Text = '...'
+  $LblSerial.Text       = '...'
+  $LblFreeGb.Text       = '...'
+  $LblTpm.Text          = 'Collecting...'
+  $LblNet.Text          = 'Checking...'
+
+  Add-Log "UI loaded. Collecting device info in background..." "INFO"
+
+  # Start DevInfo worker on the existing runspace pool
+  try {
+    $script:CurrentAction = 'devinfo'
+    $script:PS = [System.Management.Automation.PowerShell]::Create()
+    $script:PS.RunspacePool = $pool
+    $script:PS.AddScript($DevInfoWorker) | Out-Null
+    $script:Async = $script:PS.BeginInvoke()
+    $Timer.Start()
+  } catch {
+    Add-Log ("DevInfo start error: " + $_.Exception.Message) "ERROR"
+    try { $script:PS.Dispose() } catch {}
+  }
+
   Add-Log "Ready." "INFO"
+})
+
+$Window.Add_Closed({
+  try { if ($Timer) { $Timer.Stop() } } catch {}
+  try { if ($script:PS) { $script:PS.Dispose() } } catch {}
+  try { if ($pool) { $pool.Close(); $pool.Dispose() } } catch {}
 })
 
 $BtnClearLog.Add_Click({ $TxtLog.Document.Blocks.Clear() })
