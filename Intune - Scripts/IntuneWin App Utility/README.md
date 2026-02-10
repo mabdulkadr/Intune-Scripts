@@ -1,18 +1,12 @@
 
-# 📦 IntuneWin App Utility (Enhanced)
+# 📦 IntuneWin App Utility
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
 ![GUI](https://img.shields.io/badge/GUI-WPF-purple.svg)
 ![Version](https://img.shields.io/badge/version-1.0-green.svg)
 
-Modern WPF GUI tool to create **Intune Win32 packages (.intunewin)** from **EXE/MSI** installers using Microsoft's **IntuneWinAppUtil.exe** with a clean UI and enhanced user experience.
-
-**Author:** Mohammad Abdelkader  
-**Website:** https://momar.tech  
-**Version:** 1.0  
-**Release Date:** 2026-02-10  
-
+Modern GUI tool to create **Intune Win32 packages (.intunewin)** from **EXE/MSI** installers using Microsoft's **IntuneWinAppUtil.exe** with a clean UI and enhanced user experience.
 ---
 
 # 🖥️ Interface Preview
