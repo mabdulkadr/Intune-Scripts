@@ -43,7 +43,7 @@ Intune-Scripts
 
 ```powershell
 Install-Module Microsoft.Graph -Scope CurrentUser
-
+```
 
 ---
 
