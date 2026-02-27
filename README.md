@@ -1,4 +1,3 @@
-ضع هذه النسخة الاحترافية الجديدة لملف Intune-Scripts README.md:
 
 # 🚀 Intune Scripts
 
@@ -103,7 +102,6 @@ All implementations follow Microsoft security best practices.
 
 Clone the repository:
 
-```bash
 git clone https://github.com/mabdulkadr/Intune-Scripts.git
 
 Install required modules:
@@ -148,3 +146,4 @@ Validate in staging before production
 Ensure correct RBAC permissions
 
 Confirm compliance with organizational policy
+
