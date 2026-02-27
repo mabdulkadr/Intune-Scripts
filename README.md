@@ -58,10 +58,10 @@ git clone https://github.com/mabdulkadr/Intune-Scripts.git
 2. Run a script:
 
 
-
+```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
 .\<Folder>\<ScriptName>.ps1
-
+```
 
 ---
 
