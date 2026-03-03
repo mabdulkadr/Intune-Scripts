@@ -1,22 +1,94 @@
-# Intune
-This repository provides a variety of scripts, configurations, and resources for Microsoft Intune to help IT administrators manage and automate tasks in a secure, efficient, and scalable way. From application deployment to policy management, these tools empower organizations to get the most out of Intune.
+# 🚀 Intune Scripts
 
-# Overview
-This repository is designed to centralize resources related to Microsoft Intune management, helping administrators and IT professionals deploy applications, enforce compliance, manage policies, and gather reports on managed devices. By utilizing PowerShell, Microsoft Graph API, and Intune’s REST API, these resources provide efficient and automated solutions for Intune management.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
+![Microsoft%20Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
+![Microsoft%20Graph](https://img.shields.io/badge/API-Microsoft%20Graph-orange.svg)
 
-# Features
-- **Application Deployment:** Automate application deployment, updates, and management through Intune.
-- **Device Compliance:** Scripts to ensure devices meet company compliance requirements.
-- **Policy Management:** Automate the creation, deployment, and management of Intune policies.
-- **Reporting and Monitoring:** Gather detailed reports on device compliance, application statuses, and policy deployment.
-- **Remediation Scripts:** Easily remediate issues on non-compliant devices using automation.
-
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
 
 ---
 
-*Maintaining up-to-date software is crucial for security and performance. These scripts provide an automated solution to manage updates efficiently.*
+## 📖 Overview
 
+**Intune Scripts** is a simple and organized library of PowerShell scripts for **Microsoft Intune** and **Microsoft Graph**.  
+It helps IT admins automate common tasks like deployment, compliance, reporting, and remediation.
+
+---
+
+## 📂 Folders
+
+Intune-Scripts
+ ├── Intune - Compliance Policy
+ ├── Intune - Remediation Scripts
+ ├── Intune - Scripts
+ └── Intune Community Tools
+
+---
+
+## ✨ What you’ll find here
+
+- **Autopilot**: onboarding and import helpers  
+- **Compliance**: policy-related scripts and checks  
+- **Remediations**: Detect + Remediate scripts for Proactive Remediations  
+- **Scripts**: general Intune automation and admin tasks  
+- **Community Tools**: useful external-inspired utilities and helpers  
+
+---
+
+## ⚙ Requirements
+
+- Windows PowerShell **5.1+**
+- Microsoft Graph module (for most scripts)
+
+```powershell
+Install-Module Microsoft.Graph -Scope CurrentUser
+```
+
+---
+
+🚀 Usage
+
+1. Clone the repo:
+
+
+
+git clone https://github.com/mabdulkadr/Intune-Scripts.git
+
+2. Run a script:
+
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\<Folder>\<ScriptName>.ps1
+```
+
+---
+
+📜 License
+
+Licensed under the MIT License.
+
+
+---
+
+👤 Author
+
+Mohammad Abdelkader
+Website: momar.tech
+
+
+---
+
+☕ Support
+
+If this repo helps you, you can support it here:
+https://www.buymeacoffee.com/mabdulkadrx
+
+
+---
+
+⚠ Disclaimer
+
+Scripts are provided as-is.
+Test before production and ensure correct permissions.
