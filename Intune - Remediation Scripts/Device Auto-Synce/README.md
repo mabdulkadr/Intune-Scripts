@@ -1,72 +1,261 @@
-# Detect and Remediate AutoSync Scripts
+
+# 🔄 Intune AutoSync Repair
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.1-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Mode](https://img.shields.io/badge/Sync-Repair-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
-These two PowerShell scripts are designed to troubleshoot and resolve synchronization issues for devices enrolled in Microsoft Intune. Devices that fail to sync for more than 2 days can fall out of compliance and miss important updates or policies. These scripts detect such issues and initiate corrective actions by working with the "PushLaunch" scheduled task.
+# 📖 Overview
 
-### Scripts Included
-1. **Detect_AutoSync.ps1**
-   - Checks the last synchronization time of Intune-managed devices and identifies devices that haven't synced within the past 2 days.
-2. **Remediate_AutoSync.ps1**
-   - Starts or creates the "PushLaunch" scheduled task to force an immediate synchronization for non-compliant devices.
+**Intune AutoSync Repair** is a PowerShell-based remediation solution designed to detect and repair Microsoft Intune device synchronization issues.
+
+In some environments, devices may fail to sync with Intune for extended periods. This can lead to:
+
+* Devices falling out of compliance
+* Policies not being applied
+* Applications not installing
+* Security updates being delayed
+
+This solution automatically detects devices that have not synchronized recently and forces an immediate sync using the **PushLaunch scheduled task**, which is part of the Windows MDM synchronization mechanism.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**.
 
 ---
 
-## Scripts Details
+# ✨ Core Features
 
-### 1. Detect_AutoSync.ps1
+### 🔹 Sync Health Detection
 
-#### Purpose
-This script ensures that Intune-managed devices stay in compliance by checking the "PushLaunch" scheduled task's last run time. It calculates the time difference between the last synchronization and the current time to determine if action is required.
+The detection script checks the last execution time of the **PushLaunch scheduled task** used by the MDM sync engine.
 
-#### How to Run
-```powershell
-.\Detect_AutoSync.ps1
+It determines whether the device has synchronized with Intune within the last **48 hours**.
+
+---
+
+### 🔹 Automatic Sync Repair
+
+If synchronization is overdue:
+
+* The remediation script attempts to start the **PushLaunch task**
+* If the task is missing, it recreates the task
+* Forces the device to sync immediately with Intune
+
+---
+
+### 🔹 Enterprise Ready
+
+Designed for:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automatic remediation
+* Compliance-based exit codes
+
+---
+
+### 🔹 Uses Native Windows MDM Mechanisms
+
+The solution relies on the built-in Windows scheduled task:
+
+```
+PushLaunch
 ```
 
-#### Outputs
-- **Sync is up to date.**: Indicates the device synchronized successfully within the last 2 days.
-- **Last sync was more than 2 days ago.**: Alerts that the device is overdue for a sync.
+Which triggers the **Enterprise MDM Sync Engine**.
 
-#### Use Cases
-- Identify devices that are not synchronizing with Intune on schedule.
-- Proactively prevent compliance and update delays.
+This ensures compatibility with the Windows MDM framework used by Intune.
 
 ---
 
-### 2. Remediate_AutoSync.ps1
+# 📂 Project Structure
 
-#### Purpose
-This script addresses detected synchronization issues by starting the "PushLaunch" scheduled task. If the task is missing, it creates the task to ensure synchronization with Intune is forced immediately.
-
-#### How to Run
-```powershell
-.\Remediate_AutoSync.ps1
+```
+Intune-AutoSync-Repair
+│
+├── AutoSync--Detect.ps1
+├── AutoSync--Remediate.ps1
+└── README.md
 ```
 
-#### Outputs
-- **Success**: Confirms that the task was started or created successfully.
-- **Error**: Logs details of any issues encountered during execution.
+---
 
-#### Use Cases
-- Quickly restore synchronization functionality for out-of-compliance devices.
-- Automate remediation for Intune-enrolled devices with sync issues.
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```
+AutoSync--Detect.ps1
+```
+
+### Purpose
+
+Determines whether the device has recently synchronized with Intune.
+
+### Logic
+
+1. Locate the **PushLaunch scheduled task**
+2. Retrieve the **LastRunTime**
+3. Compare it with the current system time
+4. Determine whether the device is overdue for synchronization
+
+### Detection Result
+
+| Result | Meaning          |
+| ------ | ---------------- |
+| Exit 0 | Sync is healthy  |
+| Exit 1 | Sync is outdated |
+
+### Example
+
+```powershell
+.\AutoSync--Detect.ps1
+```
 
 ---
 
-## Notes
-- **Administrative Privileges**: Both scripts require administrative permissions to execute.
-- **Intune-Specific**: These scripts are specifically designed for environments using Intune's "PushLaunch" task for device management.
-- **Standalone Tools**: The scripts are not part of a repository but serve as individual troubleshooting tools.
+## 🛠 Remediation Script
 
-## License
+**File**
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+```
+AutoSync--Remediate.ps1
+```
+
+### Purpose
+
+Forces an Intune synchronization when a device has not synced recently.
+
+### Actions
+
+The script performs the following operations:
+
+1. Checks whether **PushLaunch** task exists
+2. Starts the task to trigger sync
+3. If the task does not exist:
+
+   * Recreates the scheduled task
+   * Starts it immediately
+
+### Result
+
+* Forces the device to sync with Intune
+* Restores the MDM synchronization workflow
+
+### Example
+
+```powershell
+.\AutoSync--Remediate.ps1
+```
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ⚙️ Requirements
 
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+* PowerShell **5.1 or later**
+
+### Permissions
+
+* Administrator privileges required
+
+### Device Enrollment
+
+* Device must be enrolled in **Microsoft Intune / MDM**
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Intune Proactive Remediation**
+
+### Detection Script
+
+```
+AutoSync--Detect.ps1
+```
+
+### Remediation Script
+
+```
+AutoSync--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                     | Value |
+| ------------------------------------------- | ----- |
+| Run script in 64-bit PowerShell             | Yes   |
+| Run this script using logged-on credentials | No    |
+| Enforce script signature check              | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks the last MDM synchronization time
+3. If last sync > 48 hours → device marked **Non-Compliant**
+4. Intune triggers **Remediation Script**
+5. Script starts **PushLaunch**
+6. Device performs a forced Intune sync
+
+---
+
+# 🛡 Operational Notes
+
+* The **PushLaunch task** is part of the Windows MDM sync framework.
+* Devices should normally sync automatically every **8 hours**.
+* If sync stops working, this remediation restores the mechanism.
+* Always test scripts on **pilot devices** before broad deployment.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+[MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0.1**
+Date: **2026-03-09**
+
+---
+
+# ☕ Donate
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This tool is provided **as-is**.
+
+* Test scripts before deployment
+* Validate in staging environments
+* Ensure compliance with organizational security policies 

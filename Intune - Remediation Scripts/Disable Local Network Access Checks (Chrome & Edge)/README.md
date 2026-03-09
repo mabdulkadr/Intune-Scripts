@@ -1,197 +1,246 @@
-# Disable Local Network Access Checks (Chrome & Edge)
 
-![Scope](https://img.shields.io/static/v1?label=scope&message=Intune&color=blue)
-![Mode](https://img.shields.io/static/v1?label=mode&message=CLI&color=lightgrey)
-![Scripts](https://img.shields.io/static/v1?label=scripts&message=3&color=green)
-![Pattern](https://img.shields.io/static/v1?label=pattern&message=Detection%2BRemediation&color=brightgreen)
-![Tech](https://img.shields.io/static/v1?label=tech&message=Intune&color=blue)
+# 🌐 Disable Local Network Access Checks (Chrome & Edge)
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Browser](https://img.shields.io/badge/Browser-Chrome%20%7C%20Edge-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
+
+# 📖 Overview
+
+**Disable Local Network Access Checks** is a PowerShell remediation solution designed to remove browser restrictions that prevent websites from accessing local network resources.
+
+Modern Chromium-based browsers such as **Google Chrome** and **Microsoft Edge** enforce **Local Network Access (LNA) security checks**, which can block internal services from communicating with devices on the local network.
+
+This project provides **Detection + Remediation scripts** designed for **Microsoft Intune Proactive Remediations** to automatically detect the restriction and apply the required configuration to disable it.
+
+The solution is particularly useful in environments where internal services such as **Blackboard or internal portals** must communicate with local endpoints.
 
 ---
 
-## 📖 Overview
-This folder contains **3 PowerShell script(s)**. The documentation below is generated from actual script content and includes technical behavior, dependencies, integration points, and exit-code patterns.
+# ✨ Core Features
 
+### 🔹 Automatic Detection
 
-## ✨ Features
-- Folder scope: `Intune`
-- Execution mode: `CLI`
-- Scripts detected: **3**
-- Path: `Intune-Scripts\Intune - Remediation Scripts\Disable Local Network Access Checks (Chrome & Edge)\README.md`
-- Proactive Remediations pattern: Detection + Remediation pair is available.
+The detection script verifies whether **Local Network Access checks** are enabled in supported browsers.
 
+It evaluates the current configuration and determines if remediation is required.
 
-## ⚙️ Requirements
-- Windows PowerShell 5.1 or newer.
-- Permissions aligned with script operations (file system, services, tasks, registry, API).
-- Required modules and APIs are listed per script in Technical Details.
+---
 
-## 📂 Script Inventory
-| File | Type | Synopsis |
-|---|---|---|
-| `Detect-LNA-DisableLocalNetworkAccessChecks.ps1` | Detection | Detect compliance state for LNA DisableLocalNetworkAccessChecks. |
-| `Disable-Blackboard-Local-Network-Access(Chrome-Edge).ps1` | Automation | Automation script for Disable Blackboard Local Network Access(Chrome Edge). |
-| `Remediate-LNA-DisableLocalNetworkAccessChecks.ps1` | Remediation | Remediate LNA DisableLocalNetworkAccessChecks based on defined conditions. |
+### 🔹 Automatic Remediation
 
+When restrictions are detected:
 
-## 🔍 Technical Details
-### `Detect-LNA-DisableLocalNetworkAccessChecks.ps1`
-- **Functional Type:** Detection
-- **Purpose:** Detect compliance state for LNA DisableLocalNetworkAccessChecks.
-- **Technical Description:** This detection script evaluates LNA DisableLocalNetworkAccessChecks and returns compliance status. It is intended for Intune Proactive Remediations or scheduled automation. Exit codes: - Exit 1: Not Compliant (remediation should run) - Exit 0: Compliant
-- **Expected Run Context (Run As):** System or User (according to assignment settings and script requirements).
-- **Path:** `Intune-Scripts\Intune - Remediation Scripts\Disable Local Network Access Checks (Chrome & Edge)\Detect-LNA-DisableLocalNetworkAccessChecks.ps1`
-- **Observed Exit Codes:** `0`, `1`
-- **Technical Dependencies:**
-  - Microsoft Intune environment with matching Proactive Remediation or script assignment settings.
+* Browser processes are stopped if necessary
+* Required configuration flags are applied
+* Browsers are restarted when needed
 
-#### Internal Functions
-- `Initialize-Logging`
-- `Test-LnaFlag`
-- `Write-Log`
+---
 
-#### Key Cmdlets/Commands
-- `Add-Content`
-- `ConvertFrom-Json`
-- `Get-Content`
-- `Get-Date`
-- `Initialize-Logging`
-- `Join-Path`
-- `New-Item`
-- `Out-Null`
-- `Test-LnaFlag`
-- `Test-Path`
-- `Write-Host`
-- `Write-Log`
+### 🔹 Chrome & Edge Support
 
-#### File/System Paths
-- `C:\Intune`
+Supported browsers:
 
-### `Disable-Blackboard-Local-Network-Access(Chrome-Edge).ps1`
-- **Functional Type:** Automation
-- **Purpose:** Automation script for Disable Blackboard Local Network Access(Chrome Edge).
-- **Technical Description:** This script automates tasks related to Disable Blackboard Local Network Access(Chrome Edge). Review prerequisites, permissions, and execution context before production deployment. Exit codes: - Exit 0: Completed successfully - Exit 1: Failed or requires further action
-- **Expected Run Context (Run As):** System or User (according to assignment settings and script requirements).
-- **Path:** `Intune-Scripts\Intune - Remediation Scripts\Disable Local Network Access Checks (Chrome & Edge)\Disable-Blackboard-Local-Network-Access(Chrome-Edge).ps1`
-- **Observed Exit Codes:** `0`, `1`
-- **Technical Dependencies:**
-  - Microsoft Intune environment with matching Proactive Remediation or script assignment settings.
+* Google Chrome
+* Microsoft Edge (Chromium)
 
-#### Parameters
-| Name | Type | Mandatory | Default |
-|---|---|---|---|
-| `ForceVariant2` | `SwitchParameter` | No | - |
+Supported installation paths:
 
-#### Internal Functions
-- `Apply-And-Verify`
-- `Ensure-PSCustomObject`
-- `Fail`
-- `Info`
-- `Ok`
-- `Set-LNAFlagDisabled`
-- `Stop-Processes`
-- `Wait-FileUnlocked`
-- `Warn`
+```
+C:\Program Files\Google\Chrome\Application\chrome.exe
+C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 
-#### Key Cmdlets/Commands
-- `Add-Member`
-- `Apply-And-Verify`
-- `cmd`
-- `ConvertFrom-Json`
-- `ConvertTo-Json`
-- `Copy-Item`
-- `Ensure-PSCustomObject`
-- `Fail`
-- `Get-Content`
-- `Get-Date`
-- `Get-Process`
-- `Info`
-- `Join-Path`
-- `Ok`
-- `Out-Null`
-- *(+11 additional commands found in script)*
-
-#### File/System Paths
-- `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
-- `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
-- `C:\Program Files\Google\Chrome\Application\chrome.exe`
-- `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
-
-### `Remediate-LNA-DisableLocalNetworkAccessChecks.ps1`
-- **Functional Type:** Remediation
-- **Purpose:** Remediate LNA DisableLocalNetworkAccessChecks based on defined conditions.
-- **Technical Description:** This remediation script applies corrective actions for LNA DisableLocalNetworkAccessChecks. Use with Intune Proactive Remediations or on-demand execution. Exit codes: - Exit 0: Completed successfully - Exit 1: Failed or requires further action
-- **Expected Run Context (Run As):** System or User (according to assignment settings and script requirements).
-- **Path:** `Intune-Scripts\Intune - Remediation Scripts\Disable Local Network Access Checks (Chrome & Edge)\Remediate-LNA-DisableLocalNetworkAccessChecks.ps1`
-- **Observed Exit Codes:** `0`, `1`
-- **Technical Dependencies:**
-  - Microsoft Intune environment with matching Proactive Remediation or script assignment settings.
-
-#### Internal Functions
-- `Ensure-PSCustomObject`
-- `Get-BrowserExe`
-- `Initialize-Logging`
-- `Relaunch-Browser`
-- `Set-LnaFlagV3Only`
-- `Stop-BrowserProcesses`
-- `Wait-FileUnlocked`
-- `Write-Log`
-
-#### Key Cmdlets/Commands
-- `Add-Content`
-- `Add-Member`
-- `cmd`
-- `ConvertFrom-Json`
-- `ConvertTo-Json`
-- `Copy-Item`
-- `Ensure-PSCustomObject`
-- `Get-BrowserExe`
-- `Get-Content`
-- `Get-Date`
-- `Get-Process`
-- `Initialize-Logging`
-- `Join-Path`
-- `New-Item`
-- `Out-Null`
-- *(+13 additional commands found in script)*
-
-#### File/System Paths
-- `C:\Intune`
-- `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
-- `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
-- `C:\Program Files\Google\Chrome\Application\chrome.exe`
-- `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
-
-
-## 🚀 Usage
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\Detect-LNA-DisableLocalNetworkAccessChecks.ps1
-.\Disable-Blackboard-Local-Network-Access(Chrome-Edge).ps1
-.\Remediate-LNA-DisableLocalNetworkAccessChecks.ps1
+C:\Program Files\Microsoft\Edge\Application\msedge.exe
+C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
 ```
 
+---
 
-## 🛡️ Operational Notes
-- ✅ Validate scripts in a pilot environment before production rollout.
-- 🔎 Review execution logs (if present) and verify exit codes match expected behavior.
-- ⚠️ For Intune use cases, validate assignment context and **Run this script using logged-on credentials** configuration.
+# 📂 Project Structure
 
-
-## 🧷 Compatibility and Revision
-- Documentation last updated: **2026-02-15**
-- This README is standardized and generated from local script analysis to keep documentation aligned with implementation.
+```
+Disable-Local-Network-Access-Checks
+│
+├── DisableLocalNetworkAccessChecks--Detect.ps1
+├── DisableLocalNetworkAccessChecks--Remediate.ps1
+└── README.md
+```
 
 ---
 
-## 📜 License
+# 🚀 Scripts Included
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+## 🔎 Detection Script
+
+**File**
+
+```
+DisableLocalNetworkAccessChecks--Detect.ps1
+```
+
+### Purpose
+
+Checks whether Local Network Access restrictions are enabled.
+
+### Logic
+
+1. Detect installed Chromium browsers
+2. Evaluate Local Network Access configuration
+3. Determine if remediation is required
+
+### Exit Codes
+
+| Code | Status               |
+| ---- | -------------------- |
+| 0    | Compliant            |
+| 1    | Remediation required |
+
+### Example
+
+```powershell
+.\DisableLocalNetworkAccessChecks--Detect.ps1
+```
 
 ---
 
-## ⚠️ Disclaimer
+# 🛠 Remediation Script
 
-This script is provided **as-is** without warranty.
-The author is **not responsible** for unintended modifications or data loss.
-Always test thoroughly before deploying in production.
+**File**
+
+```
+DisableLocalNetworkAccessChecks--Remediate.ps1
+```
+
+### Purpose
+
+Applies the configuration required to disable Local Network Access restrictions.
+
+### Actions
+
+The remediation script performs the following steps:
+
+1. Detect installed browsers
+2. Stop running browser processes
+3. Apply configuration changes
+4. Restart browsers if necessary
+
+### Example
+
+```powershell
+.\DisableLocalNetworkAccessChecks--Remediate.ps1
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Browsers
+
+Supported:
+
+* Google Chrome
+* Microsoft Edge
+
+### Permissions
+
+Depending on deployment method:
+
+* Local Administrator (recommended)
+* Intune System context
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```
+DisableLocalNetworkAccessChecks--Detect.ps1
+```
+
+### Remediation Script
+
+```
+DisableLocalNetworkAccessChecks--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | Yes   |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs **Detection Script**
+2. Script checks browser configuration
+3. If restriction detected → Exit Code **1**
+4. Intune runs **Remediation Script**
+5. Script applies configuration
+6. Browser restrictions are removed
+
+---
+
+# 🛡 Operational Notes
+
+* Browser processes may restart during remediation.
+* Test scripts on **pilot devices** before full deployment.
+* Some browser updates may revert configuration changes.
+* Remediation can be scheduled periodically through Intune.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+[MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Test scripts before production deployment
+* Validate browser configuration requirements
+* Ensure compliance with organizational security policies
 

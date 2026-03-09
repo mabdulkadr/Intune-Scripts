@@ -1,116 +1,231 @@
-# Disable IPv6 on All Network Interfaces
+# 🌐 Disable IPv6 on Windows Devices
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![PowerShell](https://img.shields.io/badge/powershell-7.0%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Network](https://img.shields.io/badge/Network-IPv6-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
+# 📖 Overview
 
-This repository contains two PowerShell scripts designed to manage IPv6 settings on Windows systems:
+**Disable IPv6 on Windows Devices** is a PowerShell automation solution designed to detect and disable IPv6 across all network interfaces on Windows systems.
 
-- **Detection Script**: Checks if IPv6 is disabled on all network interfaces.
-- **Remediation Script**: Disables IPv6 on all network interfaces and updates the system registry to ensure IPv6 components are disabled.
+In some enterprise environments, IPv6 may not be required or may conflict with legacy applications, internal services, or network policies. In such cases, administrators may choose to disable IPv6 to ensure consistent network behavior.
 
-A system restart is required after running the remediation script for the changes to take full effect.
+This project provides **Detection + Remediation scripts** that automatically verify the IPv6 configuration and disable it when necessary.
 
-## Contents
-
-- `Detect-IPv6Disabled.ps1`: Detection script.
-- `Remediate-DisableIPv6.ps1`: Remediation script.
-
-## Prerequisites
-
-- Windows PowerShell (Run scripts with administrative privileges).
-- Windows operating system with network interfaces supporting IPv6.
-
-## Scripts Details
-
-### Detection Script: `Detect-IPv6Disabled.ps1`
-
-#### Synopsis
-
-Detects whether IPv6 is disabled on all network interfaces.
-
-#### Description
-
-This PowerShell script checks if IPv6 is currently disabled on all network adapters. If any network adapter still has IPv6 enabled, the script will return a non-compliant state.
-
-#### Example
-
-```powershell
-.\Detect-IPv6Disabled.ps1
-```
-
-### Remediation Script: `Remediate-DisableIPv6.ps1`
-
-#### Synopsis
-
-Disables IPv6 on all network interfaces and updates the system registry.
-
-#### Description
-
-This PowerShell script automates the process of disabling IPv6 bindings on all network interfaces and updates the registry to disable IPv6 components. The changes will take effect after a system restart.
-
-#### Example
-
-```powershell
-.\Remediate-DisableIPv6.ps1
-```
-
-## Usage Instructions
-
-### Running the Detection Script
-
-1. Open PowerShell with administrative privileges.
-2. Navigate to the directory containing the scripts.
-3. Execute the detection script:
-
-   ```powershell
-   .\Detect-IPv6Disabled.ps1
-   ```
-
-4. The script will output whether the system is compliant (IPv6 disabled on all interfaces) or non-compliant.
-
-### Running the Remediation Script
-
-1. Open PowerShell with administrative privileges.
-2. Navigate to the directory containing the scripts.
-3. Execute the remediation script:
-
-   ```powershell
-   .\Remediate-DisableIPv6.ps1
-   ```
-
-4. The script will disable IPv6 on all network interfaces and update the registry.
-5. Restart the system to apply the changes fully.
-
-## Script Outputs
-
-- **Detection Script**:
-  - Outputs "Compliant" if IPv6 is disabled on all interfaces.
-  - Outputs "Non-compliant" if IPv6 is enabled on one or more interfaces.
-- **Remediation Script**:
-  - Outputs the status of each interface as IPv6 is disabled.
-  - Notifies if the registry is updated successfully.
-  - Prompts for a system restart to apply changes.
-
-## Error Handling
-
-Both scripts include basic error handling:
-
-- The detection script will inform you if an unexpected error occurs.
-- The remediation script uses `try-catch` blocks to handle exceptions when disabling IPv6 on interfaces or updating the registry.
-
-## Important Notes
-
-- **Administrative Privileges**: Both scripts must be run as an administrator to make the necessary system changes.
-- **System Restart**: A restart is required after running the remediation script to ensure all changes take effect.
-- **Impact on Applications**: Disabling IPv6 may affect applications or services that rely on IPv6 connectivity.
-
-## License
-
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**, allowing organizations to enforce IPv6 configuration across managed endpoints.
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ✨ Core Features
 
+### 🔹 Automatic IPv6 Detection
+
+The detection script verifies whether IPv6 is currently disabled across all network adapters.
+
+It evaluates adapter bindings and determines whether remediation is required.
+
+---
+
+### 🔹 Automatic IPv6 Remediation
+
+If IPv6 is enabled on any interface:
+
+* IPv6 bindings are disabled on all network adapters
+* Registry settings are updated to disable IPv6 components
+* System configuration is aligned with the desired network policy
+
+---
+
+### 🔹 Enterprise Automation Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Disable-IPv6
+│
+├── DisableIPv6--Detect.ps1
+├── DisableIPv6--Remediate.ps1
+└── README.md
+```
+
+---
+
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```powershell
+DisableIPv6--Detect.ps1
+```
+
+### Purpose
+
+Checks whether IPv6 is disabled on all network interfaces.
+
+### Logic
+
+1. Enumerate all network adapters
+2. Check IPv6 binding status
+3. Determine compliance state
+
+### Exit Codes
+
+| Code | Status                       |
+| ---- | ---------------------------- |
+| 0    | Compliant (IPv6 disabled)    |
+| 1    | Non-compliant (IPv6 enabled) |
+
+### Example
+
+```powershell
+.\DisableIPv6--Detect.ps1
+```
+
+---
+
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+DisableIPv6--Remediate.ps1
+```
+
+### Purpose
+
+Disables IPv6 across all network adapters and updates the system configuration.
+
+### Actions
+
+The remediation script performs the following steps:
+
+1. Detect available network adapters
+2. Disable IPv6 binding on each adapter
+3. Update system registry configuration
+4. Confirm IPv6 components are disabled
+
+Example execution:
+
+```powershell
+.\DisableIPv6--Remediate.ps1
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges are required to modify network adapter settings and registry configuration.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+DisableIPv6--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+DisableIPv6--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks IPv6 configuration
+3. If IPv6 enabled → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script disables IPv6 on all adapters
+6. System configuration becomes compliant
+
+---
+
+# 🛡 Operational Notes
+
+* A **system restart may be required** for all changes to fully apply.
+* Some applications or services may require IPv6 connectivity.
+* Test the configuration in **pilot environments** before full deployment.
+* Ensure network policies allow IPv6 to be disabled.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This tool is provided **as-is**.
+
+* Always test scripts before production deployment
+* Verify network configuration impact
+* Ensure compliance with organizational networking policies 

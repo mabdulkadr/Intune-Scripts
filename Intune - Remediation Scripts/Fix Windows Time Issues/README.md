@@ -1,102 +1,262 @@
-
-# Fix Windows Time and Time Zone Issues Scripts
+# ⏱ Fix Windows Time & Time Zone Issues
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Service](https://img.shields.io/badge/Service-Windows%20Time-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
+# 📖 Overview
 
-This Project contains two PowerShell scripts designed to detect and remediate time-related issues on Windows devices. These scripts ensure that the system is compliant with proper time synchronization settings, automatic time zone detection, and the Windows Time service configuration.
+**Fix Windows Time & Time Zone Issues** is a PowerShell remediation solution designed to detect and correct common time synchronization problems on Windows devices.
+
+Incorrect system time or time zone configuration can lead to several operational issues, including:
+
+* Authentication failures
+* Kerberos ticket errors
+* Certificate validation problems
+* Application synchronization failures
+* Domain connectivity issues
+
+This project provides **Detection + Remediation scripts** that verify time-related configuration and automatically correct misconfigured settings.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**, enabling automated enforcement of correct time configuration across managed devices.
 
 ---
 
-## Scripts Included
+# ✨ Core Features
 
-1. **Detect-TimeIssues.ps1**
-   - Detects compliance for time-related settings, including:
-     - Windows Time service status.
-     - Automatic time synchronization.
-     - Automatic time zone detection.
+### 🔹 Time Configuration Detection
 
-2. **Remediate-TimeIssues.ps1**
-   - Fixes non-compliance issues by:
-     - Starting and configuring the Windows Time service.
-     - Enabling automatic time synchronization with a specified time server.
-     - Enabling automatic time zone detection.
+The detection script verifies several critical time settings:
+
+* Windows Time service status
+* Time synchronization configuration
+* Automatic time zone detection
+
+It determines whether the device is compliant with expected time configuration policies.
 
 ---
 
-## Scripts Details
+### 🔹 Automatic Time Remediation
 
-### 1. Detect-TimeIssues.ps1
+If configuration issues are detected, the remediation script performs corrective actions such as:
 
-#### Purpose
-This script checks if:
-- The Windows Time service is running.
-- Automatic time synchronization is configured.
-- Automatic time zone detection is enabled.
+* Starting the **Windows Time (W32Time)** service
+* Setting the service startup type to **Automatic**
+* Configuring the system to synchronize time with an NTP server
+* Enabling automatic time zone detection
 
-#### How to Run
-```powershell
-.\Detect-TimeIssues.ps1
+---
+
+### 🔹 Enterprise Automation Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Fix-Windows-Time
+│
+├── TimeIssues--Detect.ps1
+├── TimeIssues--Remediate.ps1
+└── README.md
 ```
 
-#### Outputs
-- **Compliant**: All time-related settings are configured correctly.
-- **NonCompliant**: Displays which settings are non-compliant and exits with code `1`.
-- **Error**: Logs any errors encountered during execution and exits with code `2`.
-
 ---
 
-### 2. Remediate-TimeIssues.ps1
+# 🚀 Scripts Included
 
-#### Purpose
-This script remediates time-related issues by:
-- Ensuring the Windows Time service is running and set to start automatically.
-- Configuring time synchronization with `time.windows.com`.
-- Enabling automatic time zone detection.
+## 🔎 Detection Script
 
-#### How to Run
+**File**
+
 ```powershell
-.\Remediate-TimeIssues.ps1
+TimeIssues--Detect.ps1
 ```
 
-#### Outputs
-- Provides step-by-step logs of actions taken, including:
-  - Starting the Windows Time service.
-  - Configuring and forcing time synchronization.
-  - Enabling automatic time zone detection.
-  - Restarting the Location service if applicable.
+### Purpose
+
+Checks whether Windows time configuration is correctly configured.
+
+### Logic
+
+The script verifies:
+
+1. Windows Time service status
+2. Time synchronization configuration
+3. Automatic time zone detection settings
+
+### Exit Codes
+
+| Code | Status        |
+| ---- | ------------- |
+| 0    | Compliant     |
+| 1    | Non-compliant |
+| 2    | Script error  |
+
+### Example
+
+```powershell
+.\TimeIssues--Detect.ps1
+```
 
 ---
 
-## Usage
+# 🛠 Remediation Script
 
-1. Run the **Detect-TimeIssues.ps1** script to check compliance:
-   ```powershell
-   .\Detect-TimeIssues.ps1
-   ```
+**File**
 
-2. If non-compliance is detected, run the **Remediate-TimeIssues.ps1** script to fix the issues:
-   ```powershell
-   .\Remediate-TimeIssues.ps1
-   ```
+```powershell
+TimeIssues--Remediate.ps1
+```
+
+### Purpose
+
+Fixes time-related configuration issues detected on the device.
+
+### Actions
+
+The remediation script performs the following operations:
+
+1. Start the **Windows Time service**
+
+```powershell
+Start-Service W32Time
+```
+
+2. Configure service startup to **Automatic**
+
+3. Configure time synchronization using:
+
+```
+time.windows.com
+```
+
+4. Force time synchronization
+
+5. Enable automatic time zone detection
+
+6. Restart required services if needed
+
+### Example
+
+```powershell
+.\TimeIssues--Remediate.ps1
+```
 
 ---
 
-## Notes
+# ⚙️ Requirements
 
-- These scripts must be run with administrative privileges to modify system settings.
-- The remediation script uses `time.windows.com` as the default NTP server. You can update this value in the script if needed.
-- The scripts are designed for environments where Group Policy does not enforce conflicting settings.
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges are required to modify system services and time configuration.
+
+When deployed via Intune, scripts typically run in **SYSTEM context**, which satisfies this requirement.
 
 ---
 
-## License
+# 🧭 Intune Deployment
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+TimeIssues--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+TimeIssues--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script evaluates system time configuration
+3. If issues detected → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script corrects time configuration
+6. Device becomes compliant
+
+---
+
+# 🛡 Operational Notes
+
+* Incorrect time configuration can break domain authentication.
+* Ensure domain policies do not conflict with remediation settings.
+* If devices are domain-joined, time synchronization may be controlled by **Active Directory**.
+* Test deployment on **pilot devices** before organization-wide rollout.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate time synchronization policies
+* Ensure compliance with organizational configuration standards 

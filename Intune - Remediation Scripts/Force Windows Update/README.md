@@ -1,100 +1,255 @@
-
-# Windows Updates Management Scripts
+# 🔄 Force Windows Updates on Managed Devices
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Updates](https://img.shields.io/badge/Windows-Updates-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-This documentation describes two PowerShell scripts designed for managing Windows updates on a local system:
+# 📖 Overview
 
-1. **Detect_ForceWindowsUpdate.ps1** - Detects pending Windows updates.
-2. **Remediate_ForceWindowsUpdate.ps1** - Installs all pending Windows updates on the system.
+**Force Windows Updates** is a PowerShell remediation solution designed to detect and install pending Windows updates on managed devices.
+
+Keeping Windows devices fully updated is essential for:
+
+* Security patch compliance
+* System stability
+* Application compatibility
+* Endpoint protection
+
+This project provides **Detection + Remediation scripts** that automatically detect pending updates and trigger installation when required.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**, enabling administrators to maintain consistent update compliance across managed endpoints.
 
 ---
 
-## Scripts Overview
+# ✨ Core Features
 
-### 1. Detect_ForceWindowsUpdate.ps1
-**Purpose:**
-- This script checks the system for any pending Windows updates.
-- It provides a count of updates that need to be installed, excluding firmware updates.
+### 🔹 Pending Updates Detection
 
-**Key Features:**
-- Ensures the `PSWindowsUpdate` module is installed for managing updates.
-- Outputs the number of pending updates or confirms that no updates are needed.
+The detection script scans the system for available Windows updates.
 
-**Usage:**
-```powershell
-.\Detect_ForceWindowsUpdate.ps1
+It determines whether updates are pending and returns the compliance state accordingly.
+
+Firmware updates can be excluded depending on script configuration.
+
+---
+
+### 🔹 Automatic Update Installation
+
+If pending updates are detected, the remediation script will:
+
+* Install the **PSWindowsUpdate module** if required
+* Scan the system for updates
+* Install all pending updates silently
+* Check if a reboot is required
+
+---
+
+### 🔹 Enterprise Automation Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Force-Windows-Updates
+│
+├── ForceWindowsUpdate--Detect.ps1
+├── ForceWindowsUpdate--Remediate.ps1
+└── README.md
 ```
 
 ---
 
-### 2. Remediate_ForceWindowsUpdate.ps1
-**Purpose:**
-- This script forces the installation of all pending Windows updates on the local system.
-- If necessary, it will notify the user about a required reboot to complete the update process.
+# 🚀 Scripts Included
 
-**Key Features:**
-- Ensures the `PSWindowsUpdate` module is installed.
-- Installs all pending updates silently and logs the process.
-- Includes a function to check for a pending reboot using Windows registry keys.
-- Automatically adjusts the PowerShell execution policy to "Unrestricted" if required.
+## 🔎 Detection Script
 
-**Usage:**
+**File**
+
 ```powershell
-.\Remediate_ForceWindowsUpdate.ps1
+ForceWindowsUpdate--Detect.ps1
+```
+
+### Purpose
+
+Checks whether Windows updates are pending on the device.
+
+### Logic
+
+The script performs the following checks:
+
+1. Verify that the **PSWindowsUpdate module** is available
+2. Query Windows Update service for available updates
+3. Determine whether updates need to be installed
+
+### Exit Codes
+
+| Code | Status             |
+| ---- | ------------------ |
+| 0    | No updates pending |
+| 1    | Updates available  |
+
+### Example
+
+```powershell
+.\ForceWindowsUpdate--Detect.ps1
 ```
 
 ---
 
-## Prerequisites
-1. **PowerShell Execution Policy:**
-   - Ensure your execution policy allows running scripts. The `Remediate_ForceWindowsUpdate.ps1` script will attempt to set it to `Unrestricted` if required.
-   
-2. **PSWindowsUpdate Module:**
-   - The scripts will ensure the `PSWindowsUpdate` module is installed. If not present, it will be downloaded and installed automatically.
+# 🛠 Remediation Script
 
-3. **Administrative Privileges:**
-   - Both scripts must be run with administrative privileges to access Windows Update functionality.
+**File**
 
----
+```powershell
+ForceWindowsUpdate--Remediate.ps1
+```
 
-## Example Output
+### Purpose
 
-### Detect Script
-- **Pending Updates Found:**
-  ```
-  There are 3 pending Windows Updates.
-  ```
-- **No Pending Updates:**
-  ```
-  No pending Windows Updates.
-  ```
+Installs all pending Windows updates on the device.
 
-### Remediate Script
-- **Installing Updates:**
-  ```
-  Installing 3 pending Windows updates...
-  All pending updates installed successfully.
-  A reboot is required to complete the update process.
-  ```
-- **No Updates Found:**
-  ```
-  No pending updates found.
-  ```
+### Actions
 
----
+The remediation script performs the following steps:
 
-## Notes
-- These scripts are designed to work on systems using Windows Update as their update management tool.
-- For managed environments (e.g., WSUS or Intune), ensure compatibility with your organization's update policies.
+1. Ensure **PSWindowsUpdate module** is installed
+2. Scan for available updates
+3. Install updates silently
 
-## License
+Typical command used internally:
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+```powershell
+Install-WindowsUpdate -AcceptAll -AutoReboot
+```
+
+4. Check if a system restart is required
+5. Log the update installation results
+
+### Example
+
+```powershell
+.\ForceWindowsUpdate--Remediate.ps1
+```
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ⚙️ Requirements
 
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Module
+
+Required module:
+
+```
+PSWindowsUpdate
+```
+
+The remediation script installs the module automatically if it is not present.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+ForceWindowsUpdate--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+ForceWindowsUpdate--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks for pending updates
+3. If updates found → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script installs pending updates
+6. Device becomes compliant
+
+---
+
+# 🛡 Operational Notes
+
+* The remediation script may trigger a **system restart** if required.
+* Update installation time depends on the number and size of updates.
+* Ensure Windows Update services are accessible.
+* In environments using **WSUS or Windows Update for Business**, ensure compatibility with update policies.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate update policies in managed environments
+* Ensure compliance with organizational security standards 

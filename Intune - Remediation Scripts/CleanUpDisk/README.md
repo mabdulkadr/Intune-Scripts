@@ -1,94 +1,263 @@
 
-# CleanUpDisk
+# 💽 CleanUpDisk – Automated Disk Space Remediation
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Mode](https://img.shields.io/badge/Automation-Disk%20Cleanup-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
+# 📖 Overview
 
-`CleanUpDisk` is a set of PowerShell scripts designed to monitor disk space and perform automated cleanup of unnecessary files on Windows systems. These scripts help maintain optimal disk utilization by checking available space and executing disk cleanup tasks when needed.
+**CleanUpDisk** is an enterprise-ready PowerShell automation designed to monitor system disk space and automatically execute cleanup operations when available storage drops below a defined threshold.
 
-## Features
+The solution consists of **two scripts** designed for integration with **Microsoft Intune Proactive Remediations**, enabling automated monitoring and remediation of low disk space conditions across managed endpoints.
 
-- **Disk Space Monitoring**: Checks the free space on the C: drive against a predefined threshold.
-- **Automated Cleanup**: Configures and runs Windows Disk Cleanup (`CleanMgr.exe`) with selected cleanup categories.
-- **Customizable Cleanup Categories**: Allows selection of specific file types to clean, ensuring only desired data is removed.
-- **Administrative Execution**: Requires administrator privileges to modify system settings and perform cleanup operations.
-- **64-bit Context**: Designed to run on 64-bit Windows systems.
+When disk space becomes critically low, the remediation script configures and runs **Windows Disk Cleanup (CleanMgr.exe)** with predefined cleanup categories to remove unnecessary files safely.
 
-## Prerequisites
-
-- **Operating System**: Windows 7 or later (64-bit)
-- **PowerShell**: Version 5.0 or higher
-- **Administrator Privileges**: Required to execute scripts successfully
-
-
-## Usage
-
-The `CleanUpDisk` project includes two primary scripts:
-
-### 1. Detection Script:
-
-**Filename**: `CleanUpDiskDetection.ps1`
-
-**Purpose**: Checks the free space on the C: drive against a specified threshold.
-
-**Parameters**:
-- `storageThreshold`: The minimum required free space in gigabytes (default is 15 GB).
-
-**Execution**:
-
-Run the script with administrator privileges:
-
-```powershell
-.\CleanUpDiskDetection.ps1
-```
-
-**Exit Codes**:
-- `0`: Sufficient free space available.
-- `1`: Free space below the threshold.
-
-
-### 2. Remediation Script
-
-**Filename**: `CleanUpDiskRemedaiton.ps1`
-
-**Purpose**: Configures and runs the Windows Disk Cleanup utility with predefined cleanup categories.
-
-**Parameters**:
-- `cleanupTypeSelection`: Array of cleanup categories to enable (e.g., 'Temporary Sync Files', 'Recycle Bin').
-
-**Execution**:
-
-Run the script with administrator privileges:
-
-```powershell
-.\CleanUpDiskRemedaiton.ps1
-```
-
-**How It Works**:
-1. **Registry Configuration**: The script sets specific cleanup categories in the Windows Registry to enable automatic deletion of selected file types.
-2. **Execute Disk Cleanup**: It then runs `CleanMgr.exe` with the `/sagerun:1` argument to perform the cleanup based on the configured settings.
-
-## How It Works
-
-1. **Monitoring Disk Space**:
-   - The `CleanUpDiskDetection.ps1` script retrieves the free space on the C: drive.
-   - It compares the free space against the `storageThreshold`.
-   - Based on the comparison, it exits with a code indicating whether cleanup is necessary.
-
-2. **Performing Cleanup**:
-   - The `CleanUpDiskRemedaiton.ps1` script sets registry keys to enable specific cleanup categories.
-   - It then runs the Disk Cleanup utility to remove unnecessary files, freeing up disk space.
-
-
-
-## License
-
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+This helps maintain healthy endpoint performance and prevents issues caused by insufficient storage.
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ✨ Core Features
+
+### 🔹 Disk Space Monitoring
+
+The detection script continuously evaluates the available space on the system drive:
+
+* Checks **C:\ free disk space**
+* Compares against a defined **minimum threshold**
+* Returns compliance status
+
+---
+
+### 🔹 Automated Disk Cleanup
+
+If free space falls below the threshold:
+
+* Disk Cleanup configuration is written to the registry
+* Windows **CleanMgr.exe** is executed silently
+* Temporary files and other removable items are deleted
+
+---
+
+### 🔹 Intune Proactive Remediation Ready
+
+Designed to work directly with:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance status
+
+---
+
+### 🔹 Safe Cleanup Categories
+
+The remediation script enables selected Disk Cleanup categories such as:
+
+* Temporary files
+* Recycle Bin
+* Windows Update cleanup
+* Temporary Sync Files
+
+Only supported Windows cleanup handlers are used.
+
+---
+
+### 🔹 Silent Execution
+
+Cleanup runs using the Windows mechanism:
+
+```
+CleanMgr.exe /sagerun:1
+```
+
+Allowing background execution without user interaction.
+
+---
+
+# 📂 Project Structure
+
+```
+CleanUpDisk
+│
+├── CleanUpDisk--Detect.ps1
+├── CleanUpDisk--Remediate.ps1
+├── README.md
+```
+
+---
+
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```
+CleanUpDisk--Detect.ps1
+```
+
+### Purpose
+
+Determines whether disk cleanup is required.
+
+### Logic
+
+1. Retrieve free space from **C:\ drive**
+2. Compare against the defined threshold
+3. Return compliance status
+
+### Exit Codes
+
+| Code | Status                     |
+| ---- | -------------------------- |
+| 0    | Compliant                  |
+| 1    | Disk space below threshold |
+
+### Example
+
+```powershell
+.\CleanUpDisk--Detect.ps1
+```
+
+---
+
+## 🛠 Remediation Script
+
+**File**
+
+```
+CleanUpDisk--Remediate.ps1
+```
+
+### Purpose
+
+Performs disk cleanup automatically when triggered by detection.
+
+### Actions
+
+The script performs the following steps:
+
+1. Enables selected cleanup handlers in registry
+2. Configures Disk Cleanup settings
+3. Executes cleanup silently
+
+```
+CleanMgr.exe /sagerun:1
+```
+
+### Example
+
+```powershell
+.\CleanUpDisk--Remediate.ps1
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+* PowerShell **5.1 or later**
+
+### Permissions
+
+* Administrator privileges required
+
+### Architecture
+
+* 64-bit environment
+
+---
+
+# 🧭 Intune Deployment
+
+This solution is intended for **Intune Proactive Remediations**.
+
+### Detection Script
+
+```
+CleanUpDisk--Detect.ps1
+```
+
+### Remediation Script
+
+```
+CleanUpDisk--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                     | Value |
+| ------------------------------------------- | ----- |
+| Run script in 64-bit PowerShell             | Yes   |
+| Run this script using logged-on credentials | No    |
+| Enforce script signature check              | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks available disk space
+3. If space is below threshold → exit code **1**
+4. Intune triggers **Remediation Script**
+5. Script runs Disk Cleanup automatically
+6. Disk space is reclaimed
+
+---
+
+# 🛡 Operational Notes
+
+* Always test scripts on **pilot devices** before production rollout.
+* Cleanup categories should be validated to avoid removing required data.
+* Disk Cleanup depends on available Windows cleanup handlers.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+[MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Donate
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This tool is provided **as-is**.
+
+* Always test scripts before deployment
+* Validate cleanup policies
+* Ensure compliance with organizational standards
+
 

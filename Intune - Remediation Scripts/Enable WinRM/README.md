@@ -1,108 +1,250 @@
-# WinRM Proactive Remediation
+# 🖥 Enable WinRM on Windows Devices
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Service](https://img.shields.io/badge/Service-WinRM-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
+# 📖 Overview
 
-This repository contains two PowerShell scripts designed to work with Intune's Proactive Remediations feature to ensure that Windows Remote Management (WinRM) remains consistently enabled on managed devices.
+**Enable WinRM** is a PowerShell remediation solution designed to ensure that **Windows Remote Management (WinRM)** and **PowerShell Remoting** remain enabled and operational on managed Windows devices.
 
-- **Detection Script:**  
-  Verifies if WinRM/PSRemoting is currently enabled. If it is not, it signals that remediation is required.
+WinRM is required for many enterprise administration tasks including:
 
-- **Remediation Script:**  
-  Forces the configuration of WinRM and PowerShell Remoting, ensuring the service is enabled, running, and properly configured.
+* Remote PowerShell management
+* Configuration management tools
+* Automation platforms
+* Remote troubleshooting
+* Infrastructure orchestration
 
-Using these scripts together helps maintain a stable and reliable remote management environment across all your devices.
+This project provides **Detection + Remediation scripts** that automatically verify whether WinRM is operational and configure it if it is not.
 
-## Scripts
-
-1. **Detection Script:**  
-   - **Filename:** `Detect-WinRM.ps1`  
-   - **Function:** Runs `Test-WSMan` to check if WinRM is operational.
-   - **Exit Codes:**  
-     - `0`: WinRM is enabled, no remediation needed.  
-     - `1`: WinRM is disabled, remediation required.
-
-   **Key Points:**  
-   - Simple, one-step check using `Test-WSMan`.  
-   - If the command fails or does not return a valid result, an exit code of `1` triggers remediation.
-
-2. **Remediation Script:**  
-   - **Filename:** `Remediate_EnableWinRM.ps1`  
-   - **Function:** Enables WinRM and PowerShell Remoting using `Enable-PSRemoting -Force`, configures the WinRM service to start automatically, and verifies configuration with `winrm quickconfig`.
-   - **Checks & Configurations:**  
-     - Ensures the WinRM service is installed and starts if not already running.  
-     - Sets the WinRM service startup type to Automatic.  
-     - Verifies WinRM configuration.
-
-   **Key Points:**  
-   - Includes error handling with `try/catch` blocks.  
-   - Uses color-coded output and clear status messages.  
-   - Ensures the script is run as Administrator.
-
-## Requirements
-
-- **Administrator Privileges:**  
-  The remediation script must be run with elevated permissions.  
-  When deployed through Intune Proactive Remediations, it will typically run in SYSTEM context, meeting this requirement.
-
-- **Windows OS:**  
-  Works on Windows 10, Windows 11, and Windows Server (2016 and above), or any environment where WinRM and PowerShell are standard.
-
-## Usage with Intune Proactive Remediations
-
-1. **Upload the Detection Script:**  
-   In Intune, navigate to **Devoces > Scripts and remediations**, create a new remediation package, and upload `Detect-WinRM.ps1` as the Detection script.
-
-2. **Upload the Remediation Script:**  
-   Upload `Remediate_EnableWinRM.ps1` as the Remediation script.
-
-3. **Assignment & Scheduling:**  
-   Assign the remediation to the device groups you wish to maintain.  
-   Set it to run once or multiple times a day, as required.
-
-4. **Outcomes:**
-   - If WinRM is already enabled, the detection script exits with code `0`, so no remediation runs.
-   - If WinRM is disabled, the detection script exits with code `1`, triggering the remediation script to enable and configure WinRM.
-
-## Example Console Output (Remediation Script)
-
-```
-*** Starting WinRM Configuration ***
-
-Step 1: Checking WinRM service status...
-WinRM service is not running. Starting the service...
-WinRM service started successfully.
-
-Step 2: Enabling PowerShell remoting...
-PowerShell remoting enabled successfully.
-
-Step 3: Configuring WinRM service to start automatically on reboot...
-WinRM service set to start automatically.
-
-Step 4: Verifying WinRM configuration...
-WinRM configuration verified successfully.
-
-*** WinRM Configuration Completed Successfully ***
-```
-
-If any errors occur, they will be displayed in red for quick identification.
-
-## Troubleshooting
-
-- **Not Running as Administrator:**  
-  If the remediation script is run outside Intune and prompts for admin rights, relaunch PowerShell as Administrator or allow Intune to run it as SYSTEM.
-
-- **WinRM Service Not Found:**  
-  Ensure WinRM is not disabled by system policies. WinRM is typically installed by default on modern Windows systems.
-
-## License
-
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**.
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ✨ Core Features
 
+### 🔹 WinRM Health Detection
+
+The detection script verifies whether **WinRM is operational** using the native command:
+
+```powershell
+Test-WSMan
+```
+
+If the command fails, remediation will be triggered.
+
+---
+
+### 🔹 Automatic WinRM Configuration
+
+When WinRM is disabled or not properly configured, the remediation script:
+
+* Enables **PowerShell Remoting**
+* Starts the **WinRM service**
+* Sets the service startup type to **Automatic**
+* Configures the required WinRM listeners
+
+---
+
+### 🔹 Enterprise Automation Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Enable-WinRM
+│
+├── EnableWinRM--Detect.ps1
+├── EnableWinRM--Remediate.ps1
+└── README.md
+```
+
+---
+
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```powershell
+EnableWinRM--Detect.ps1
+```
+
+### Purpose
+
+Checks whether **WinRM is enabled and responding** on the device.
+
+### Logic
+
+1. Execute `Test-WSMan`
+2. Verify WinRM response
+3. Determine compliance state
+
+### Exit Codes
+
+| Code | Status                           |
+| ---- | -------------------------------- |
+| 0    | WinRM operational                |
+| 1    | WinRM disabled or not responding |
+
+### Example
+
+```powershell
+.\EnableWinRM--Detect.ps1
+```
+
+---
+
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+EnableWinRM--Remediate.ps1
+```
+
+### Purpose
+
+Enables and configures **WinRM** and **PowerShell Remoting**.
+
+### Actions
+
+The remediation script performs the following operations:
+
+1. Enable PowerShell remoting
+
+```powershell
+Enable-PSRemoting -Force
+```
+
+2. Configure WinRM service startup
+
+3. Start WinRM service if stopped
+
+4. Validate configuration using:
+
+```powershell
+winrm quickconfig
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+* Windows Server 2016 or newer
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges required.
+
+When deployed via Intune, scripts run in **SYSTEM context**, which satisfies this requirement.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+EnableWinRM--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+EnableWinRM--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks WinRM availability
+3. If WinRM disabled → Exit Code **1**
+4. Intune runs **Remediation Script**
+5. Script configures WinRM and PowerShell Remoting
+6. Device becomes compliant
+
+---
+
+# 🛡 Operational Notes
+
+* WinRM is required for many enterprise automation tools.
+* The remediation script configures the service automatically.
+* Always validate remote management policies before enabling WinRM across devices.
+* Test deployment on **pilot devices** before organization-wide rollout.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate remote management policies
+* Ensure compliance with organizational security standards 

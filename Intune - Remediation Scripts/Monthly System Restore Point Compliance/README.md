@@ -1,136 +1,258 @@
-# Monthly System Restore Point Compliance
+# 🛡 Monthly System Restore Point Compliance
 
-![Scope](https://img.shields.io/static/v1?label=scope&message=Intune&color=blue)
-![Mode](https://img.shields.io/static/v1?label=mode&message=CLI&color=lightgrey)
-![Scripts](https://img.shields.io/static/v1?label=scripts&message=2&color=green)
-![Pattern](https://img.shields.io/static/v1?label=pattern&message=Detection%2BRemediation&color=brightgreen)
-![Tech](https://img.shields.io/static/v1?label=tech&message=Intune%2BRegistry&color=blue)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Feature](https://img.shields.io/badge/Feature-System%20Restore-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
+
+# 📖 Overview
+
+**Monthly System Restore Point Compliance** is a PowerShell automation solution designed to ensure that Windows devices maintain at least one **recent system restore point**.
+
+System restore points provide a recovery mechanism that allows administrators and users to revert system configuration changes if updates, drivers, or software installations cause system instability.
+
+This project provides **Detection + Remediation scripts** that automatically verify whether a restore point exists for the current month and create one if it does not.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**, enabling organizations to maintain a consistent restore-point policy across managed endpoints.
 
 ---
 
-## 📖 Overview
-This folder contains **2 PowerShell script(s)**. The documentation below is generated from actual script content and includes technical behavior, dependencies, integration points, and exit-code patterns.
+# ✨ Core Features
 
+### 🔹 Restore Point Compliance Detection
 
-## ✨ Features
-- Folder scope: `Intune`
-- Execution mode: `CLI`
-- Scripts detected: **2**
-- Path: `Intune-Scripts\Intune - Remediation Scripts\Monthly System Restore Point Compliance\README.md`
-- Proactive Remediations pattern: Detection + Remediation pair is available.
+The detection script evaluates whether a **system restore point exists for the current month**.
 
+It checks existing restore points using:
 
-## ⚙️ Requirements
-- Windows PowerShell 5.1 or newer.
-- Permissions aligned with script operations (file system, services, tasks, registry, API).
-- Required modules and APIs are listed per script in Technical Details.
-
-## 📂 Script Inventory
-| File | Type | Synopsis |
-|---|---|---|
-| `Detect-MonthlyRestorePoint.ps1` | Detection | Detect compliance state for MonthlyRestorePoint. |
-| `Remediate-MonthlyRestorePoint.ps1` | Remediation | Remediate MonthlyRestorePoint based on defined conditions. |
-
-
-## 🔍 Technical Details
-### `Detect-MonthlyRestorePoint.ps1`
-- **Functional Type:** Detection
-- **Purpose:** Detect compliance state for MonthlyRestorePoint.
-- **Technical Description:** This detection script evaluates MonthlyRestorePoint and returns compliance status. It is intended for Intune Proactive Remediations or scheduled automation. Exit codes: - Exit 1: Not Compliant (remediation should run) - Exit 0: Compliant
-- **Expected Run Context (Run As):** System or User (according to assignment settings and script requirements).
-- **Path:** `Intune-Scripts\Intune - Remediation Scripts\Monthly System Restore Point Compliance\Detect-MonthlyRestorePoint.ps1`
-- **Observed Exit Codes:** `0`, `1`
-- **Technical Dependencies:**
-  - Microsoft Intune environment with matching Proactive Remediation or script assignment settings.
-
-#### Internal Functions
-- `Convert-WmiDate`
-- `Try-ParseDate`
-
-#### Key Cmdlets/Commands
-- `Convert-WmiDate`
-- `ForEach-Object`
-- `Get-CimInstance`
-- `Get-ComputerRestorePoint`
-- `Get-Date`
-- `Group-Object`
-- `New-Object`
-- `Select-Object`
-- `Sort-Object`
-- `Try-ParseDate`
-- `Where-Object`
-- `Write-Output`
-
-### `Remediate-MonthlyRestorePoint.ps1`
-- **Functional Type:** Remediation
-- **Purpose:** Remediate MonthlyRestorePoint based on defined conditions.
-- **Technical Description:** This remediation script applies corrective actions for MonthlyRestorePoint. Use with Intune Proactive Remediations or on-demand execution. Exit codes: - Exit 0: Completed successfully - Exit 1: Failed or requires further action
-- **Expected Run Context (Run As):** System or User (according to assignment settings and script requirements).
-- **Path:** `Intune-Scripts\Intune - Remediation Scripts\Monthly System Restore Point Compliance\Remediate-MonthlyRestorePoint.ps1`
-- **Observed Exit Codes:** `0`, `1`, `2`, `3`, `4`
-- **Technical Dependencies:**
-  - Microsoft Intune environment with matching Proactive Remediation or script assignment settings.
-
-#### Internal Functions
-- `Convert-WmiDate`
-- `Ensure-SystemProtection`
-- `Get-AllRestorePoints`
-- `New-MonthlyRestorePoint`
-- `Test-MonthlyRestorePoint`
-- `Try-ParseDate`
-- `Write-Log`
-
-#### Key Cmdlets/Commands
-- `Add-Content`
-- `Checkpoint-Computer`
-- `Convert-WmiDate`
-- `Enable-ComputerRestore`
-- `Ensure-SystemProtection`
-- `Get-AllRestorePoints`
-- `Get-CimInstance`
-- `Get-ComputerRestorePoint`
-- `Get-Date`
-- `Get-ItemProperty`
-- `Join-Path`
-- `New-Item`
-- `New-MonthlyRestorePoint`
-- `New-Object`
-- `Out-Null`
-- *(+10 additional commands found in script)*
-
-#### Registry Touchpoints
-- `HKLM:\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore`
-
-
-## 🚀 Usage
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\Detect-MonthlyRestorePoint.ps1
-.\Remediate-MonthlyRestorePoint.ps1
+Get-ComputerRestorePoint
 ```
 
-
-## 🛡️ Operational Notes
-- ✅ Validate scripts in a pilot environment before production rollout.
-- 🔎 Review execution logs (if present) and verify exit codes match expected behavior.
-- ⚠️ For Intune use cases, validate assignment context and **Run this script using logged-on credentials** configuration.
-
-
-## 🧷 Compatibility and Revision
-- Documentation last updated: **2026-02-15**
-- This README is standardized and generated from local script analysis to keep documentation aligned with implementation.
+If no restore point exists within the defined timeframe, the device is marked as **non-compliant**.
 
 ---
 
-## 📜 License
+### 🔹 Automatic Restore Point Creation
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+If a restore point is missing, the remediation script will:
+
+* Ensure **System Protection** is enabled
+* Verify restore point configuration
+* Create a new restore point automatically
+
+Typical command used:
+
+```powershell
+Checkpoint-Computer -Description "Monthly Restore Point" -RestorePointType MODIFY_SETTINGS
+```
 
 ---
 
-## ⚠️ Disclaimer
+### 🔹 Enterprise Automation Ready
 
-This script is provided **as-is** without warranty.
-The author is **not responsible** for unintended modifications or data loss.
-Always test thoroughly before deploying in production.
+Designed for deployment through:
 
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Monthly-System-Restore-Point
+│
+├── MonthlyRestorePoint--Detect.ps1
+├── MonthlyRestorePoint--Remediate.ps1
+└── README.md
+```
+
+---
+
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```powershell
+MonthlyRestorePoint--Detect.ps1
+```
+
+### Purpose
+
+Checks whether a system restore point exists within the current month.
+
+### Logic
+
+The script performs the following checks:
+
+1. Retrieve all restore points using `Get-ComputerRestorePoint`
+2. Parse restore point creation dates
+3. Verify whether a restore point exists within the defined time window
+
+### Exit Codes
+
+| Code | Status                |
+| ---- | --------------------- |
+| 0    | Restore point exists  |
+| 1    | Restore point missing |
+
+### Example
+
+```powershell
+.\MonthlyRestorePoint--Detect.ps1
+```
+
+---
+
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+MonthlyRestorePoint--Remediate.ps1
+```
+
+### Purpose
+
+Creates a system restore point when one is not present for the current month.
+
+### Actions
+
+The remediation script performs the following operations:
+
+1. Ensure **System Protection** is enabled
+
+```powershell
+Enable-ComputerRestore -Drive "C:\"
+```
+
+2. Verify restore point configuration
+
+3. Create a new restore point
+
+```powershell
+Checkpoint-Computer -Description "Monthly Restore Point" -RestorePointType MODIFY_SETTINGS
+```
+
+4. Log restore point creation status
+
+### Example
+
+```powershell
+.\MonthlyRestorePoint--Remediate.ps1
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges are required to manage restore points and system protection.
+
+When deployed via Intune, scripts typically run in **SYSTEM context**.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+MonthlyRestorePoint--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+MonthlyRestorePoint--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks existing restore points
+3. If restore point missing → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script enables System Protection if needed
+6. Script creates a new monthly restore point
+
+---
+
+# 🛡 Operational Notes
+
+* Restore points provide a fallback mechanism for system recovery.
+* Windows may automatically remove older restore points depending on disk space.
+* Ensure **System Protection** is enabled on the system drive.
+* Always validate restore-point policies in pilot deployments.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate restore-point policies
+* Ensure compliance with organizational configuration standards 

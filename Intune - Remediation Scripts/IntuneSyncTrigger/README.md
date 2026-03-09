@@ -1,95 +1,261 @@
-# Intune Management Extension Sync Scripts
+# 🔄 Intune Management Extension Hourly Sync
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Service](https://img.shields.io/badge/Service-Intune%20Management%20Extension-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
-This Project contains two PowerShell scripts designed to detect and remediate issues related to **Intune Management Extension (IME) sync**. 
+# 📖 Overview
 
-- **Detection Script**: Checks if IME sync has occurred within the last hour using Event Logs.
-- **Remediation Script**: Triggers the IME sync immediately and creates a scheduled task to ensure the sync runs every hour.
+**Intune Management Extension Hourly Sync** is a PowerShell automation solution designed to ensure that the **Intune Management Extension (IME)** performs regular synchronization with Microsoft Intune.
+
+In some environments, devices may stop syncing with Intune due to stalled IME processes or missed scheduled sync events. This can cause:
+
+* Applications not installing
+* Policies not applying
+* Remediation scripts not executing
+* Compliance status not updating
+
+This project provides **Detection + Remediation scripts** that automatically detect when the Intune Management Extension has not synchronized recently and enforce regular synchronization.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**.
 
 ---
 
-## Scripts Included
+# ✨ Core Features
 
-1. **Detect_HourlyIMESync.ps1**  
-   - Detects if the Intune Management Extension sync occurred in the past hour.
+### 🔹 IME Sync Detection
 
-2. **Remediate_HourlyIMESync.ps1**  
-   - Triggers IME sync immediately and sets up an hourly scheduled task to maintain compliance.
+The detection script verifies whether an **IME synchronization event** has occurred within the past hour.
 
----
+It analyzes **Windows Event Logs** and searches for:
 
-## Script Details
-
-### 1. Detect_HourlyIMESync.ps1
-
-#### Purpose
-Detects whether the Intune Management Extension has synchronized within the past hour by scanning Event Logs for **Event ID 208**.
-
-#### How to Run
-```powershell
-.\Detect_HourlyIMESync.ps1
+```text
+Event ID 208
 ```
 
-#### Outputs
-- **Compliance**: "Intune Management Extension Sync detected within the last hour." (Exit Code: `0`)
-- **Non-Compliance**: "No Intune Management Extension Sync detected within the last hour." (Exit Code: `1`)
+Which indicates that the **Intune Management Extension completed a sync cycle**.
 
 ---
 
-### 2. Remediate_HourlyIMESync.ps1
+### 🔹 Automatic IME Sync Trigger
 
-#### Purpose
-Forces an immediate IME sync and creates a scheduled task to trigger the sync every hour for consistent compliance.
+If no sync event is detected within the expected timeframe, the remediation script will:
 
-#### How to Run
-```powershell
-.\Remediate_HourlyIMESync.ps1
+* Trigger an **immediate IME sync**
+* Create a **scheduled task** that runs every hour
+* Maintain regular synchronization automatically
+
+---
+
+### 🔹 Enterprise Automation Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automated remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Intune-IME-Sync
+│
+├── IntuneIMESync--Detect.ps1
+├── IntuneIMESync--Remediate.ps1
+└── README.md
 ```
 
-#### Key Actions
-1. Triggers IME Sync using the `Shell.Application` COM object:
-   ```powershell
-   (New-Object -ComObject Shell.Application).Open("intunemanagementextension://syncapp")
-   ```
-2. Creates a scheduled task named **"Trigger-IME-Sync-Hourly"**:
-   - Runs every hour using the SYSTEM account.
+---
 
-#### Outputs
-- Immediate IME Sync triggered.
-- Scheduled Task created:
-  - **Name**: `Trigger-IME-Sync-Hourly`
-  - **Trigger**: Runs hourly.
+# 🚀 Scripts Included
+
+## 🔎 Detection Script
+
+**File**
+
+```powershell
+IntuneIMESync--Detect.ps1
+```
+
+### Purpose
+
+Checks whether the **Intune Management Extension** has synchronized within the past hour.
+
+### Logic
+
+The script performs the following checks:
+
+1. Query Windows Event Logs
+2. Search for **Event ID 208** from IME
+3. Determine whether a recent sync occurred
+
+### Exit Codes
+
+| Code | Status                                 |
+| ---- | -------------------------------------- |
+| 0    | IME sync detected within the last hour |
+| 1    | No IME sync detected                   |
+
+### Example
+
+```powershell
+.\IntuneIMESync--Detect.ps1
+```
 
 ---
 
-## How to Deploy via Intune
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+IntuneIMESync--Remediate.ps1
+```
+
+### Purpose
+
+Forces an Intune Management Extension sync and ensures hourly synchronization.
+
+### Actions
+
+The remediation script performs the following operations:
+
+### 1. Trigger Immediate IME Sync
+
+```powershell
+(New-Object -ComObject Shell.Application).Open("intunemanagementextension://syncapp")
+```
+
+### 2. Create Scheduled Task
+
+The script creates a scheduled task with the following configuration:
+
+| Property  | Value                     |
+| --------- | ------------------------- |
+| Task Name | `Trigger-IME-Sync-Hourly` |
+| Account   | SYSTEM                    |
+| Trigger   | Every 1 hour              |
+
+This ensures the IME sync runs automatically on a regular basis.
+
+### Example
+
+```powershell
+.\IntuneIMESync--Remediate.ps1
+```
+
+---
+
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Device Enrollment
+
+Devices must be enrolled in **Microsoft Intune**.
+
+### Permissions
+
+Administrator privileges required.
+When deployed via Intune, scripts run in **SYSTEM context**.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
 
 ### Detection Script
-1. Upload `Detect_HourlyIMESync.ps1` as a **Detection Script** in Intune:
-   - **Purpose**: Evaluate IME sync status.
-   - Exit Code `0` = Compliance.
-   - Exit Code `1` = Non-compliance.
+
+```powershell
+IntuneIMESync--Detect.ps1
+```
 
 ### Remediation Script
-1. Upload `Remediate_HourlyIMESync.ps1` as a **Remediation Script**:
-   - Triggers IME sync.
-   - Sets up an hourly scheduled task to enforce regular IME sync.
+
+```powershell
+IntuneIMESync--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
 
 ---
 
-## Notes
-- These scripts require administrative privileges.
-- Intended for Windows 10/11 devices managed by Microsoft Intune.
+# 🔧 Typical Workflow
 
-## License
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+1. Intune runs the **Detection Script**
+2. Script checks Event Logs for IME sync events
+3. If no recent sync detected → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script forces IME sync and creates scheduled task
+6. Device maintains hourly synchronization
 
 ---
 
-**Disclaimer**:  
-These scripts are provided as-is. Test in a staging environment before deploying to production. The author is not responsible for any unintended outcomes resulting from their use.
+# 🛡 Operational Notes
 
+* IME normally syncs automatically, but this script ensures regular synchronization.
+* The scheduled task ensures the device remains compliant with Intune policy updates.
+* Always test deployment on **pilot devices** before organization-wide rollout.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate Intune synchronization policies
+* Ensure compliance with organizational device management standards 

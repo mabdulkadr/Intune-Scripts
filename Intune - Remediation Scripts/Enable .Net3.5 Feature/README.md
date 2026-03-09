@@ -1,88 +1,237 @@
-# Enable .NET Framework 3.5 - Detection and Remediation Scripts
+# 🧩 Enable .NET Framework 3.5 on Windows Devices
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Feature](https://img.shields.io/badge/Feature-.NET%203.5-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
-This Project contains two PowerShell scripts designed to detect and remediate the installation of **.NET Framework 3.5** on Windows 10 and Windows 11 devices. These scripts are intended for deployment via Microsoft Intune using the **Devices | Scripts and remediations** feature.
+# 📖 Overview
+
+**Enable .NET Framework 3.5** is a PowerShell-based remediation solution designed to detect and enable the **.NET Framework 3.5** Windows feature on managed devices.
+
+Some enterprise applications, legacy systems, and internal tools require **.NET Framework 3.5** to function correctly. However, this feature is not enabled by default on modern versions of Windows.
+
+This project provides **Detection + Remediation scripts** that automatically verify whether the feature is installed and enable it if missing.
+
+The solution is designed primarily for **Microsoft Intune Proactive Remediations**, allowing organizations to ensure that required application dependencies are installed across managed endpoints.
 
 ---
 
-## Scripts Included
+# ✨ Core Features
 
-1. **Detect_.Net3.5_Feature.ps1**  
-   - Detects whether .NET Framework 3.5 is enabled on the target device.
+### 🔹 Automatic Feature Detection
 
-2. **Remediate_.Net3.5_Feature.ps1**  
-   - Enables .NET Framework 3.5 if it is not already installed.
+The detection script verifies whether **.NET Framework 3.5** is enabled on the system.
+
+It evaluates Windows optional features and determines whether remediation is required.
 
 ---
 
-## Scripts Details
+### 🔹 Automatic Feature Installation
 
-### 1. Detect_.Net3.5_Feature.ps1
+If the feature is not installed:
 
-#### Purpose
-This script checks if the **.NET Framework 3.5** feature is enabled on the device. It outputs a status message and returns an exit code.
+* Windows feature installation is triggered
+* Required components are downloaded from Windows Update
+* Installation status is returned to Intune
 
-#### How to Run
-Run locally or deploy via Intune:
-```powershell
-.\Detect_.Net3.5_Feature.ps1
+---
+
+### 🔹 Enterprise Deployment Ready
+
+Designed for deployment through:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+Provides:
+
+* Detection logic
+* Automatic remediation
+* Exit-code based compliance reporting
+
+---
+
+# 📂 Project Structure
+
+```text
+Enable-dotNet3.5
+│
+├── dotNet3.5_Feature_Installed--Detect.ps1
+├── dotNet3.5_Feature--Remediate.ps1
+└── README.md
 ```
 
-#### Outputs
-- **"Installed"**: Indicates .NET Framework 3.5 is enabled.
-- **"Not Installed"**: Indicates .NET Framework 3.5 is not enabled.
-
-#### Exit Codes
-- **0**: Detection successful (feature is enabled).
-- **1**: Detection failed (feature not enabled).
-
 ---
 
-### 2. Remediate_.Net3.5_Feature.ps1
+# 🚀 Scripts Included
 
-#### Purpose
-This script enables the **.NET Framework 3.5** feature using the `Add-WindowsCapability` command. It includes error handling and logs the installation process.
+## 🔎 Detection Script
 
-#### How to Run
-Run locally (requires administrative privileges) or deploy via Intune:
+**File**
+
 ```powershell
-.\Remediate_.Net3.5_Feature.ps1
+dotNet3.5_Feature_Installed--Detect.ps1
 ```
 
-#### Outputs
-- **Success**: Displays a message confirming .NET Framework 3.5 is enabled.
-- **Error**: Outputs an error message if the installation fails.
+### Purpose
 
-#### Error Handling
-The script includes `try-catch` blocks to handle errors and provide detailed feedback.
+Checks whether **.NET Framework 3.5** is enabled on the device.
 
----
+### Logic
 
-## Deployment via Intune
+1. Query Windows optional features
+2. Check installation status of **.NET Framework 3.5**
+3. Determine compliance state
 
-1. Go to the **Intune portal**: [https://intune.microsoft.com/](https://intune.microsoft.com/)
-2. Navigate to **Devices | Scripts and remediations**.
-3. Add the scripts as follows:
-   - **Detection Script**: Upload `Detect_.Net3.5_Feature.ps1`.
-   - **Remediation Script**: Upload `Remediate_.Net3.5_Feature.ps1`.
-4. Assign the scripts to your target device groups.
-5. Monitor the deployment status under **Devices | Monitor**.
+### Exit Codes
 
----
+| Code | Status            |
+| ---- | ----------------- |
+| 0    | Feature installed |
+| 1    | Feature missing   |
 
-## Notes
-- Ensure devices have internet access to download the .NET 3.5 feature from Windows Update.
-- If devices use WSUS and cannot access Windows Update, configure the DISM method with a valid source path.
+### Example
+
+```powershell
+.\dotNet3.5_Feature_Installed--Detect.ps1
+```
 
 ---
 
-## License 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+dotNet3.5_Feature--Remediate.ps1
+```
+
+### Purpose
+
+Installs **.NET Framework 3.5** when the feature is not enabled.
+
+### Actions
+
+The remediation script performs the following steps:
+
+1. Detect whether the feature is already installed
+2. Trigger Windows feature installation
+3. Monitor installation status
+4. Return success or error message
+
+Typical command used internally:
+
+```powershell
+Add-WindowsCapability -Online -Name NetFx3~~~~
+```
+
+### Example
+
+```powershell
+.\dotNet3.5_Feature--Remediate.ps1
+```
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# ⚙️ Requirements
+
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges are required to install Windows features.
+
+---
+
+# 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```powershell
+dotNet3.5_Feature_Installed--Detect.ps1
+```
+
+### Remediation Script
+
+```powershell
+dotNet3.5_Feature--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks whether .NET Framework 3.5 is installed
+3. If feature missing → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script installs the required Windows feature
+6. Device becomes compliant
+
+---
+
+# 🛡 Operational Notes
+
+* Internet access may be required to download the feature from **Windows Update**.
+* If devices use **WSUS**, a local installation source may be required.
+* Some legacy applications depend on .NET Framework 3.5 to run correctly.
+* Test deployment on **pilot devices** before large-scale rollout.
+
+---
+
+# 📜 License
+
+This project is licensed under the
+MIT License
+
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdelkader Omar**
+Website: **momar.tech**
+
+Version: **1.0**
+Date: **2026-03-09**
+
+---
+
+# ☕ Support
+
+If this project helps you, consider supporting it:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+* Always test scripts before production deployment
+* Validate Windows feature installation policies
+* Ensure compliance with organizational configuration standards 
