@@ -6,29 +6,18 @@
     This remediation script upgrades all installed applications that have
     available updates using Windows Package Manager (winget).
 
-    The script dynamically resolves the location of AppInstallerCLI.exe
-    within the WindowsApps directory under Program Files. This approach
-    ensures compatibility when running under SYSTEM context, such as
-    Microsoft Intune Proactive Remediations or device-level scripts.
+    The script resolves winget.exe from the WindowsApps directory in a way
+    that works reliably in SYSTEM context, such as Microsoft Intune Remediations.
 
     It executes:
-
         winget upgrade --all --force --silent
 
-    Parameter details:
-    --all     : Upgrades all applications with available updates.
-    --force   : Reinstalls or overrides version checks when necessary.
-    --silent  : Suppresses user interaction prompts for unattended execution.
-
-    This script is typically paired with a detection script that identifies
-    devices with pending application updates.
-
-.HINT
-    This is a community script. There is no guarantee for this.
-    Review and test thoroughly before deploying in production.
+    Exit codes:
+    - Exit 0: Completed successfully
+    - Exit 1: Remediation failed
 
 .RUN AS
-    System (64-bit PowerShell recommended)
+    System
 
 .EXAMPLE
     .\WingetUpdateAll--Remediate.ps1
@@ -36,77 +25,165 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ============================ CONFIGURATION ==============================
-# Use fixed names so Intune staging does not change the log file name.
-$SystemDrive    = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) { 'C:' } else { $env:SystemDrive }
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'WingetUpdateAll--Remediate.ps1'
 $ScriptBaseName = 'WingetUpdateAll--Remediate'
-$LogDirectory   = Join-Path -Path $SystemDrive -ChildPath 'Intune\Winget-Update-All'
-$LogFile        = Join-Path -Path $LogDirectory -ChildPath "$ScriptBaseName.txt"
-#endregion ====================================================================
+$SolutionName   = 'Winget-Update-All'
 
-#region ============================ HELPER FUNCTIONS ===========================
-function Initialize-LogFile {
-    # Create the log directory only when it is needed.
-    if (-not (Test-Path -LiteralPath $LogDirectory)) {
-        New-Item -Path $LogDirectory -ItemType Directory -Force | Out-Null
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
+    $env:SystemDrive.TrimEnd('\')
+}
+else {
+    'C:'
+}
+
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
+
+#endregion ---------- Configuration ----------
+
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
+function Initialize-Logging {
+    try {
+        if (-not (Test-Path -LiteralPath $BasePath)) {
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
+        }
+
+        if (-not (Test-Path -LiteralPath $LogFile)) {
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
+        }
+
+        return $true
+    }
+    catch {
+        return $false
     }
 }
 
+# Write a message to console and log file
 function Write-Log {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Message,
 
-        [ValidateSet('INFO', 'OK', 'WARN', 'FAIL')]
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
         [string]$Level = 'INFO'
     )
 
-    Initialize-LogFile
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line = "[$TimeStamp] [$Level] $Message"
 
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
+    }
 
-    Add-Content -Path $LogFile -Value $line -Encoding UTF8
-}
-#endregion ====================================================================
-
-#region ======================== FIRST REMEDIATION BLOCK =======================
-Write-Log '=== Remediation START ==='
-Write-Log "Script: $ScriptName"
-Write-Log "Log file: $LogFile"
-
-# Resolve Winget executable path dynamically from WindowsApps directory.
-# This ensures compatibility when running under SYSTEM context.
-$Winget = @(
-    Get-ChildItem -Path (
-        Join-Path -Path (
-            Join-Path -Path $env:ProgramFiles -ChildPath 'WindowsApps'
-        ) -ChildPath 'Microsoft.DesktopAppInstaller*_x64*\AppInstallerCLI.exe'
-    ) -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
-
-    Get-ChildItem -Path (
-        Join-Path -Path (
-            Join-Path -Path $env:ProgramFiles -ChildPath 'WindowsApps'
-        ) -ChildPath 'Microsoft.DesktopAppInstaller*_x64*\winget.exe'
-    ) -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
-
-    Get-Command winget.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-) | Select-Object -First 1
-
-if (-not $Winget) {
-    throw 'Windows Package Manager executable was not found.'
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
+    }
 }
 
-Write-Log "Winget path: $Winget"
+# Resolve winget.exe in SYSTEM context
+function Get-WingetPath {
+    try {
+        $ResolveWingetPath = Resolve-Path 'C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe' -ErrorAction Stop
 
-# Execute Winget upgrade in fully unattended mode.
-# All detected upgradable applications will be updated silently.
-& $Winget upgrade --all --force --silent --accept-package-agreements --accept-source-agreements
+        if ($ResolveWingetPath) {
+            $WingetRoot = $ResolveWingetPath[-1].Path
+            $WingetExe  = Join-Path $WingetRoot 'winget.exe'
 
-Write-Log 'Winget remediation command completed.'
-Write-Log '=== Remediation END ==='
-#endregion ====================================================================
+            if (Test-Path -LiteralPath $WingetExe) {
+                return $WingetExe
+            }
+        }
+
+        return $null
+    }
+    catch {
+        return $null
+    }
+}
+
+# Run winget and capture output
+function Invoke-WingetUpgradeAll {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$WingetPath
+    )
+
+    $Output = & $WingetPath upgrade --all --force --silent --accept-package-agreements --accept-source-agreements 2>&1
+    $ExitCode = $LASTEXITCODE
+
+    return [pscustomobject]@{
+        ExitCode = $ExitCode
+        Output   = @($Output)
+    }
+}
+
+#endregion ---------- Functions ----------
+
+
+#region ---------- Remediation Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting remediation for $ScriptName"
+Write-Log -Message "Log file: $LogFile"
+
+try {
+    # Resolve winget path
+    $Winget = Get-WingetPath
+
+    if (-not $Winget) {
+        Write-Log -Message 'winget.exe was not found.' -Level 'ERROR'
+        exit 1
+    }
+
+    Write-Log -Message "Winget path: $Winget"
+
+    # Execute upgrade لجميع التطبيقات القابلة للتحديث
+    $Result = Invoke-WingetUpgradeAll -WingetPath $Winget
+
+    Write-Log -Message "Winget exit code: $($Result.ExitCode)"
+
+    if ($Result.Output.Count -gt 0) {
+        foreach ($Line in $Result.Output) {
+            if (-not [string]::IsNullOrWhiteSpace($Line.ToString())) {
+                Write-Log -Message ("winget: " + $Line.ToString())
+            }
+        }
+    }
+    else {
+        Write-Log -Message 'Winget returned no output.'
+    }
+
+    if ($Result.ExitCode -eq 0) {
+        Write-Log -Message 'Winget remediation completed successfully.' -Level 'SUCCESS'
+        exit 0
+    }
+
+    Write-Log -Message 'Winget remediation completed with errors.' -Level 'ERROR'
+    exit 1
+}
+catch {
+    Write-Log -Message "Remediation failed: $($_.Exception.Message)" -Level 'ERROR'
+    exit 1
+}
+
+#endregion ---------- Remediation Logic ----------

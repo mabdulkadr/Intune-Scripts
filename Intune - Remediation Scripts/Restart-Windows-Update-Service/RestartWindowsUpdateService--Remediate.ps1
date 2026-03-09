@@ -3,8 +3,8 @@
     Restarts the Windows Update service.
 
 .DESCRIPTION
-    This remediation script checks for the Windows Update service and restarts it
-    when available. It is intended for use with Intune Remediations.
+    This remediation script checks whether the Windows Update service exists
+    and restarts it when available.
 
     Exit codes:
     - Exit 0: Completed successfully
@@ -19,83 +19,145 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ========================= CONFIGURATION =========================
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'RestartWindowsUpdateService--Remediate.ps1'
 $ScriptBaseName = 'RestartWindowsUpdateService--Remediate'
+$SolutionName   = 'Restart-Windows-Update-Service'
 
-# Store logs under the system drive instead of hard-coding C:.
-$SystemDrive   = if ($env:SystemDrive) { $env:SystemDrive } else { 'C:' }
-$LogFolderName = 'Restart-Windows-Update-Service'
-$LogDirectory  = Join-Path $SystemDrive "Intune\$LogFolderName"
-$LogFilePath   = Join-Path $LogDirectory "$ScriptBaseName.txt"
-
-# Target the Windows Update service by its service name.
+# Target Windows Update service
 $ServiceName = 'wuauserv'
-#endregion ====================== CONFIGURATION =========================
 
-#region ======================= HELPER FUNCTIONS =======================
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
+    $env:SystemDrive.TrimEnd('\')
+}
+else {
+    'C:'
+}
+
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
+
+#endregion ---------- Configuration ----------
+
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
+function Initialize-Logging {
+    try {
+        if (-not (Test-Path -Path $BasePath)) {
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
+        }
+
+        if (-not (Test-Path -Path $LogFile)) {
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
+        }
+
+        return $true
+    }
+    catch {
+        return $false
+    }
+}
+
+# Write a message to console and log file
 function Write-Log {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Message,
 
-        [ValidateSet('INFO', 'OK', 'WARN', 'FAIL')]
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
         [string]$Level = 'INFO'
     )
 
-    $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $LogLine   = "[$Timestamp] [$Level] $Message"
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
-    Add-Content -Path $LogFilePath -Value $LogLine -Encoding UTF8
-    Write-Output $LogLine
-}
-#endregion ==================== HELPER FUNCTIONS =======================
-
-#region ==================== FIRST REMEDIATION BLOCK ====================
-try {
-    if (-not (Test-Path -Path $LogDirectory)) {
-        New-Item -Path $LogDirectory -ItemType Directory -Force | Out-Null
+    switch ($Level) {
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
     }
 
-    Write-Log -Message '=== Remediation START ==='
-    Write-Log -Message "Script: $ScriptName"
-    Write-Log -Message "Log file: $LogFilePath"
-    Write-Log -Message "Service name: $ServiceName"
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
+    }
+}
 
-    # Confirm that the service exists before attempting a restart.
-    $Service = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
-    if ($null -eq $Service) {
-        Write-Log -Message "Service '$ServiceName' was not found." -Level 'FAIL'
-        Write-Log -Message '=== Remediation END (Exit 1) ==='
+# Return service object when available
+function Get-ServiceSafe {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    try {
+        Get-Service -Name $Name -ErrorAction Stop
+    }
+    catch {
+        $null
+    }
+}
+
+#endregion ---------- Functions ----------
+
+
+#region ---------- Remediation Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting remediation for $ScriptName"
+Write-Log -Message "Service name: $ServiceName"
+Write-Log -Message "Log file: $LogFile"
+
+try {
+    # Check whether the service exists
+    $Service = Get-ServiceSafe -Name $ServiceName
+
+    if (-not $Service) {
+        Write-Log -Message "Service '$ServiceName' was not found." -Level 'ERROR'
         exit 1
     }
 
     Write-Log -Message "Service '$ServiceName' current status before restart: $($Service.Status)"
 
-    # Restart the service to restore normal operation.
-    Restart-Service -Name $ServiceName -Force -ErrorAction Stop
+    # Start the service if it is stopped, otherwise restart it
+    if ($Service.Status -eq 'Stopped') {
+        Write-Log -Message "Service '$ServiceName' is stopped. Starting service..."
+        Start-Service -Name $ServiceName -ErrorAction Stop
+    }
+    else {
+        Write-Log -Message "Restarting service '$ServiceName'..."
+        Restart-Service -Name $ServiceName -Force -ErrorAction Stop
+    }
 
-    # Confirm the service state after the restart command completes.
+    # Refresh service state after action
     $Service = Get-Service -Name $ServiceName -ErrorAction Stop
-    Write-Log -Message "Service '$ServiceName' current status after restart: $($Service.Status)"
+    Write-Log -Message "Service '$ServiceName' current status after action: $($Service.Status)"
 
     if ($Service.Status -eq 'Running') {
-        Write-Log -Message "Service '$ServiceName' restarted successfully." -Level 'OK'
-        Write-Log -Message '=== Remediation END (Exit 0) ==='
+        Write-Log -Message "Service '$ServiceName' is running successfully." -Level 'SUCCESS'
         exit 0
     }
 
-    Write-Log -Message "Service '$ServiceName' restart command completed but the service is not running." -Level 'FAIL'
-    Write-Log -Message '=== Remediation END (Exit 1) ==='
+    Write-Log -Message "Service '$ServiceName' action completed but the service is not running." -Level 'ERROR'
     exit 1
 }
 catch {
-    Write-Log -Message "Remediation error: $($_.Exception.Message)" -Level 'FAIL'
-    Write-Log -Message '=== Remediation END (Exit 1) ==='
+    Write-Log -Message "Remediation failed: $($_.Exception.Message)" -Level 'ERROR'
     exit 1
 }
-#endregion ================= FIRST REMEDIATION BLOCK =================
+
+#endregion ---------- Remediation Logic ----------

@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Detect whether matching Windows updates are pending.
+    Detects whether matching Windows updates are pending.
 
 .DESCRIPTION
     This detection script checks for available Windows updates on the local
-    device using the `PSWindowsUpdate` module.
+    device by using the PSWindowsUpdate module.
 
     You can optionally target specific update types, categories, severities,
     or KB article IDs from the configuration block. If one or more matching
@@ -12,11 +12,11 @@
 
     Exit codes:
     - Exit 0: Compliant
-    - Exit 1: Not Compliant (remediation should run)
+    - Exit 1: Not compliant
     - Exit 2: Detection error
 
 .RUN AS
-    System or User, based on the Intune assignment configuration.
+    System
 
 .EXAMPLE
     .\ForceWindowsUpdate--Detect.ps1
@@ -24,36 +24,26 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ========================= CONFIGURATION =========================
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'ForceWindowsUpdate--Detect.ps1'
 $ScriptBaseName = 'ForceWindowsUpdate--Detect'
+$SolutionName   = 'Force Windows Update'
 
-# Detect the Windows system drive automatically instead of hard-coding C:.
-$SystemDrive = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
-}
-else {
-    $env:SystemDrive.TrimEnd('\')
-}
+# Update module and source
+$ModuleName   = 'PSWindowsUpdate'
+$UpdateSource = 'MicrosoftUpdate'   # Valid values: MicrosoftUpdate, WindowsUpdate
 
-# PowerShell module used for update detection.
-$ModuleName = 'PSWindowsUpdate'
-
-# Update source.
-# Valid values: MicrosoftUpdate, WindowsUpdate
-$UpdateSource = 'MicrosoftUpdate'
-
-# Reference values for UpdateType.
+# Reference values for filtering
 $AvailableUpdateTypes = @(
     'Driver',
     'Software'
 )
 
-# Common category values. These are reference values for easy selection.
 $AvailableUpdateCategories = @(
     'Critical Updates',
     'Security Updates',
@@ -66,7 +56,6 @@ $AvailableUpdateCategories = @(
     'Microsoft Defender Antivirus'
 )
 
-# Common severity values. These are reference values for easy selection.
 $AvailableUpdateSeverities = @(
     'Critical',
     'Important',
@@ -74,184 +63,216 @@ $AvailableUpdateSeverities = @(
     'Low'
 )
 
-# User selections.
-# Leave arrays empty to target all available updates.
+# Leave these arrays empty to check all updates
 $SelectedUpdateTypes      = @()
 $SelectedUpdateCategories = @()
 $SelectedUpdateSeverities = @()
 $IncludeKBArticleIDs      = @()
 $ExcludeKBArticleIDs      = @()
-#endregion ====================== CONFIGURATION ======================
 
-#region ======================= PATHS AND LOGGING =======================
-# Central log folder used by this remediation package.
-$SolutionName = "Force Windows Update"
-$BasePath     = Join-Path (Join-Path $SystemDrive 'Intune') $SolutionName
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
+    $env:SystemDrive.TrimEnd('\')
+}
+else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
 
-# Detection-specific log file.
-$LogFile      = Join-Path $BasePath ("{0}.txt" -f $ScriptBaseName)
-#endregion ==================== PATHS AND LOGGING ====================
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
 
-#region ======================= HELPER FUNCTIONS =======================
-# Ensure the log directory and file exist before any write attempts.
+#endregion ---------- Configuration ----------
+
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
 function Initialize-Logging {
     try {
         if (-not (Test-Path -Path $BasePath)) {
-            New-Item -Path $BasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
         }
+
         if (-not (Test-Path -Path $LogFile)) {
-            New-Item -Path $LogFile -ItemType File -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
         }
+
         return $true
     }
     catch {
-        # If logging init fails, the script still continues with console output.
         return $false
     }
 }
 
-$LogReady = Initialize-Logging
-
-# Write colored console output and persist the same line to the log file.
+# Write a message to console and log file
 function Write-Log {
     param(
-        [Parameter(Mandatory = $true)][string]$Message,
-        [ValidateSet("INFO", "OK", "WARN", "FAIL")]
-        [string]$Level = "INFO"
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
+        [string]$Level = 'INFO'
     )
 
-    $ts   = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[{0}] [{1}] {2}" -f $ts, $Level, $Message
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
-        "OK"   { Write-Host $line -ForegroundColor Green }
-        "WARN" { Write-Host $line -ForegroundColor Yellow }
-        "FAIL" { Write-Host $line -ForegroundColor Red }
-        default { Write-Host $line -ForegroundColor Cyan }
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
     }
 
-    if ($LogReady) {
-        try { Add-Content -Path $LogFile -Value $line -ErrorAction SilentlyContinue } catch {}
-    }
-}
-
-# Ensure the required update module is available before querying Windows Update.
-function Ensure-Module {
-    param([string]$Name)
-
-    if (-not (Get-Module -ListAvailable -Name $Name)) {
-        Write-Log -Level "WARN" -Message ("Module '{0}' was not found. Installing it now." -f $Name)
-        Install-Module -Name $Name -Force -AllowClobber -ErrorAction Stop
-        Write-Log -Level "OK" -Message ("Module '{0}' installed successfully." -f $Name)
-    }
-    else {
-        Write-Log -Level "OK" -Message ("Module '{0}' is already installed." -f $Name)
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
     }
 }
 
-# Validate user selections before calling PSWindowsUpdate.
+# Return a friendly label for log output
+function Get-ArrayDisplayValue {
+    param(
+        [object[]]$Value,
+        [string]$EmptyText = 'All'
+    )
+
+    if ($Value -and $Value.Count -gt 0) {
+        return ($Value -join ', ')
+    }
+
+    return $EmptyText
+}
+
+# Validate current filter settings
 function Test-UpdateConfiguration {
-    $validSources = @('MicrosoftUpdate', 'WindowsUpdate')
-    if ($UpdateSource -notin $validSources) {
-        throw ("Invalid UpdateSource '{0}'. Valid values: {1}" -f $UpdateSource, ($validSources -join ', '))
+    $ValidSources = @('MicrosoftUpdate', 'WindowsUpdate')
+    if ($UpdateSource -notin $ValidSources) {
+        throw "Invalid UpdateSource '$UpdateSource'. Valid values: $($ValidSources -join ', ')"
     }
 
-    $invalidTypes = @($SelectedUpdateTypes | Where-Object { $_ -notin $AvailableUpdateTypes })
-    if ($invalidTypes.Count -gt 0) {
-        throw ("Invalid UpdateType value(s): {0}. Valid values: {1}" -f ($invalidTypes -join ', '), ($AvailableUpdateTypes -join ', '))
+    $InvalidTypes = @($SelectedUpdateTypes | Where-Object { $_ -notin $AvailableUpdateTypes })
+    if ($InvalidTypes.Count -gt 0) {
+        throw "Invalid UpdateType value(s): $($InvalidTypes -join ', '). Valid values: $($AvailableUpdateTypes -join ', ')"
     }
 
-    $customCategories = @($SelectedUpdateCategories | Where-Object { $_ -notin $AvailableUpdateCategories })
-    if ($customCategories.Count -gt 0) {
-        Write-Log -Level "WARN" -Message ("Custom category value(s) detected: {0}" -f ($customCategories -join ', '))
+    $CustomCategories = @($SelectedUpdateCategories | Where-Object { $_ -notin $AvailableUpdateCategories })
+    if ($CustomCategories.Count -gt 0) {
+        Write-Log -Message "Custom category value(s) detected: $($CustomCategories -join ', ')" -Level 'WARNING'
     }
 
-    $customSeverities = @($SelectedUpdateSeverities | Where-Object { $_ -notin $AvailableUpdateSeverities })
-    if ($customSeverities.Count -gt 0) {
-        Write-Log -Level "WARN" -Message ("Custom severity value(s) detected: {0}" -f ($customSeverities -join ', '))
+    $CustomSeverities = @($SelectedUpdateSeverities | Where-Object { $_ -notin $AvailableUpdateSeverities })
+    if ($CustomSeverities.Count -gt 0) {
+        Write-Log -Message "Custom severity value(s) detected: $($CustomSeverities -join ', ')" -Level 'WARNING'
     }
 }
 
-# Build the PSWindowsUpdate query parameters from the current configuration.
+# Build parameters for Get-WindowsUpdate
 function Get-UpdateQueryParameters {
-    $parameters = @{
+    $Parameters = @{
         ComputerName = 'localhost'
         AcceptAll    = $true
         ErrorAction  = 'Stop'
     }
 
     if ($UpdateSource -eq 'MicrosoftUpdate') {
-        $parameters.MicrosoftUpdate = $true
+        $Parameters.MicrosoftUpdate = $true
     }
     else {
-        $parameters.WindowsUpdate = $true
+        $Parameters.WindowsUpdate = $true
     }
 
     if ($SelectedUpdateTypes.Count -gt 0) {
-        $parameters.UpdateType = $SelectedUpdateTypes
+        $Parameters.UpdateType = $SelectedUpdateTypes
     }
+
     if ($SelectedUpdateCategories.Count -gt 0) {
-        $parameters.Category = $SelectedUpdateCategories
+        $Parameters.Category = $SelectedUpdateCategories
     }
+
     if ($SelectedUpdateSeverities.Count -gt 0) {
-        $parameters.Severity = $SelectedUpdateSeverities
+        $Parameters.Severity = $SelectedUpdateSeverities
     }
+
     if ($IncludeKBArticleIDs.Count -gt 0) {
-        $parameters.KBArticleID = $IncludeKBArticleIDs
+        $Parameters.KBArticleID = $IncludeKBArticleIDs
     }
+
     if ($ExcludeKBArticleIDs.Count -gt 0) {
-        $parameters.NotKBArticleID = $ExcludeKBArticleIDs
+        $Parameters.NotKBArticleID = $ExcludeKBArticleIDs
     }
 
-    return $parameters
+    return $Parameters
 }
-#endregion ==================== HELPER FUNCTIONS ====================
 
-#region ===================== FIRST DETECTION BLOCK =====================
-Write-Log -Level "INFO" -Message "=== Detection START ==="
-Write-Log -Level "INFO" -Message ("Script: {0}" -f $ScriptName)
-Write-Log -Level "INFO" -Message ("Log file: {0}" -f $LogFile)
-Write-Log -Level "INFO" -Message ("Module name: {0}" -f $ModuleName)
-Write-Log -Level "INFO" -Message ("Update source: {0}" -f $UpdateSource)
-Write-Log -Level "INFO" -Message ("Selected UpdateType: {0}" -f $(if ($SelectedUpdateTypes.Count) { $SelectedUpdateTypes -join ', ' } else { 'All' }))
-Write-Log -Level "INFO" -Message ("Selected Category: {0}" -f $(if ($SelectedUpdateCategories.Count) { $SelectedUpdateCategories -join ', ' } else { 'All' }))
-Write-Log -Level "INFO" -Message ("Selected Severity: {0}" -f $(if ($SelectedUpdateSeverities.Count) { $SelectedUpdateSeverities -join ', ' } else { 'All' }))
-Write-Log -Level "INFO" -Message ("Included KBs: {0}" -f $(if ($IncludeKBArticleIDs.Count) { $IncludeKBArticleIDs -join ', ' } else { 'None' }))
-Write-Log -Level "INFO" -Message ("Excluded KBs: {0}" -f $(if ($ExcludeKBArticleIDs.Count) { $ExcludeKBArticleIDs -join ', ' } else { 'None' }))
+#endregion ---------- Functions ----------
+
+
+#region ---------- Detection Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting detection for $ScriptName"
+Write-Log -Message "Module name: $ModuleName"
+Write-Log -Message "Update source: $UpdateSource"
+Write-Log -Message "Selected UpdateType: $(Get-ArrayDisplayValue -Value $SelectedUpdateTypes -EmptyText 'All')"
+Write-Log -Message "Selected Category: $(Get-ArrayDisplayValue -Value $SelectedUpdateCategories -EmptyText 'All')"
+Write-Log -Message "Selected Severity: $(Get-ArrayDisplayValue -Value $SelectedUpdateSeverities -EmptyText 'All')"
+Write-Log -Message "Included KBs: $(Get-ArrayDisplayValue -Value $IncludeKBArticleIDs -EmptyText 'None')"
+Write-Log -Message "Excluded KBs: $(Get-ArrayDisplayValue -Value $ExcludeKBArticleIDs -EmptyText 'None')"
+Write-Log -Message "Log file: $LogFile"
 
 try {
-    # Log the current execution policy for visibility, but do not modify it here.
-    $CurrentPolicy = Get-ExecutionPolicy
-    Write-Log -Level "INFO" -Message ("Current execution policy is '{0}'. No changes are made by this detection script." -f $CurrentPolicy)
-
-    # Validate the configured filters and ensure the update module is ready.
+    # Validate the selected filters
     Test-UpdateConfiguration
-    Ensure-Module -Name $ModuleName
-    Import-Module $ModuleName -ErrorAction Stop
-    Write-Log -Level "OK" -Message ("Module '{0}' imported successfully." -f $ModuleName)
 
-    # Query available updates using the selected filters.
-    $UpdateQueryParameters = Get-UpdateQueryParameters
-    $MatchingUpdates = @(Get-WindowsUpdate @UpdateQueryParameters)
-
-    Write-Log -Level "INFO" -Message ("Matching updates returned: {0}" -f $MatchingUpdates.Count)
-
-    if ($MatchingUpdates.Count -gt 0) {
-        Write-Log -Level "WARN" -Message ("There are {0} pending matching Windows updates." -f $MatchingUpdates.Count)
-        Write-Output ("There are {0} pending Windows Updates." -f $MatchingUpdates.Count)
-        Write-Log -Level "INFO" -Message "=== Detection END (Exit 1) ==="
+    # Detection should not install modules
+    if (-not (Get-Module -ListAvailable -Name $ModuleName)) {
+        Write-Log -Message "Required module '$ModuleName' is not installed." -Level 'WARNING'
+        Write-Output "NonCompliant: Required module '$ModuleName' is not installed."
         exit 1
     }
 
-    Write-Log -Level "OK" -Message "No pending matching Windows updates were found."
-    Write-Output "No pending Windows Updates."
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 0) ==="
+    Import-Module $ModuleName -ErrorAction Stop
+    Write-Log -Message "Module '$ModuleName' imported successfully." -Level 'SUCCESS'
+
+    # Query matching updates
+    $UpdateQueryParameters = Get-UpdateQueryParameters
+    $MatchingUpdates = @(Get-WindowsUpdate @UpdateQueryParameters)
+
+    Write-Log -Message "Matching updates returned: $($MatchingUpdates.Count)"
+
+    if ($MatchingUpdates.Count -gt 0) {
+        Write-Log -Message "There are $($MatchingUpdates.Count) pending matching Windows updates." -Level 'WARNING'
+
+        foreach ($Update in $MatchingUpdates) {
+            $KbValue = if ($Update.KB -or $Update.KBArticleIDs) {
+                @($Update.KB, $Update.KBArticleIDs | Where-Object { $_ }) | Select-Object -First 1
+            }
+            else {
+                'No KB'
+            }
+
+            $TitleValue = if ($Update.Title) { $Update.Title } else { 'No title' }
+            Write-Log -Message "Pending update: $KbValue | $TitleValue" -Level 'WARNING'
+        }
+
+        Write-Output "There are $($MatchingUpdates.Count) pending Windows updates."
+        exit 1
+    }
+
+    Write-Log -Message 'No pending matching Windows updates were found.' -Level 'SUCCESS'
+    Write-Output 'No pending Windows updates.'
     exit 0
 }
 catch {
-    Write-Log -Level "FAIL" -Message ("Detection error: {0}" -f $_.Exception.Message)
-    Write-Output ("Error during detection: {0}" -f $_.Exception.Message)
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 2) ==="
+    Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
+    Write-Output "Error during detection: $($_.Exception.Message)"
     exit 2
 }
-#endregion ================== FIRST DETECTION BLOCK ==================
+
+#endregion ---------- Detection Logic ----------

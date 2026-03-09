@@ -1,4 +1,4 @@
-﻿<#! 
+<#
 .SYNOPSIS
     Automates the test workflow.
 
@@ -13,10 +13,11 @@
     .\test.ps1
 
 .NOTES
-    Author  : Mohammad Abdelkader
-    Website : https://momar.tech
-    Date    : 2026-02-17
-    Version : 2.0
+    Author  : Mohammad Abdulkader Omar
+    Website : momar.tech
+    Version : 1.0
 #>
 
-
+#region ========================= CONFIGURATION =========================
+# Script-specific settings are defined below when required.
+#endregion ====================== CONFIGURATION ======================

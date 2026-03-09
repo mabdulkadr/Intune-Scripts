@@ -1,11 +1,11 @@
-﻿<#
+<#
 .SYNOPSIS
     Detects whether Windows system health repair is required.
 
 .DESCRIPTION
     This detection script checks for a pending reboot state and runs
-    `DISM /CheckHealth` to identify whether component store issues may require
-    remediation. It is intended for use with Intune Remediations.
+    DISM /CheckHealth to identify whether component store issues may require
+    remediation.
 
     Exit codes:
     - Exit 0: Compliant
@@ -20,38 +20,80 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ========================= CONFIGURATION =========================
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'WindowsSystemHealth--Detect.ps1'
 $ScriptBaseName = 'WindowsSystemHealth--Detect'
+$SolutionName   = 'Windows-SystemHealth-Repair'
 
-# Store logs under the system drive instead of hard-coding C:.
-$SystemDrive   = if ($env:SystemDrive) { $env:SystemDrive } else { 'C:' }
-$LogFolderName = 'Windows-SystemHealth-Repair'
-$LogDirectory  = Join-Path $SystemDrive "Intune\$LogFolderName"
-$LogFilePath   = Join-Path $LogDirectory "$ScriptBaseName.txt"
-#endregion ====================== CONFIGURATION =========================
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
+    $env:SystemDrive.TrimEnd('\')
+}
+else {
+    'C:'
+}
 
-#region ======================= HELPER FUNCTIONS =======================
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
+
+#endregion ---------- Configuration ----------
+
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
+function Initialize-Logging {
+    try {
+        if (-not (Test-Path -Path $BasePath)) {
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
+        }
+
+        if (-not (Test-Path -Path $LogFile)) {
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
+        }
+
+        return $true
+    }
+    catch {
+        return $false
+    }
+}
+
+# Write a message to console and log file
 function Write-Log {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Message,
 
-        [ValidateSet('INFO', 'OK', 'WARN', 'FAIL')]
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
         [string]$Level = 'INFO'
     )
 
-    $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $LogLine   = "[$Timestamp] [$Level] $Message"
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
-    Add-Content -Path $LogFilePath -Value $LogLine -Encoding UTF8
-    Write-Output $LogLine
+    switch ($Level) {
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
+    }
+
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
+    }
 }
 
+# Run an external command and capture output
 function Invoke-ExternalCommand {
     param(
         [Parameter(Mandatory = $true)]
@@ -73,91 +115,100 @@ function Invoke-ExternalCommand {
     $Process.StartInfo = $StartInfo
 
     [void]$Process.Start()
+
     $StandardOutput = $Process.StandardOutput.ReadToEnd()
     $StandardError  = $Process.StandardError.ReadToEnd()
+
     $Process.WaitForExit()
 
-    return [PSCustomObject]@{
+    return [pscustomobject]@{
         ExitCode = $Process.ExitCode
         StdOut   = $StandardOutput
         StdErr   = $StandardError
     }
 }
 
+# Check common reboot pending indicators
 function Test-RebootPending {
-    $IsPending = $false
-
     if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending') {
-        $IsPending = $true
+        return $true
     }
 
     if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired') {
-        $IsPending = $true
+        return $true
     }
 
     try {
-        $PendingRename = Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Name 'PendingFileRenameOperations' -ErrorAction SilentlyContinue
+        $PendingRename = Get-ItemProperty `
+            -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' `
+            -Name 'PendingFileRenameOperations' `
+            -ErrorAction SilentlyContinue
+
         if ($PendingRename -and $PendingRename.PendingFileRenameOperations) {
-            $IsPending = $true
+            return $true
         }
     }
-    catch {
-    }
+    catch {}
 
-    return $IsPending
+    return $false
 }
-#endregion ==================== HELPER FUNCTIONS =======================
 
-#region ===================== FIRST DETECTION BLOCK =====================
+#endregion ---------- Functions ----------
+
+
+#region ---------- Detection Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting detection for $ScriptName"
+Write-Log -Message "Computer name: $env:COMPUTERNAME"
+Write-Log -Message "Log file: $LogFile"
+
 try {
-    if (-not (Test-Path -Path $LogDirectory)) {
-        New-Item -Path $LogDirectory -ItemType Directory -Force | Out-Null
-    }
-
-    Write-Log -Message '=== Detection START ==='
-    Write-Log -Message "Script: $ScriptName"
-    Write-Log -Message "Log file: $LogFilePath"
-    Write-Log -Message "Computer name: $env:COMPUTERNAME"
-
     $NeedsRemediation = $false
 
-    # Check whether a pending reboot already indicates an incomplete repair state.
+    # Check whether a reboot is pending
     $RebootPending = Test-RebootPending
     Write-Log -Message "Reboot pending: $RebootPending"
+
     if ($RebootPending) {
-        Write-Log -Message 'A pending reboot was detected.' -Level 'WARN'
+        Write-Log -Message 'A pending reboot was detected.' -Level 'WARNING'
         $NeedsRemediation = $true
     }
 
-    # Run the lightweight DISM health check as a quick component store validation.
-    Write-Log -Message 'Running DISM CheckHealth.'
+    # Run a lightweight DISM health check
+    Write-Log -Message 'Running DISM CheckHealth...'
     $DismResult = Invoke-ExternalCommand -FilePath 'dism.exe' -Arguments '/Online /Cleanup-Image /CheckHealth'
+
     Write-Log -Message "DISM CheckHealth exit code: $($DismResult.ExitCode)"
 
     if ($DismResult.ExitCode -ne 0) {
-        Write-Log -Message 'DISM CheckHealth returned a non-zero exit code.' -Level 'WARN'
+        Write-Log -Message 'DISM CheckHealth returned a non-zero exit code.' -Level 'WARNING'
         $NeedsRemediation = $true
     }
 
-    # Use a best-effort text check because DISM messaging may still indicate repairable corruption.
+    # Check DISM output for common corruption indicators
     if ($DismResult.StdOut -match 'repairable|corruption detected|component store corruption') {
-        Write-Log -Message 'DISM output indicates repairable corruption.' -Level 'WARN'
+        Write-Log -Message 'DISM output indicates repairable corruption.' -Level 'WARNING'
         $NeedsRemediation = $true
+    }
+
+    if ($DismResult.StdErr) {
+        Write-Log -Message "DISM standard error output: $($DismResult.StdErr.Trim())"
     }
 
     if ($NeedsRemediation) {
-        Write-Log -Message 'System health remediation is required.' -Level 'WARN'
-        Write-Log -Message '=== Detection END (Exit 1) ==='
+        Write-Log -Message 'System health remediation is required.' -Level 'WARNING'
         exit 1
     }
 
-    Write-Log -Message 'System health is compliant. No remediation is required.' -Level 'OK'
-    Write-Log -Message '=== Detection END (Exit 0) ==='
+    Write-Log -Message 'System health is compliant. No remediation is required.' -Level 'SUCCESS'
     exit 0
 }
 catch {
-    Write-Log -Message "Detection error: $($_.Exception.Message)" -Level 'FAIL'
-    Write-Log -Message '=== Detection END (Exit 1) ==='
+    Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
     exit 1
 }
-#endregion ================== FIRST DETECTION BLOCK ==================
+
+#endregion ---------- Detection Logic ----------

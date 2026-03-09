@@ -1,21 +1,20 @@
 <#
 .SYNOPSIS
-    Detects whether the .NET Framework 3.5 feature is enabled.
+    Detects whether the Windows Update service is installed and running.
 
 .DESCRIPTION
-    This detection script checks the state of the NetFx3 Windows optional feature.
-    If the feature is enabled, the device is compliant.
-    If the feature is not enabled, remediation should run.
+    This detection script checks whether the Windows Update service exists
+    and verifies that its current status is Running.
 
     Exit codes:
     - Exit 0: Compliant
-    - Exit 1: Not compliant
+    - Exit 1: Not compliant or detection failed
 
 .RUN AS
     System
 
 .EXAMPLE
-    .\dotNet3.5_Feature_Installed--Detect.ps1
+    .\RestartWindowsUpdateService--Detect.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
@@ -26,19 +25,19 @@
 #region ---------- Configuration ----------
 
 # Script metadata
-$ScriptName     = 'dotNet3.5_Feature_Installed--Detect.ps1'
-$ScriptBaseName = 'dotNet3.5_Feature_Installed--Detect'
-$SolutionName   = 'Enable .Net3.5 Feature'
+$ScriptName     = 'RestartWindowsUpdateService--Detect.ps1'
+$ScriptBaseName = 'RestartWindowsUpdateService--Detect'
+$SolutionName   = 'Restart-Windows-Update-Service'
 
-# Windows feature to check
-$FeatureName = 'NetFx3'
+# Target Windows Update service
+$ServiceName = 'wuauserv'
 
 # Detect Windows system drive
 $SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
 else {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+    'C:'
 }
 
 # Logging path
@@ -79,7 +78,7 @@ function Write-Log {
     )
 
     $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $Line = "[$TimeStamp] [$Level] $Message"
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
         'SUCCESS' { Write-Host $Line -ForegroundColor Green }
@@ -96,6 +95,21 @@ function Write-Log {
     }
 }
 
+# Return service object when available
+function Get-ServiceSafe {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    try {
+        Get-Service -Name $Name -ErrorAction Stop
+    }
+    catch {
+        $null
+    }
+}
+
 #endregion ---------- Functions ----------
 
 
@@ -105,35 +119,31 @@ function Write-Log {
 $LogReady = Initialize-Logging
 
 Write-Log -Message "Starting detection for $ScriptName"
-Write-Log -Message "Feature name: $FeatureName"
+Write-Log -Message "Service name: $ServiceName"
 Write-Log -Message "Log file: $LogFile"
 
 try {
-    # Get the current feature state
-    $Feature = Get-WindowsOptionalFeature -Online -FeatureName $FeatureName -ErrorAction Stop
+    # Check whether the service exists
+    $Service = Get-ServiceSafe -Name $ServiceName
 
-    if (-not $Feature) {
-        Write-Log -Message "No feature data was returned for '$FeatureName'." -Level 'ERROR'
-        Write-Output 'Not Installed'
+    if (-not $Service) {
+        Write-Log -Message "Service '$ServiceName' was not found." -Level 'ERROR'
         exit 1
     }
 
-    Write-Log -Message "Feature state: $($Feature.State)"
+    Write-Log -Message "Service '$ServiceName' current status: $($Service.Status)"
 
-    if ($Feature.State -eq 'Enabled') {
-        Write-Log -Message '.NET Framework 3.5 is enabled.' -Level 'SUCCESS'
-        Write-Output 'Installed'
+    # Device is compliant only when the service is running
+    if ($Service.Status -eq 'Running') {
+        Write-Log -Message "Service '$ServiceName' is installed and running. Device is compliant." -Level 'SUCCESS'
         exit 0
     }
-    else {
-        Write-Log -Message '.NET Framework 3.5 is not enabled.' -Level 'WARNING'
-        Write-Output 'Not Installed'
-        exit 1
-    }
+
+    Write-Log -Message "Service '$ServiceName' exists but is not running. Remediation is required." -Level 'WARNING'
+    exit 1
 }
 catch {
     Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
-    Write-Output 'Not Installed'
     exit 1
 }
 

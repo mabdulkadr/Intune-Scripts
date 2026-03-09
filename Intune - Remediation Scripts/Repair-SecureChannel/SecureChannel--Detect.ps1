@@ -1,21 +1,20 @@
 <#
 .SYNOPSIS
-    Detects whether the .NET Framework 3.5 feature is enabled.
+    Detects whether the device secure channel to the domain is healthy.
 
 .DESCRIPTION
-    This detection script checks the state of the NetFx3 Windows optional feature.
-    If the feature is enabled, the device is compliant.
-    If the feature is not enabled, remediation should run.
+    This detection script verifies whether the device is domain-joined and whether
+    the computer secure channel is working correctly.
 
     Exit codes:
-    - Exit 0: Compliant
-    - Exit 1: Not compliant
+    - Exit 0: Compliant or not applicable
+    - Exit 1: Not compliant or detection failed
 
 .RUN AS
     System
 
 .EXAMPLE
-    .\dotNet3.5_Feature_Installed--Detect.ps1
+    .\SecureChannel--Detect.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
@@ -26,19 +25,16 @@
 #region ---------- Configuration ----------
 
 # Script metadata
-$ScriptName     = 'dotNet3.5_Feature_Installed--Detect.ps1'
-$ScriptBaseName = 'dotNet3.5_Feature_Installed--Detect'
-$SolutionName   = 'Enable .Net3.5 Feature'
-
-# Windows feature to check
-$FeatureName = 'NetFx3'
+$ScriptName     = 'SecureChannel--Detect.ps1'
+$ScriptBaseName = 'SecureChannel--Detect'
+$SolutionName   = 'Repair-SecureChannel'
 
 # Detect Windows system drive
 $SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
 else {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+    'C:'
 }
 
 # Logging path
@@ -79,7 +75,7 @@ function Write-Log {
     )
 
     $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $Line = "[$TimeStamp] [$Level] $Message"
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
         'SUCCESS' { Write-Host $Line -ForegroundColor Green }
@@ -105,35 +101,35 @@ function Write-Log {
 $LogReady = Initialize-Logging
 
 Write-Log -Message "Starting detection for $ScriptName"
-Write-Log -Message "Feature name: $FeatureName"
 Write-Log -Message "Log file: $LogFile"
 
 try {
-    # Get the current feature state
-    $Feature = Get-WindowsOptionalFeature -Online -FeatureName $FeatureName -ErrorAction Stop
+    # Get computer domain membership information
+    $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
 
-    if (-not $Feature) {
-        Write-Log -Message "No feature data was returned for '$FeatureName'." -Level 'ERROR'
-        Write-Output 'Not Installed'
-        exit 1
+    # Skip devices that are not domain-joined
+    if (-not $ComputerSystem.PartOfDomain) {
+        Write-Log -Message 'Device is not domain-joined. Secure channel check is not applicable.' -Level 'SUCCESS'
+        exit 0
     }
 
-    Write-Log -Message "Feature state: $($Feature.State)"
+    Write-Log -Message "Domain: $($ComputerSystem.Domain)"
+    Write-Log -Message 'Testing computer secure channel...'
 
-    if ($Feature.State -eq 'Enabled') {
-        Write-Log -Message '.NET Framework 3.5 is enabled.' -Level 'SUCCESS'
-        Write-Output 'Installed'
+    # Test the trust relationship with the domain
+    $SecureChannelHealthy = Test-ComputerSecureChannel -ErrorAction Stop
+
+    if ($SecureChannelHealthy) {
+        Write-Log -Message 'Secure channel is healthy. Device is compliant.' -Level 'SUCCESS'
         exit 0
     }
     else {
-        Write-Log -Message '.NET Framework 3.5 is not enabled.' -Level 'WARNING'
-        Write-Output 'Not Installed'
+        Write-Log -Message 'Secure channel is broken. Remediation is required.' -Level 'WARNING'
         exit 1
     }
 }
 catch {
     Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
-    Write-Output 'Not Installed'
     exit 1
 }
 

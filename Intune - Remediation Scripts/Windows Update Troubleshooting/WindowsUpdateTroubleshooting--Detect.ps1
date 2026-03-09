@@ -1,21 +1,21 @@
 <#
 .SYNOPSIS
-    Detects whether the .NET Framework 3.5 feature is enabled.
+    Detects whether the last installed Windows update is recent enough.
 
 .DESCRIPTION
-    This detection script checks the state of the NetFx3 Windows optional feature.
-    If the feature is enabled, the device is compliant.
-    If the feature is not enabled, remediation should run.
+    This detection script checks the date of the most recent installed Windows
+    update and marks the device as non-compliant when that update is older than
+    the configured threshold.
 
     Exit codes:
     - Exit 0: Compliant
-    - Exit 1: Not compliant
+    - Exit 1: Non-compliant or detection failed
 
 .RUN AS
     System
 
 .EXAMPLE
-    .\dotNet3.5_Feature_Installed--Detect.ps1
+    .\WindowsUpdateTroubleshooting--Detect.ps1
 
 .NOTES
     Author  : Mohammad Abdulkader Omar
@@ -26,19 +26,19 @@
 #region ---------- Configuration ----------
 
 # Script metadata
-$ScriptName     = 'dotNet3.5_Feature_Installed--Detect.ps1'
-$ScriptBaseName = 'dotNet3.5_Feature_Installed--Detect'
-$SolutionName   = 'Enable .Net3.5 Feature'
+$ScriptName     = 'WindowsUpdateTroubleshooting--Detect.ps1'
+$ScriptBaseName = 'WindowsUpdateTroubleshooting--Detect'
+$SolutionName   = 'Windows Update Troubleshooting'
 
-# Windows feature to check
-$FeatureName = 'NetFx3'
+# Maximum acceptable age for the last installed update
+$UpdateThresholdDays = 30
 
 # Detect Windows system drive
 $SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
 else {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+    'C:'
 }
 
 # Logging path
@@ -79,7 +79,7 @@ function Write-Log {
     )
 
     $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $Line = "[$TimeStamp] [$Level] $Message"
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
         'SUCCESS' { Write-Host $Line -ForegroundColor Green }
@@ -96,6 +96,25 @@ function Write-Log {
     }
 }
 
+# Return the most recent installed update date
+function Get-LatestInstalledUpdateDate {
+    try {
+        $LatestHotFix = Get-HotFix -ErrorAction Stop |
+            Where-Object { $_.InstalledOn } |
+            Sort-Object -Property InstalledOn -Descending |
+            Select-Object -First 1
+
+        if ($LatestHotFix) {
+            return [datetime]$LatestHotFix.InstalledOn
+        }
+
+        return $null
+    }
+    catch {
+        return $null
+    }
+}
+
 #endregion ---------- Functions ----------
 
 
@@ -105,35 +124,36 @@ function Write-Log {
 $LogReady = Initialize-Logging
 
 Write-Log -Message "Starting detection for $ScriptName"
-Write-Log -Message "Feature name: $FeatureName"
+Write-Log -Message "Update age threshold: $UpdateThresholdDays day(s)"
 Write-Log -Message "Log file: $LogFile"
 
 try {
-    # Get the current feature state
-    $Feature = Get-WindowsOptionalFeature -Online -FeatureName $FeatureName -ErrorAction Stop
+    # Get the latest installed Windows update date
+    $LastUpdate = Get-LatestInstalledUpdateDate
 
-    if (-not $Feature) {
-        Write-Log -Message "No feature data was returned for '$FeatureName'." -Level 'ERROR'
-        Write-Output 'Not Installed'
+    if (-not $LastUpdate) {
+        Write-Log -Message 'No installed Windows updates were found on the system.' -Level 'ERROR'
         exit 1
     }
 
-    Write-Log -Message "Feature state: $($Feature.State)"
+    Write-Log -Message "Last installed update date: $($LastUpdate.ToString('yyyy-MM-dd'))"
 
-    if ($Feature.State -eq 'Enabled') {
-        Write-Log -Message '.NET Framework 3.5 is enabled.' -Level 'SUCCESS'
-        Write-Output 'Installed'
-        exit 0
-    }
-    else {
-        Write-Log -Message '.NET Framework 3.5 is not enabled.' -Level 'WARNING'
-        Write-Output 'Not Installed'
+    # Calculate the number of days since the last update
+    $CurrentDate     = Get-Date
+    $DaysSinceUpdate = (New-TimeSpan -Start $LastUpdate -End $CurrentDate).Days
+
+    Write-Log -Message "Days since last update: $DaysSinceUpdate"
+
+    if ($DaysSinceUpdate -ge $UpdateThresholdDays) {
+        Write-Log -Message "The last installed update is older than the allowed threshold." -Level 'WARNING'
         exit 1
     }
+
+    Write-Log -Message "Windows update age is within the allowed threshold." -Level 'SUCCESS'
+    exit 0
 }
 catch {
     Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
-    Write-Output 'Not Installed'
     exit 1
 }
 

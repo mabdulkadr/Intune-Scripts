@@ -1,18 +1,20 @@
 <#
 .SYNOPSIS
-    Remediate Intune Management Extension sync by triggering it immediately and scheduling recurring sync.
+    Remediates Intune Management Extension activity by restarting the IME service and verifying log activity.
 
 .DESCRIPTION
     This remediation script:
-    1. Triggers Intune Management Extension sync immediately.
-    2. Creates or updates a scheduled task that triggers the same sync every hour.
+    1. Verifies that the Intune Management Extension service exists.
+    2. Starts or restarts the service.
+    3. Waits briefly for new IME activity.
+    4. Verifies that the main IME log was updated.
 
     Exit codes:
     - Exit 0: Completed successfully
     - Exit 1: Failed or requires further action
 
 .RUN AS
-    System or User, based on the Intune assignment configuration.
+    System
 
 .EXAMPLE
     .\IntuneIMESync--Remediate.ps1
@@ -20,136 +22,212 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 2.0
 #>
 
-#region ========================= CONFIGURATION =========================
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'IntuneIMESync--Remediate.ps1'
 $ScriptBaseName = 'IntuneIMESync--Remediate'
+$SolutionName   = 'IntuneSyncTrigger'
 
-# Detect the Windows system drive automatically instead of hard-coding C:.
-$SystemDrive = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
-}
-else {
+# IME service and log settings
+$ServiceName        = 'IntuneManagementExtension'
+$ImeLogRoot         = 'C:\ProgramData\Microsoft\IntuneManagementExtension\Logs'
+$ImeMainLog         = Join-Path $ImeLogRoot 'IntuneManagementExtension.log'
+$WaitAfterRestartSec = 30
+
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
+else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
 
-# Intune sync URI and scheduled task settings.
-$ImeSyncUri         = 'intunemanagementextension://syncapp'
-$TaskName           = 'Trigger-IME-Sync-Hourly'
-$TaskDescription    = 'Scheduled task to trigger Intune Management Extension Sync every hour.'
-$TaskExecute        = 'PowerShell.exe'
-$TaskArgument       = "-NoProfile -WindowStyle Hidden -Command `"(New-Object -ComObject Shell.Application).Open('$ImeSyncUri')`""
-$TriggerDelayMins   = 1
-$RepeatHours        = 1
-#endregion ====================== CONFIGURATION ======================
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
 
-#region ======================= PATHS AND LOGGING =======================
-# Central log folder used by this remediation package.
-$SolutionName = "IntuneSyncTrigger"
-$BasePath     = Join-Path (Join-Path $SystemDrive 'Intune') $SolutionName
+#endregion ---------- Configuration ----------
 
-# Remediation-specific log file.
-$LogFile      = Join-Path $BasePath ("{0}.txt" -f $ScriptBaseName)
-#endregion ==================== PATHS AND LOGGING ====================
 
-#region ======================= HELPER FUNCTIONS =======================
-# Ensure the log directory and file exist before any write attempts.
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
 function Initialize-Logging {
     try {
         if (-not (Test-Path -Path $BasePath)) {
-            New-Item -Path $BasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
         }
+
         if (-not (Test-Path -Path $LogFile)) {
-            New-Item -Path $LogFile -ItemType File -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
         }
+
         return $true
     }
     catch {
-        # If logging init fails, the script still continues with console output.
         return $false
     }
 }
 
-$LogReady = Initialize-Logging
-
-# Write colored console output and persist the same line to the log file.
+# Write a message to console and log file
 function Write-Log {
     param(
-        [Parameter(Mandatory = $true)][string]$Message,
-        [ValidateSet("INFO", "OK", "WARN", "FAIL")]
-        [string]$Level = "INFO"
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
+        [string]$Level = 'INFO'
     )
 
-    $ts   = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[{0}] [{1}] {2}" -f $ts, $Level, $Message
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line      = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
-        "OK"   { Write-Host $line -ForegroundColor Green }
-        "WARN" { Write-Host $line -ForegroundColor Yellow }
-        "FAIL" { Write-Host $line -ForegroundColor Red }
-        default { Write-Host $line -ForegroundColor Cyan }
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
     }
 
-    if ($LogReady) {
-        try { Add-Content -Path $LogFile -Value $line -ErrorAction SilentlyContinue } catch {}
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
     }
 }
 
-# Trigger an Intune Management Extension sync using the IME URI handler.
-function Trigger-IMESync {
+# Check whether the current session has admin rights
+function Test-IsAdministrator {
     try {
-        Write-Log -Level "INFO" -Message "Triggering Intune Management Extension sync."
-        $Shell = New-Object -ComObject Shell.Application
-        $Shell.Open($ImeSyncUri)
-        Write-Log -Level "OK" -Message "Intune Management Extension sync triggered successfully."
+        $CurrentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        $Principal = New-Object Security.Principal.WindowsPrincipal($CurrentIdentity)
+        return $Principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     }
     catch {
-        throw ("Failed to trigger IME sync: {0}" -f $_.Exception.Message)
+        return $false
     }
 }
 
-# Create or update a scheduled task that triggers IME sync every hour.
-function Create-IMESyncScheduledTask {
-    try {
-        Write-Log -Level "INFO" -Message "Creating or updating the scheduled task for hourly IME sync."
-
-        $Action = New-ScheduledTaskAction -Execute $TaskExecute -Argument $TaskArgument
-        $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes($TriggerDelayMins) -RepetitionInterval (New-TimeSpan -Hours $RepeatHours)
-
-        Register-ScheduledTask -TaskName $TaskName -Description $TaskDescription -Action $Action -Trigger $Trigger -User "SYSTEM" -RunLevel Highest -Force | Out-Null
-        Write-Log -Level "OK" -Message ("Scheduled task '{0}' created or updated successfully." -f $TaskName)
+# Return the last write time of the IME log if it exists
+function Get-ImeLogLastWriteTime {
+    if (Test-Path -Path $ImeMainLog) {
+        try {
+            return (Get-Item -Path $ImeMainLog -ErrorAction Stop).LastWriteTime
+        }
+        catch {
+            return $null
+        }
     }
-    catch {
-        throw ("Failed to create scheduled task: {0}" -f $_.Exception.Message)
-    }
+
+    return $null
 }
-#endregion ==================== HELPER FUNCTIONS ====================
 
-#region ==================== FIRST REMEDIATION BLOCK ====================
-Write-Log -Level "INFO" -Message "=== Remediation START ==="
-Write-Log -Level "INFO" -Message ("Script: {0}" -f $ScriptName)
-Write-Log -Level "INFO" -Message ("Log file: {0}" -f $LogFile)
-Write-Log -Level "INFO" -Message ("Task name: {0}" -f $TaskName)
-Write-Log -Level "INFO" -Message ("IME sync URI: {0}" -f $ImeSyncUri)
+# Return a readable time span string
+function Get-AgeText {
+    param(
+        [Parameter(Mandatory = $true)]
+        [datetime]$DateTimeValue
+    )
+
+    $Span = New-TimeSpan -Start $DateTimeValue -End (Get-Date)
+    return ('{0} day(s), {1} hour(s), {2} minute(s), {3} second(s)' -f $Span.Days, $Span.Hours, $Span.Minutes, $Span.Seconds)
+}
+
+#endregion ---------- Functions ----------
+
+
+#region ---------- Remediation Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting remediation for $ScriptName"
+Write-Log -Message "Service name: $ServiceName"
+Write-Log -Message "IME log path: $ImeMainLog"
+Write-Log -Message "Wait after restart: $WaitAfterRestartSec second(s)"
+Write-Log -Message "Log file: $LogFile"
 
 try {
-    # Trigger an immediate sync first.
-    Trigger-IMESync
+    # IME remediation should run elevated
+    if (-not (Test-IsAdministrator)) {
+        Write-Log -Message 'Administrative privileges are required.' -Level 'ERROR'
+        exit 1
+    }
 
-    # Then ensure the recurring hourly task is present.
-    Create-IMESyncScheduledTask
+    # Make sure the IME service exists
+    $ImeService = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+    if (-not $ImeService) {
+        Write-Log -Message "IME service '$ServiceName' was not found." -Level 'ERROR'
+        exit 1
+    }
 
-    Write-Output "Remediation process completed successfully."
-    Write-Log -Level "INFO" -Message "=== Remediation END (Exit 0) ==="
-    exit 0
-}
-catch {
-    Write-Log -Level "FAIL" -Message $_.Exception.Message
-    Write-Output ("Remediation failed: {0}" -f $_.Exception.Message)
-    Write-Log -Level "INFO" -Message "=== Remediation END (Exit 1) ==="
+    Write-Log -Message "Current IME service state: $($ImeService.Status)"
+
+    # Capture current log timestamp before service action
+    $BeforeLogWriteTime = Get-ImeLogLastWriteTime
+    if ($BeforeLogWriteTime) {
+        Write-Log -Message "IME log last write time before action: $BeforeLogWriteTime"
+        Write-Log -Message "IME log age before action: $(Get-AgeText -DateTimeValue $BeforeLogWriteTime)"
+    }
+    else {
+        Write-Log -Message 'IME main log was not found before remediation.' -Level 'WARNING'
+    }
+
+    # Start or restart the IME service
+    if ($ImeService.Status -eq 'Running') {
+        Write-Log -Message 'Restarting Intune Management Extension service...'
+        Restart-Service -Name $ServiceName -Force -ErrorAction Stop
+        Write-Log -Message 'Intune Management Extension service restarted successfully.' -Level 'SUCCESS'
+    }
+    else {
+        Write-Log -Message 'Starting Intune Management Extension service...'
+        Start-Service -Name $ServiceName -ErrorAction Stop
+        Write-Log -Message 'Intune Management Extension service started successfully.' -Level 'SUCCESS'
+    }
+
+    # Refresh service status
+    $ImeService = Get-Service -Name $ServiceName -ErrorAction Stop
+    Write-Log -Message "IME service state after action: $($ImeService.Status)"
+
+    if ($ImeService.Status -ne 'Running') {
+        Write-Log -Message 'IME service is not running after remediation.' -Level 'ERROR'
+        exit 1
+    }
+
+    # Wait briefly for IME to produce new log activity
+    Write-Log -Message "Waiting $WaitAfterRestartSec second(s) for IME activity..."
+    Start-Sleep -Seconds $WaitAfterRestartSec
+
+    # Verify the main log was updated
+    $AfterLogWriteTime = Get-ImeLogLastWriteTime
+    if (-not $AfterLogWriteTime) {
+        Write-Log -Message 'IME main log was not found after remediation.' -Level 'ERROR'
+        exit 1
+    }
+
+    Write-Log -Message "IME log last write time after action: $AfterLogWriteTime"
+
+    if ($BeforeLogWriteTime -and $AfterLogWriteTime -gt $BeforeLogWriteTime) {
+        Write-Log -Message 'IME log was updated after service restart. IME activity was triggered successfully.' -Level 'SUCCESS'
+        exit 0
+    }
+
+    if (-not $BeforeLogWriteTime) {
+        Write-Log -Message 'IME log is now present after remediation. This is treated as successful activity.' -Level 'SUCCESS'
+        exit 0
+    }
+
+    Write-Log -Message 'IME service changed successfully, but no newer IME log activity was detected.' -Level 'WARNING'
     exit 1
 }
-#endregion ================= FIRST REMEDIATION BLOCK =================
+catch {
+    Write-Log -Message "Remediation failed: $($_.Exception.Message)" -Level 'ERROR'
+    exit 1
+}
+
+#endregion ---------- Remediation Logic ----------

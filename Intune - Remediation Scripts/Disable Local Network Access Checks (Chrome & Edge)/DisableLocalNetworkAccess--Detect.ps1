@@ -1,18 +1,18 @@
-﻿<#
+<#
 .SYNOPSIS
-    Detect whether the required local network access flag is configured for Chrome and Edge.
+    Detects whether the required local network access flag is configured for Chrome and Edge.
 
 .DESCRIPTION
-    This detection script checks the `Local State` files for Google Chrome and
-    Microsoft Edge, then verifies whether the required experiment flag is
-    present in `browser.enabled_labs_experiments`.
+    This detection script checks the Local State files for Google Chrome and
+    Microsoft Edge and verifies whether the required experiment flag exists
+    in browser.enabled_labs_experiments.
 
     Exit codes:
     - Exit 0: Compliant
-    - Exit 1: Not Compliant (remediation should run)
+    - Exit 1: Not compliant
 
 .RUN AS
-    System or User, based on the Intune assignment configuration.
+    User
 
 .EXAMPLE
     .\DisableLocalNetworkAccess--Detect.ps1
@@ -20,142 +20,155 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ========================= CONFIGURATION =========================
+#region ---------- Configuration ----------
+
 [CmdletBinding()]
 param()
 
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+# Script metadata
 $ScriptName     = 'DisableLocalNetworkAccess--Detect.ps1'
 $ScriptBaseName = 'DisableLocalNetworkAccess--Detect'
+$SolutionName   = 'Disable Local Network Access Checks (Chrome & Edge)'
 
-# Detect the Windows system drive automatically instead of hard-coding C:.
-$SystemDrive = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
-}
-else {
+# Required browser flag
+$RequiredFlag = 'local-network-access-check@3'
+
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
+else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
 
-# Required browser flag and target Local State files.
-$RequiredFlag = "local-network-access-check@3"
-$ChromeLocalState = Join-Path $env:LOCALAPPDATA "Google\Chrome\User Data\Local State"
-$EdgeLocalState   = Join-Path $env:LOCALAPPDATA "Microsoft\Edge\User Data\Local State"
-#endregion ====================== CONFIGURATION ======================
+# Browser Local State files
+$ChromeLocalState = Join-Path $env:LOCALAPPDATA 'Google\Chrome\User Data\Local State'
+$EdgeLocalState   = Join-Path $env:LOCALAPPDATA 'Microsoft\Edge\User Data\Local State'
 
-#region ======================= PATHS AND LOGGING =======================
-# Central log folder used by this remediation package.
-$SolutionName = "Disable Local Network Access Checks (Chrome & Edge)"
-$BasePath     = Join-Path (Join-Path $SystemDrive 'Intune') $SolutionName
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
 
-# Detection-specific log file.
-$LogFile      = Join-Path $BasePath ("{0}.txt" -f $ScriptBaseName)
-#endregion ==================== PATHS AND LOGGING ====================
+#endregion ---------- Configuration ----------
 
-#region ======================= HELPER FUNCTIONS =======================
-# Ensure the log directory and file exist before any write attempts.
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
 function Initialize-Logging {
     try {
-        if (-not (Test-Path $BasePath)) {
-            New-Item -Path $BasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+        if (-not (Test-Path -Path $BasePath)) {
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
         }
-        if (-not (Test-Path $LogFile)) {
-            New-Item -Path $LogFile -ItemType File -Force -ErrorAction Stop | Out-Null
+
+        if (-not (Test-Path -Path $LogFile)) {
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
         }
+
         return $true
     }
     catch {
-        # If logging init fails, the script still continues with console output.
         return $false
     }
 }
 
-$LogReady = Initialize-Logging
-
-# Write colored console output and persist the same line to the log file.
+# Write a message to console and log file
 function Write-Log {
     param(
-        [Parameter(Mandatory = $true)][string]$Message,
-        [ValidateSet("INFO", "OK", "WARN", "FAIL")]
-        [string]$Level = "INFO"
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
+        [string]$Level = 'INFO'
     )
 
-    $ts   = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[{0}] [{1}] {2}" -f $ts, $Level, $Message
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
-        "OK"   { Write-Host $line -ForegroundColor Green }
-        "WARN" { Write-Host $line -ForegroundColor Yellow }
-        "FAIL" { Write-Host $line -ForegroundColor Red }
-        default { Write-Host $line -ForegroundColor Cyan }
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
     }
 
-    if ($LogReady) {
-        try { Add-Content -Path $LogFile -Value $line -ErrorAction SilentlyContinue } catch {}
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
     }
 }
 
-# Test whether the required labs flag exists in the browser Local State file.
-function Test-LnaFlag {
+# Check whether the required flag exists in the browser Local State file
+function Test-BrowserFlag {
     param(
-        [Parameter(Mandatory = $true)][string]$LocalStatePath,
-        [Parameter(Mandatory = $true)][string]$BrowserName
+        [Parameter(Mandatory = $true)]
+        [string]$LocalStatePath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$BrowserName
     )
 
-    # Ensure the Local State file exists for the target browser.
+    # If the browser profile does not exist, treat it as not applicable
     if (-not (Test-Path -Path $LocalStatePath)) {
-        Write-Log -Level "WARN" -Message ("{0}: Local State not found: {1}" -f $BrowserName, $LocalStatePath)
-        return $false
+        Write-Log -Message "$BrowserName : Local State file not found. Browser may not be installed for this user." -Level 'INFO'
+        return $null
     }
 
-    # Read and parse the Local State JSON safely.
     try {
-        $rawContent = Get-Content -Path $LocalStatePath -Raw -ErrorAction Stop
-        $jsonData   = $rawContent | ConvertFrom-Json -ErrorAction Stop
+        $JsonData = Get-Content -Path $LocalStatePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
     }
     catch {
-        Write-Log -Level "FAIL" -Message ("{0}: Failed to read or parse Local State JSON." -f $BrowserName)
+        Write-Log -Message "$BrowserName : Failed to read or parse Local State file." -Level 'ERROR'
         return $false
     }
 
-    # Validate that the expected property path exists before checking the flag.
-    if ($null -eq $jsonData.browser -or $null -eq $jsonData.browser.enabled_labs_experiments) {
-        Write-Log -Level "WARN" -Message ("{0}: Missing browser.enabled_labs_experiments." -f $BrowserName)
+    if ($null -eq $JsonData.browser -or $null -eq $JsonData.browser.enabled_labs_experiments) {
+        Write-Log -Message "$BrowserName : browser.enabled_labs_experiments was not found." -Level 'WARNING'
         return $false
     }
 
-    # Check whether the required feature flag is present.
-    $experiments = @($jsonData.browser.enabled_labs_experiments)
-    if ($experiments -contains $RequiredFlag) {
-        Write-Log -Level "OK" -Message ("{0}: Found required flag: {1}" -f $BrowserName, $RequiredFlag)
+    $Experiments = @($JsonData.browser.enabled_labs_experiments)
+
+    if ($Experiments -contains $RequiredFlag) {
+        Write-Log -Message "$BrowserName : Required flag found: $RequiredFlag" -Level 'SUCCESS'
         return $true
     }
 
-    Write-Log -Level "WARN" -Message ("{0}: Required flag not present: {1}" -f $BrowserName, $RequiredFlag)
+    Write-Log -Message "$BrowserName : Required flag not found: $RequiredFlag" -Level 'WARNING'
     return $false
 }
-#endregion ==================== HELPER FUNCTIONS ====================
 
-#region ===================== FIRST DETECTION BLOCK =====================
-Write-Log -Level "INFO" -Message "=== Detection START ==="
-Write-Log -Level "INFO" -Message ("Script: {0}" -f $ScriptName)
-Write-Log -Level "INFO" -Message ("Log file: {0}" -f $LogFile)
-Write-Log -Level "INFO" -Message ("Required flag: {0}" -f $RequiredFlag)
+#endregion ---------- Functions ----------
 
-# Test Chrome and Edge separately so the compliance result is explicit.
-$ChromeOK = Test-LnaFlag -LocalStatePath $ChromeLocalState -BrowserName "Chrome"
-$EdgeOK   = Test-LnaFlag -LocalStatePath $EdgeLocalState -BrowserName "Edge"
 
-if ($ChromeOK -and $EdgeOK) {
-    Write-Log -Level "OK" -Message "Compliant: Chrome=True Edge=True"
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 0) ==="
+#region ---------- Detection Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting detection for $ScriptName"
+Write-Log -Message "Required flag: $RequiredFlag"
+Write-Log -Message "Log file: $LogFile"
+
+$ChromeResult = Test-BrowserFlag -LocalStatePath $ChromeLocalState -BrowserName 'Chrome'
+$EdgeResult   = Test-BrowserFlag -LocalStatePath $EdgeLocalState -BrowserName 'Edge'
+
+# Browser installed and missing flag = non-compliant
+$ChromeNeedsFix = ($ChromeResult -eq $false)
+$EdgeNeedsFix   = ($EdgeResult -eq $false)
+
+if (-not $ChromeNeedsFix -and -not $EdgeNeedsFix) {
+    Write-Log -Message "Compliant: Chrome=$ChromeResult, Edge=$EdgeResult" -Level 'SUCCESS'
     exit 0
 }
 else {
-    Write-Log -Level "WARN" -Message ("Non-Compliant: Chrome={0} Edge={1}" -f $ChromeOK, $EdgeOK)
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 1) ==="
+    Write-Log -Message "Not compliant: Chrome=$ChromeResult, Edge=$EdgeResult" -Level 'WARNING'
     exit 1
 }
-#endregion ================== FIRST DETECTION BLOCK ==================
+
+#endregion ---------- Detection Logic ----------

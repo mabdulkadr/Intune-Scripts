@@ -1,20 +1,20 @@
 <#
 .SYNOPSIS
-    Detect whether Intune Management Extension sync occurred recently.
+    Detects whether Intune Management Extension activity occurred recently.
 
 .DESCRIPTION
-    This detection script checks the Intune diagnostic event log for the
-    Intune Management Extension sync event.
-
-    If the target event is found within the configured lookback window, the
-    device is treated as compliant.
+    This detection script verifies strict IME activity by checking:
+    1. The Intune Management Extension service exists and is running.
+    2. The main IME log file exists.
+    3. The log file was updated within the configured lookback window.
+    4. Recent log content shows IME operational activity.
 
     Exit codes:
     - Exit 0: Compliant
-    - Exit 1: Not Compliant (remediation should run)
+    - Exit 1: Not compliant
 
 .RUN AS
-    System or User, based on the Intune assignment configuration.
+    System
 
 .EXAMPLE
     .\IntuneIMESync--Detect.ps1
@@ -22,125 +22,170 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 2.0
 #>
 
-#region ========================= CONFIGURATION =========================
-# Use a fixed script name so logging stays consistent when Intune stages the script under a temporary local file name.
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'IntuneIMESync--Detect.ps1'
 $ScriptBaseName = 'IntuneIMESync--Detect'
+$SolutionName   = 'IntuneSyncTrigger'
 
-# Detect the Windows system drive automatically instead of hard-coding C:.
-$SystemDrive = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) {
-    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
-}
-else {
+# IME service and log settings
+$ServiceName   = 'IntuneManagementExtension'
+$LookbackHours = 8
+$ImeLogRoot    = 'C:\ProgramData\Microsoft\IntuneManagementExtension\Logs'
+$ImeMainLog    = Join-Path $ImeLogRoot 'IntuneManagementExtension.log'
+
+# Keywords used as practical indicators of IME activity
+$ActivityPatterns = @(
+    'check[- ]?in',
+    'policy',
+    'report',
+    'health',
+    'sidecar',
+    'request'
+)
+
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
     $env:SystemDrive.TrimEnd('\')
 }
+else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
 
-# Event log settings used to detect recent IME sync activity.
-$LookbackHours = 1
-$LogName       = 'Microsoft-Windows-DeviceManagement-Enterprise-Diagnostics-Provider/Operational'
-$EventID       = 208
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
 
-# Fallback scheduled task used by remediation to enforce recurring sync.
-$TaskName      = 'Trigger-IME-Sync-Hourly'
-#endregion ====================== CONFIGURATION ======================
+#endregion ---------- Configuration ----------
 
-#region ======================= PATHS AND LOGGING =======================
-# Central log folder used by this remediation package.
-$SolutionName = "IntuneSyncTrigger"
-$BasePath     = Join-Path (Join-Path $SystemDrive 'Intune') $SolutionName
 
-# Detection-specific log file.
-$LogFile      = Join-Path $BasePath ("{0}.txt" -f $ScriptBaseName)
-#endregion ==================== PATHS AND LOGGING ====================
+#region ---------- Functions ----------
 
-#region ======================= HELPER FUNCTIONS =======================
-# Ensure the log directory and file exist before any write attempts.
+# Create log folder and file if needed
 function Initialize-Logging {
     try {
         if (-not (Test-Path -Path $BasePath)) {
-            New-Item -Path $BasePath -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
         }
+
         if (-not (Test-Path -Path $LogFile)) {
-            New-Item -Path $LogFile -ItemType File -Force -ErrorAction Stop | Out-Null
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
         }
+
         return $true
     }
     catch {
-        # If logging init fails, the script still continues with console output.
         return $false
     }
 }
 
-$LogReady = Initialize-Logging
-
-# Write colored console output and persist the same line to the log file.
+# Write a message to console and log file
 function Write-Log {
     param(
-        [Parameter(Mandatory = $true)][string]$Message,
-        [ValidateSet("INFO", "OK", "WARN", "FAIL")]
-        [string]$Level = "INFO"
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
+        [string]$Level = 'INFO'
     )
 
-    $ts   = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[{0}] [{1}] {2}" -f $ts, $Level, $Message
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line = "[$TimeStamp] [$Level] $Message"
 
     switch ($Level) {
-        "OK"   { Write-Host $line -ForegroundColor Green }
-        "WARN" { Write-Host $line -ForegroundColor Yellow }
-        "FAIL" { Write-Host $line -ForegroundColor Red }
-        default { Write-Host $line -ForegroundColor Cyan }
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
     }
 
-    if ($LogReady) {
-        try { Add-Content -Path $LogFile -Value $line -ErrorAction SilentlyContinue } catch {}
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
     }
 }
-#endregion ==================== HELPER FUNCTIONS ====================
 
-#region ===================== FIRST DETECTION BLOCK =====================
-Write-Log -Level "INFO" -Message "=== Detection START ==="
-Write-Log -Level "INFO" -Message ("Script: {0}" -f $ScriptName)
-Write-Log -Level "INFO" -Message ("Log file: {0}" -f $LogFile)
-Write-Log -Level "INFO" -Message ("Log name: {0}" -f $LogName)
-Write-Log -Level "INFO" -Message ("Event ID: {0}" -f $EventID)
-Write-Log -Level "INFO" -Message ("Lookback window: {0} hour(s)" -f $LookbackHours)
-Write-Log -Level "INFO" -Message ("Fallback task name: {0}" -f $TaskName)
+# Return a readable time span string
+function Get-AgeText {
+    param(
+        [Parameter(Mandatory = $true)]
+        [datetime]$DateTimeValue
+    )
+
+    $Span = New-TimeSpan -Start $DateTimeValue -End (Get-Date)
+    return ('{0} day(s), {1} hour(s), {2} minute(s)' -f $Span.Days, $Span.Hours, $Span.Minutes)
+}
+
+#endregion ---------- Functions ----------
+
+
+#region ---------- Detection Logic ----------
+
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting detection for $ScriptName"
+Write-Log -Message "Service name: $ServiceName"
+Write-Log -Message "IME log path: $ImeMainLog"
+Write-Log -Message "Lookback window: $LookbackHours hour(s)"
+Write-Log -Message "Log file: $LogFile"
 
 try {
-    $LookbackMilliseconds = $LookbackHours * 60 * 60 * 1000
-    $FilterXPath = "*[System[EventID=$EventID and TimeCreated[timediff(@SystemTime) <= $LookbackMilliseconds]]]"
-
-    # Search for the target IME sync event within the configured lookback window.
-    $SyncEvent = Get-WinEvent -LogName $LogName -FilterXPath $FilterXPath -ErrorAction SilentlyContinue
-
-    if ($SyncEvent) {
-        Write-Log -Level "OK" -Message ("Intune Management Extension sync was detected within the last {0} hour(s)." -f $LookbackHours)
-        Write-Output "Intune Management Extension Sync detected within the last hour."
-        Write-Log -Level "INFO" -Message "=== Detection END (Exit 0) ==="
-        exit 0
+    # 1) Service must exist and run
+    $ImeService = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+    if (-not $ImeService) {
+        Write-Log -Message "IME service '$ServiceName' was not found." -Level 'WARNING'
+        exit 1
     }
 
-    # If the event is not yet present, accept the remediation task as a fallback compliance signal.
-    $ScheduledTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-    if ($ScheduledTask -and $ScheduledTask.State -ne 'Disabled') {
-        Write-Log -Level "OK" -Message ("No recent IME sync event was found, but scheduled task '{0}' exists and is enabled." -f $TaskName)
-        Write-Output "Intune IME sync task is configured."
-        Write-Log -Level "INFO" -Message "=== Detection END (Exit 0) ==="
-        exit 0
+    Write-Log -Message "IME service state: $($ImeService.Status)"
+
+    if ($ImeService.Status -ne 'Running') {
+        Write-Log -Message "IME service is not running." -Level 'WARNING'
+        exit 1
     }
 
-    Write-Log -Level "WARN" -Message ("No Intune Management Extension sync was detected within the last {0} hour(s), and scheduled task '{1}' is missing or disabled." -f $LookbackHours, $TaskName)
-    Write-Output "No Intune Management Extension Sync detected within the last hour."
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 1) ==="
-    exit 1
+    # 2) Main log must exist
+    if (-not (Test-Path -Path $ImeMainLog)) {
+        Write-Log -Message "IME main log file was not found: $ImeMainLog" -Level 'WARNING'
+        exit 1
+    }
+
+    $LogItem = Get-Item -Path $ImeMainLog -ErrorAction Stop
+    $LastWriteTime = $LogItem.LastWriteTime
+    $CutoffTime    = (Get-Date).AddHours(-$LookbackHours)
+
+    Write-Log -Message "IME log last write time: $LastWriteTime"
+    Write-Log -Message "IME log age: $(Get-AgeText -DateTimeValue $LastWriteTime)"
+
+    # 3) File must be updated recently
+    if ($LastWriteTime -lt $CutoffTime) {
+        Write-Log -Message "IME log has not been updated within the last $LookbackHours hour(s)." -Level 'WARNING'
+        exit 1
+    }
+
+    # 4) Recent log text should show actual activity
+    $RecentLines = Get-Content -Path $ImeMainLog -Tail 300 -ErrorAction Stop
+    $Pattern     = ($ActivityPatterns -join '|')
+    $MatchedLine = $RecentLines | Select-String -Pattern $Pattern -CaseSensitive:$false | Select-Object -Last 1
+
+    if (-not $MatchedLine) {
+        Write-Log -Message 'IME log was updated recently, but no clear recent activity pattern was found in the latest log lines.' -Level 'WARNING'
+        exit 1
+    }
+
+    Write-Log -Message "Recent IME activity detected: $($MatchedLine.Line)" -Level 'SUCCESS'
+    Write-Log -Message 'IME activity verification passed.' -Level 'SUCCESS'
+    exit 0
 }
 catch {
-    Write-Log -Level "FAIL" -Message ("Detection error: {0}" -f $_.Exception.Message)
-    Write-Output ("Detection error: {0}" -f $_.Exception.Message)
-    Write-Log -Level "INFO" -Message "=== Detection END (Exit 1) ==="
+    Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
     exit 1
 }
-#endregion ================== FIRST DETECTION BLOCK ==================
+
+#endregion ---------- Detection Logic ----------

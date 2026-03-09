@@ -3,29 +3,16 @@
     Detects whether application updates are available using Windows Package Manager (winget).
 
 .DESCRIPTION
-    This detection script checks if any installed applications on the device
-    have pending updates via Windows Package Manager (winget).
+    This detection script checks whether installed applications on the device
+    have pending updates through Windows Package Manager (winget).
 
-    The script dynamically locates AppInstallerCLI.exe inside the WindowsApps
-    directory under Program Files. This method ensures compatibility when
-    running in SYSTEM context (for example, via Microsoft Intune).
-
-    It executes:
-        winget upgrade
-
-    The command output is evaluated to determine whether updates are available.
+    The script resolves winget.exe from the WindowsApps folder in a way that works
+    reliably in SYSTEM context, such as Microsoft Intune Remediations.
 
     Logic:
-    - If no upgradeable applications are detected (minimal output returned),
-      the device is considered Compliant and exits with code 0.
-    - If one or more applications have available updates,
-      the device is considered Not Compliant and exits with code 1.
-    - If an error occurs during execution, the script defaults to
-      Not Compliant (exit code 1).
-
-.HINT
-    This is a community script. There is no guarantee for this.
-    Review and test thoroughly before deploying in production.
+    - Exit 0: No upgradeable applications were found
+    - Exit 1: One or more applications have available updates
+    - Exit 1: Detection failed
 
 .RUN AS
     System
@@ -36,124 +23,211 @@
 .NOTES
     Author  : Mohammad Abdulkader Omar
     Website : momar.tech
-    Version : 1.0
+    Version : 1.1
 #>
 
-#region ============================ CONFIGURATION ==============================
-# Use fixed names so Intune staging does not change the log file name.
-$SystemDrive    = if ([string]::IsNullOrWhiteSpace($env:SystemDrive)) { 'C:' } else { $env:SystemDrive }
+#region ---------- Configuration ----------
+
+# Script metadata
 $ScriptName     = 'WingetUpdateAll--Detect.ps1'
 $ScriptBaseName = 'WingetUpdateAll--Detect'
-$LogDirectory   = Join-Path -Path $SystemDrive -ChildPath 'Intune\Winget-Update-All'
-$LogFile        = Join-Path -Path $LogDirectory -ChildPath "$ScriptBaseName.txt"
-#endregion ====================================================================
+$SolutionName   = 'Winget-Update-All'
 
-#region ============================ HELPER FUNCTIONS ===========================
-function Initialize-LogFile {
-    # Create the log directory only when it is needed.
-    if (-not (Test-Path -LiteralPath $LogDirectory)) {
-        New-Item -Path $LogDirectory -ItemType Directory -Force | Out-Null
+# Detect Windows system drive
+$SystemDrive = if ($env:SystemDrive) {
+    $env:SystemDrive.TrimEnd('\')
+}
+else {
+    'C:'
+}
+
+# Logging path
+$BasePath = Join-Path $SystemDrive "Intune\$SolutionName"
+$LogFile  = Join-Path $BasePath "$ScriptBaseName.txt"
+
+#endregion ---------- Configuration ----------
+
+
+#region ---------- Functions ----------
+
+# Create log folder and file if needed
+function Initialize-Logging {
+    try {
+        if (-not (Test-Path -LiteralPath $BasePath)) {
+            New-Item -Path $BasePath -ItemType Directory -Force | Out-Null
+        }
+
+        if (-not (Test-Path -LiteralPath $LogFile)) {
+            New-Item -Path $LogFile -ItemType File -Force | Out-Null
+        }
+
+        return $true
+    }
+    catch {
+        return $false
     }
 }
 
+# Write a message to console and log file
 function Write-Log {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Message,
 
-        [ValidateSet('INFO', 'OK', 'WARN', 'FAIL')]
+        [ValidateSet('INFO','SUCCESS','WARNING','ERROR')]
         [string]$Level = 'INFO'
     )
 
-    Initialize-LogFile
+    $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $Line = "[$TimeStamp] [$Level] $Message"
 
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        'SUCCESS' { Write-Host $Line -ForegroundColor Green }
+        'WARNING' { Write-Host $Line -ForegroundColor Yellow }
+        'ERROR'   { Write-Host $Line -ForegroundColor Red }
+        default   { Write-Host $Line -ForegroundColor Cyan }
+    }
 
-    Add-Content -Path $LogFile -Value $line -Encoding UTF8
+    if ($script:LogReady) {
+        try {
+            Add-Content -Path $LogFile -Value $Line -Encoding UTF8
+        }
+        catch {}
+    }
 }
-#endregion ====================================================================
 
-#region ========================= FIRST DETECTION BLOCK ========================
-Write-Log '=== Detection START ==='
-Write-Log "Script: $ScriptName"
-Write-Log "Log file: $LogFile"
+# Resolve winget.exe in SYSTEM context
+function Get-WingetPath {
+    try {
+        $ResolveWingetPath = Resolve-Path 'C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_*_x64__8wekyb3d8bbwe' -ErrorAction Stop
+        if ($ResolveWingetPath) {
+            $WingetRoot = $ResolveWingetPath[-1].Path
+            $WingetExe  = Join-Path $WingetRoot 'winget.exe'
 
-try {
-    # Resolve Winget executable path from WindowsApps directory (SYSTEM-safe resolution).
-    $Winget = Get-ChildItem -Path (
-        Join-Path -Path (
-            Join-Path -Path $env:ProgramFiles -ChildPath 'WindowsApps'
-        ) -ChildPath 'Microsoft.DesktopAppInstaller*_x64*\AppInstallerCLI.exe'
+            if (Test-Path -LiteralPath $WingetExe) {
+                return $WingetExe
+            }
+        }
+
+        return $null
+    }
+    catch {
+        return $null
+    }
+}
+
+# Run winget and return captured output
+function Invoke-WingetUpgradeCheck {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$WingetPath
     )
 
-    Write-Log "Winget path: $($Winget.FullName)"
+    $Output = & $WingetPath upgrade --accept-source-agreements 2>&1
+    return @($Output)
+}
 
-    # Execute winget upgrade to list applications with available updates.
-    $updatecheck = & $winget upgrade
+# Determine whether output indicates available upgrades
+function Test-WingetUpdatesAvailable {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]]$OutputLines
+    )
 
-    Write-Log "Raw result count: $($updatecheck.Count)"
+    $Text = ($OutputLines | ForEach-Object { $_.ToString() }) -join "`n"
 
-    # Evaluate command output line count to determine compliance state.
-    if ($updatecheck.Count -lt 3) {
-        Write-Log 'No upgrades detected. Returning Exit 0.' 'OK'
-        Write-Log '=== Detection END (Exit 0) ==='
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return $false
+    }
+
+    if ($Text -match 'No installed package found matching input criteria') {
+        return $false
+    }
+
+    if ($Text -match 'No available upgrade found') {
+        return $false
+    }
+
+    if ($Text -match 'upgrades available') {
+        return $true
+    }
+
+    # Ignore common source/header lines and count meaningful output
+    $MeaningfulLines = @(
+        $OutputLines |
+        ForEach-Object { $_.ToString().Trim() } |
+        Where-Object {
+            $_ -and
+            $_ -notmatch '^-+$' -and
+            $_ -notmatch '^Name\s+Id\s+Version' -and
+            $_ -notmatch '^The following packages' -and
+            $_ -notmatch '^Winget' -and
+            $_ -notmatch '^For information on' -and
+            $_ -notmatch '^Source agreed' -and
+            $_ -notmatch '^Downloading' -and
+            $_ -notmatch '^Successfully' -and
+            $_ -notmatch '^No available upgrade found'
+        }
+    )
+
+    if ($MeaningfulLines.Count -gt 2) {
+        return $true
+    }
+
+    return $false
+}
+
+#endregion ---------- Functions ----------
+
+
+#region ---------- Detection Logic ----------
+
+# Prepare logging
+$LogReady = Initialize-Logging
+
+Write-Log -Message "Starting detection for $ScriptName"
+Write-Log -Message "Log file: $LogFile"
+
+try {
+    # Resolve winget path
+    $Winget = Get-WingetPath
+
+    if (-not $Winget) {
+        Write-Log -Message 'winget.exe was not found.' -Level 'ERROR'
+        Write-Output 'Not Compliant'
+        exit 1
+    }
+
+    Write-Log -Message "Winget path: $Winget"
+
+    # Run winget upgrade check
+    $UpdateCheck = Invoke-WingetUpgradeCheck -WingetPath $Winget
+    Write-Log -Message "Raw result count: $($UpdateCheck.Count)"
+
+    if ($UpdateCheck.Count -gt 0) {
+        $PreviewLines = $UpdateCheck | Select-Object -First 10
+        foreach ($Line in $PreviewLines) {
+            Write-Log -Message ("winget: " + $Line.ToString())
+        }
+    }
+
+    # Decide compliance
+    $UpdatesAvailable = Test-WingetUpdatesAvailable -OutputLines $UpdateCheck
+
+    if (-not $UpdatesAvailable) {
+        Write-Log -Message 'No application upgrades detected.' -Level 'SUCCESS'
         Write-Output 'Compliant'
         exit 0
     }
 
-    Write-Log 'Upgrades detected. Returning Exit 1.' 'WARN'
-    Write-Log '=== Detection END (Exit 1) ==='
-    Write-Warning 'Not Compliant'
+    Write-Log -Message 'Application updates are available. Device is not compliant.' -Level 'WARNING'
+    Write-Output 'Not Compliant'
     exit 1
 }
 catch {
-    Write-Log "Detection failed: $($_.Exception.Message)" 'FAIL'
-    Write-Log '=== Detection END (Exit 1) ==='
-    Write-Warning 'Not Compliant'
+    Write-Log -Message "Detection failed: $($_.Exception.Message)" -Level 'ERROR'
+    Write-Output 'Not Compliant'
     exit 1
 }
-#endregion ====================================================================
 
-#region ======================== SECOND DETECTION BLOCK ========================
-# NOTE:
-# This block repeats the exact same detection logic as above.
-# In practical implementation, duplication is unnecessary because
-# the first Exit statement will terminate execution. It is preserved here
-# exactly to keep the current script behavior and structure unchanged.
-
-try {
-    # Resolve Winget executable path again.
-    $Winget = Get-ChildItem -Path (
-        Join-Path -Path (
-            Join-Path -Path $env:ProgramFiles -ChildPath 'WindowsApps'
-        ) -ChildPath 'Microsoft.DesktopAppInstaller*_x64*\AppInstallerCLI.exe'
-    )
-
-    Write-Log "Winget path (second block): $($Winget.FullName)"
-
-    # Execute winget upgrade again.
-    $updatecheck = & $winget upgrade
-
-    Write-Log "Raw result count (second block): $($updatecheck.Count)"
-
-    # Evaluate output again.
-    if ($updatecheck.Count -lt 3) {
-        Write-Log 'No upgrades detected in second block. Returning Exit 0.' 'OK'
-        Write-Log '=== Detection END (Exit 0) ==='
-        Write-Output 'Compliant'
-        exit 0
-    }
-
-    Write-Log 'Upgrades detected in second block. Returning Exit 1.' 'WARN'
-    Write-Log '=== Detection END (Exit 1) ==='
-    Write-Warning 'Not Compliant'
-    exit 1
-}
-catch {
-    Write-Log "Second block detection failed: $($_.Exception.Message)" 'FAIL'
-    Write-Log '=== Detection END (Exit 1) ==='
-    Write-Warning 'Not Compliant'
-    exit 1
-}
-#endregion ====================================================================
+#endregion ---------- Detection Logic ----------
