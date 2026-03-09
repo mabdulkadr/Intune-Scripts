@@ -2,44 +2,94 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Microsoft%20Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
-![Microsoft%20Graph](https://img.shields.io/badge/API-Microsoft%20Graph-orange.svg)
+![Microsoft Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
+![Microsoft Graph](https://img.shields.io/badge/API-Microsoft%20Graph-orange.svg)
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
 
 ---
 
-## 📖 Overview
+# 📖 Overview
 
-**Intune Scripts** is a simple and organized library of PowerShell scripts for **Microsoft Intune** and **Microsoft Graph**.  
-It helps IT admins automate common tasks like deployment, compliance, reporting, and remediation.
+**Intune Scripts** is a curated collection of **PowerShell automation scripts for Microsoft Intune and Microsoft Graph**.
+
+The repository provides ready-to-use scripts that help IT administrators automate common device management tasks such as:
+
+* Device configuration
+* Compliance enforcement
+* Automated remediation
+* Reporting and monitoring
+* Intune management automation
+
+The scripts are designed to work in modern **Microsoft Endpoint Management environments** and follow a **Detection + Remediation pattern** where applicable.
 
 ---
 
-## 📂 Folders
+# 📂 Repository Structure
 
+```
 Intune-Scripts
- ├── Intune - Compliance Policy
- ├── Intune - Remediation Scripts
- ├── Intune - Scripts
- └── Intune Community Tools
+│
+├── Intune - Compliance Policy
+│   └── Scripts related to compliance settings and validation
+│
+├── Intune - Remediation Scripts
+│   └── Detection + Remediation scripts for Intune Proactive Remediations
+│
+├── Intune - Scripts
+│   └── General automation scripts for Intune administration
+│
+└── Intune Community Tools
+    └── Helpful utilities inspired by community solutions
+```
 
 ---
 
-## ✨ What you’ll find here
+# ✨ Features
 
-- **Autopilot**: onboarding and import helpers  
-- **Compliance**: policy-related scripts and checks  
-- **Remediations**: Detect + Remediate scripts for Proactive Remediations  
-- **Scripts**: general Intune automation and admin tasks  
-- **Community Tools**: useful external-inspired utilities and helpers  
+This repository includes scripts covering multiple Intune management scenarios:
+
+### 🖥 Device Management
+
+* Device configuration automation
+* System configuration checks
+* Restore point management
+
+### 🔄 Proactive Remediations
+
+* Detection + Remediation script patterns
+* Automated issue recovery
+* Scheduled health checks
+
+### 📊 Reporting & Monitoring
+
+* Device health checks
+* Compliance verification
+* System configuration validation
+
+### 🔐 Security & Configuration
+
+* WinRM configuration
+* Secure channel repair
+* Network configuration scripts
+
+### ⚙ Automation
+
+* Windows update automation
+* System maintenance scripts
+* Device sync fixes
 
 ---
 
-## ⚙ Requirements
+# ⚙ Requirements
 
-- Windows PowerShell **5.1+**
-- Microsoft Graph module (for most scripts)
+Most scripts require:
+
+* **Windows PowerShell 5.1 or later**
+* **Administrator privileges**
+* **Microsoft Graph PowerShell SDK** (for Graph-related scripts)
+
+Install Microsoft Graph module:
 
 ```powershell
 Install-Module Microsoft.Graph -Scope CurrentUser
@@ -47,16 +97,15 @@ Install-Module Microsoft.Graph -Scope CurrentUser
 
 ---
 
-🚀 Usage
+# 🚀 Getting Started
 
-1. Clone the repo:
+Clone the repository:
 
-
-
+```bash
 git clone https://github.com/mabdulkadr/Intune-Scripts.git
+```
 
-2. Run a script:
-
+Navigate to the desired script folder and run a script:
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -65,31 +114,42 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 
 ---
 
-📜 License
+# 🧭 Recommended Usage
 
-Licensed under the MIT License.
+These scripts are commonly used with:
 
-
----
-
-👤 Author
-
-Mohammad Abdelkader
-Website: momar.tech
-
+* **Microsoft Intune Proactive Remediations**
+* **Device management automation**
+* **Endpoint health monitoring**
+* **Enterprise device troubleshooting**
 
 ---
 
-☕ Support
+# 📜 License
 
-If this repo helps you, you can support it here:
-https://www.buymeacoffee.com/mabdulkadrx
-
+This project is licensed under the **MIT License**.
 
 ---
 
-⚠ Disclaimer
+# 👤 Author
 
-Scripts are provided as-is.
-Test before production and ensure correct permissions.
+**Mohammad Abdelkader Omar**
+🌐 Website: [https://momar.tech](https://momar.tech)
 
+---
+
+# ☕ Support
+
+If this repository helps you, consider supporting the project:
+
+[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+# ⚠ Disclaimer
+
+These scripts are provided **as-is**.
+
+* Always test scripts in a **staging environment**
+* Ensure proper **permissions and policies**
+* Validate compatibility with your organization's **Intune configuration**
