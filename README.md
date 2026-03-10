@@ -125,31 +125,33 @@ These scripts are commonly used with:
 
 ---
 
-# 📜 License
+## 📜 License
 
-This project is licensed under the **MIT License**.
-
----
-
-# 👤 Author
-
-**Mohammad Abdelkader Omar**
-🌐 Website: [https://momar.tech](https://momar.tech)
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-# ☕ Support
+## 👤 Author
 
-If this repository helps you, consider supporting the project:
-
-[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
+Version: **1.1**
 
 ---
 
-# ⚠ Disclaimer
+## ☕ Support
 
-These scripts are provided **as-is**.
+If this project helps you, consider supporting it:
 
-* Always test scripts in a **staging environment**
-* Ensure proper **permissions and policies**
-* Validate compatibility with your organization's **Intune configuration**
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+## ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+- Always test scripts before production deployment.
+- Validate restart policies and user experience.
+- Ensure compatibility with your organization’s device management policies.
+
