@@ -216,9 +216,7 @@ EnableWinRM--Remediate.ps1
 
 ## 📜 License
 
-This project is licensed under the **MIT License**
-
-https://opensource.org/licenses/MIT
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
@@ -234,7 +232,7 @@ Version: **1.1**
 
 If this project helps you, consider supporting it:
 
-https://www.buymeacoffee.com/mabdulkadrx
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
 
 ---
 

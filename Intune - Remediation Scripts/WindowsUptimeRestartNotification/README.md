@@ -266,9 +266,7 @@ Enforce script signature check | No |
 
 ## 📜 License
 
-This project is licensed under the **MIT License**
-
-https://opensource.org/licenses/MIT
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
@@ -284,7 +282,7 @@ Version: **1.1**
 
 If this project helps you, consider supporting it:
 
-https://www.buymeacoffee.com/mabdulkadrx
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
 
 ---
 
@@ -295,4 +293,3 @@ This project is provided **as-is**.
 - Always test scripts before production deployment.
 - Validate restart policies and user experience.
 - Ensure compatibility with your organization’s device management policies.
-
