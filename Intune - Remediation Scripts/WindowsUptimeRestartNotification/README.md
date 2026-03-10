@@ -1,86 +1,298 @@
-# Windows Uptime Restart Notification
 
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)
-![Intune](https://img.shields.io/badge/Microsoft%20Intune-Proactive%20Remediations-green.svg)
-![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-lightgrey.svg)
+# 🔄 Windows Uptime Restart Notification
 
-## Overview
-This solution detects devices that should be restarted, then shows an Arabic WPF restart prompt through Intune Proactive Remediations.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![UI](https://img.shields.io/badge/UI-WPF-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-The device is marked **Not Compliant** when either condition is true:
-- Pending reboot required by Windows updates
-- Device uptime is greater than or equal to the configured threshold
+## 📖 Overview
 
-## Files
-- `Detect_WindowsUptimeRestartNotification.ps1`
-- `Remediate_WindowsUptimeRestartNotification.ps1`
+**Windows Uptime Restart Notification** is a PowerShell solution designed to detect devices that require a restart and notify the user with a **custom WPF dialog window**.
 
-## Detection Logic
-`Detect_WindowsUptimeRestartNotification.ps1` checks:
-- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired`
-- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending`
-- Uptime using `Win32_OperatingSystem.LastBootUpTime`
+In enterprise environments, many devices remain active for long periods without rebooting. This can lead to:
 
-Exit codes:
-- `0` = Compliant
-- `1` = Not Compliant
+- Pending Windows updates not completing
+- System performance degradation
+- Security patches not being applied
+- Configuration or policy changes not taking effect
 
-## Remediation Behavior
-`Remediate_WindowsUptimeRestartNotification.ps1` shows a custom **WPF** dialog (not toast) in Arabic with:
-- Restart now
+This solution detects restart conditions and displays a **modern restart notification window** allowing users to restart immediately or schedule a restart.
+
+The solution is designed to work with **Microsoft Intune Proactive Remediations**.
+
+---
+
+## 🖥 Screenshots
+
+### Arabic UI
+![Arabic UI](Screenshot(Ar).png)
+
+### English UI
+![English UI](Screenshot(En).png)
+
+---
+
+## ✨ Key Features
+
+### 🔹 Restart Requirement Detection
+
+The detection script checks whether the device requires a restart based on:
+
+- Pending Windows Update reboot
+- Pending component servicing reboot
+- Device uptime exceeding the configured threshold
+
+Registry locations checked:
+
+```
+
+HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired
+HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending
+
+```
+
+Device uptime is calculated using:
+
+```
+
+Win32_OperatingSystem.LastBootUpTime
+
+```
+
+---
+
+### 🔹 Interactive Restart Notification
+
+When a restart condition is detected, a **custom WPF dialog** is displayed to the logged-in user.
+
+Available actions:
+
+- Restart Now
+- Restart in 1 Hour
+- Restart in 2 Hours
+- Close Notification
+
+The UI supports **both English and Arabic** versions.
+
+---
+
+## 📂 Project Structure
+
+```
+
+Windows-Uptime-Restart-Notification
+│
+├── WinUptimeRestartNotification--Detect.ps1
+├── WinUptimeRestartNotification(En)--Remediate.ps1
+├── WinUptimeRestartNotification(Ar)--Remediate.ps1
+└── README.md
+
+```
+
+---
+
+## 🚀 Scripts Included
+
+### 🔎 Detection Script
+
+**File**
+
+```
+
+WinUptimeRestartNotification--Detect.ps1
+
+```
+
+**Purpose**
+
+Detects whether a system restart is required.
+
+**Checks performed**
+
+- Windows Update pending reboot
+- Component servicing reboot pending
+- Device uptime threshold
+
+**Exit Codes**
+
+| Code | Result |
+|-----|------|
+| 0 | Device compliant |
+| 1 | Restart required |
+
+---
+
+### 🛠 Remediation Script
+
+**Files**
+
+```
+
+WinUptimeRestartNotification(En)--Remediate.ps1
+WinUptimeRestartNotification(Ar)--Remediate.ps1
+
+```
+
+**Purpose**
+
+Displays the restart notification window to the logged-in user.
+
+**Notification options**
+
+- Restart Now
 - Restart after 1 hour
 - Restart after 2 hours
 - Close
 
-Default behavior:
-- Shows notice when update reboot is pending or uptime threshold is reached
-- Does not force restart unless configured
-
-## Key Settings
-Update these values based on your policy:
-
-- In `Detect_WindowsUptimeRestartNotification.ps1`:
-  - `$MaxUptimeDays` (current default: `10`)
-- In `Remediate_WindowsUptimeRestartNotification.ps1`:
-  - `$MaxUptimeDays` (current default: `10`)
-  - `$ForceRestartWhenPending` (`$false` by default)
-  - `$GraceSeconds` (restart grace period when force mode is enabled)
-  - Branding/text variables (`$Txt_*`, `$Brand_LogoFile`, `$LogoBase64`)
-
-Keep `$MaxUptimeDays` aligned in both scripts.
-
-## Intune Deployment
-1. Go to **Intune Admin Center** > **Devices** > **Scripts and remediations**.
-2. Create a new **Proactive remediation** package.
-3. Upload:
-   - Detection: `Detect_WindowsUptimeRestartNotification.ps1`
-   - Remediation: `Remediate_WindowsUptimeRestartNotification.ps1`
-4. Recommended script settings:
-   - Run script using logged-on credentials: `Yes`
-   - Run script in 64-bit PowerShell: `Yes`
-5. Assign to a pilot group first, then expand.
-
-## Operational Notes
-- Save scripts as **UTF-8 with BOM** to preserve Arabic text in Windows PowerShell 5.1.
-- Remediation UI requires an interactive user session.
-- If detection is triggered too frequently, adjust schedule cadence or threshold.
-
-## Quick Local Validation
-```powershell
-# Detection
-.\Detect_WindowsUptimeRestartNotification.ps1
-
-# Remediation (run in user session)
-.\Remediate_WindowsUptimeRestartNotification.ps1
-```
-
-## Troubleshooting
-- No window appears:
-  - Verify remediation runs in user context.
-  - Confirm device has an interactive logged-on session.
-- Non-compliant devices not remediating:
-  - Check proactive remediation assignment and run history.
-  - Ensure detection and remediation scripts were both uploaded from this folder.
+The dialog is implemented using **WPF** for a modern interface and supports branding customization.
 
 ---
-Use in pilot first and validate behavior before broad production rollout.
+
+## ⚙️ Configuration
+
+Several parameters can be customized inside the scripts.
+
+### Restart Threshold
+
+```
+
+$MaxUptimeDays = 14
+
+```
+
+Defines the maximum allowed uptime before prompting for restart.
+
+Ensure the same value is used in **both detection and remediation scripts**.
+
+---
+
+### Optional Forced Restart
+
+```
+
+$ForceRestartWhenPending
+
+```
+
+When enabled, the device may be forced to restart after the configured grace period.
+
+---
+
+### Grace Period
+
+```
+
+$GraceSeconds
+
+```
+
+Defines how long the user has before a forced restart when enforcement mode is enabled.
+
+---
+
+## ⚙️ Requirements
+
+### Operating System
+
+- Windows 10
+- Windows 11
+
+### PowerShell
+
+- Windows PowerShell **5.1 or later**
+
+### Execution Context
+
+The remediation script must run in **user context** because it displays a UI window.
+
+---
+
+## 🧭 Intune Deployment
+
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```
+
+WinUptimeRestartNotification--Detect.ps1
+
+```
+
+### Remediation Script
+
+```
+
+WinUptimeRestartNotification(En)--Remediate.ps1
+or
+WinUptimeRestartNotification(Ar)--Remediate.ps1
+
+```
+
+### Recommended Settings
+
+| Setting | Value |
+|------|------|
+Run script using logged-on credentials | Yes |
+Run script in 64-bit PowerShell | Yes |
+Enforce script signature check | No |
+
+---
+
+## 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Device uptime and reboot status are evaluated
+3. If restart is required → Exit Code **1**
+4. Intune runs the **Remediation Script**
+5. Restart notification window appears
+6. User selects a restart option
+
+---
+
+## 🛡 Operational Notes
+
+- The remediation window requires an **interactive user session**.
+- Save scripts as **UTF-8 with BOM** to ensure Arabic text displays correctly in PowerShell 5.1.
+- Test the solution in a **pilot group** before deploying broadly.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**
+
+https://opensource.org/licenses/MIT
+
+---
+
+## 👤 Author
+
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
+Version: **1.1**
+
+---
+
+## ☕ Support
+
+If this project helps you, consider supporting it:
+
+https://www.buymeacoffee.com/mabdulkadrx
+
+---
+
+## ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+- Always test scripts before production deployment.
+- Validate restart policies and user experience.
+- Ensure compatibility with your organization’s device management policies.
+

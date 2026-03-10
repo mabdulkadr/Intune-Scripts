@@ -227,37 +227,34 @@ CleanUpDisk--Remediate.ps1
 
 ---
 
-# 📜 License
+## 📜 License
 
-This project is licensed under the
-[MIT License](https://opensource.org/licenses/MIT).
+This project is licensed under the **MIT License**
 
----
-
-# 👤 Author
-
-**Mohammad Abdelkader Omar**
-Website: **momar.tech**
-
-Version: **1.0**
-Date: **2026-03-09**
+https://opensource.org/licenses/MIT
 
 ---
 
-# ☕ Donate
+## 👤 Author
+
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
+Version: **1.1**
+
+---
+
+## ☕ Support
 
 If this project helps you, consider supporting it:
 
-[https://www.buymeacoffee.com/mabdulkadrx](https://www.buymeacoffee.com/mabdulkadrx)
+https://www.buymeacoffee.com/mabdulkadrx
 
 ---
 
-# ⚠ Disclaimer
+## ⚠ Disclaimer
 
-This tool is provided **as-is**.
+This project is provided **as-is**.
 
-* Always test scripts before deployment
-* Validate cleanup policies
-* Ensure compliance with organizational standards
-
-
+- Always test scripts before production deployment.
+- Validate restart policies and user experience.
+- Ensure compatibility with your organization’s device management policies.

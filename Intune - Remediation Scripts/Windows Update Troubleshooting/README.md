@@ -1,89 +1,238 @@
-# Windows Update Troubleshooting Proactive Remediation
+# 🛠 Windows Update Troubleshooting
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0-green.svg)
+![Platform](https://img.shields.io/badge/Windows-10%2F11-blue.svg)
+![Automation](https://img.shields.io/badge/Intune-Proactive%20Remediation-brightgreen.svg)
+![Feature](https://img.shields.io/badge/Feature-Windows%20Update-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1-green.svg)
+---
 
-## Overview
-This project includes two PowerShell scripts designed to detect and remediate Windows Update issues using **Microsoft Intune Proactive Remediations**. The scripts ensure that Windows Update components are functioning correctly and address common issues automatically.
+# 📖 Overview
 
-### Scripts Included
-1. **Detect_Windows_Update_Troubleshooting.ps1**
-   - Detects issues with Windows Updates, such as outdated OS versions and delays in updates.
-2. **Remediate_Windows_Update_Troubleshooting.ps1**
-   - Attempts to resolve detected Windows Update issues by troubleshooting, repairing, and resetting relevant components.
+**Windows Update Troubleshooting** is a PowerShell automation solution designed to detect and remediate common **Windows Update issues** on managed devices.
+
+Windows Update failures are common in enterprise environments and may occur due to:
+
+* Corrupted Windows Update components
+* Paused or deferred update policies
+* Outdated OS builds
+* Windows Update services malfunction
+* System image corruption
+
+This project provides **Detection + Remediation scripts** designed to automatically identify Windows Update issues and apply corrective actions.
+
+The solution is intended for **Microsoft Intune Proactive Remediations**.
 
 ---
 
-## Scripts Details
+# ✨ Core Features
 
-### 1. Detect_Windows_Update_Troubleshooting.ps1
+### 🔹 Windows Update Health Detection
 
-#### Purpose
-The detection script checks the following:
-- The OS version to ensure it meets the required build for Windows 10 or Windows 11.
-- The time since the last Windows update was installed.
-- Any registry keys indicating paused or deferred updates.
+The detection script evaluates the update health of the device by checking:
 
-#### How to Run
-```powershell
-.\Detect_Windows_Update_Troubleshooting.ps1
+* Windows OS build version
+* Last installed update date
+* Registry keys indicating paused updates
+* Update delay conditions
+
+If any issue is detected, the device is marked as **non-compliant**.
+
+---
+
+### 🔹 Automatic Update Repair
+
+When issues are detected, the remediation script automatically performs several repair actions including:
+
+* Running the **Windows Update Troubleshooter**
+* Repairing system image using **DISM**
+* Resetting Windows Update components
+* Removing paused update registry keys
+* Ensuring required PowerShell modules are installed
+* Triggering Windows Update scan
+
+---
+
+# 📂 Project Structure
+
+```
+WindowsUpdateTroubleshooting
+│
+├── WindowsUpdateTroubleshooting--Detect.ps1
+├── WindowsUpdateTroubleshooting--Remediate.ps1
+└── README.md
 ```
 
-#### Outputs
-- **Exit Code 1**: Issue detected (e.g., outdated OS version, updates delayed).
-- **Exit Code 0**: No issues found.
-
 ---
 
-### 2. Remediate_Windows_Update_Troubleshooting.ps1
+# 🚀 Scripts Included
 
-#### Purpose
-The remediation script automatically fixes issues detected by the detection script. It performs the following tasks:
-- Runs the Windows Update Troubleshooter.
-- Repairs the system image using **DISM**.
-- Resets Windows Update components.
-- Removes paused or deferred update configurations from the registry.
-- Ensures required PowerShell modules are installed.
-- Checks for pending Windows updates and installs them.
+## 🔎 Detection Script
 
-#### How to Run
+**File**
+
 ```powershell
-.\Remediate_Windows_Update_Troubleshooting.ps1
+WindowsUpdateTroubleshooting--Detect.ps1
 ```
 
-#### Outputs
-- Logs are saved at:
-  - **C:\ProgramData\Microsoft\IntuneManagementExtension\Logs\#Windows_Updates_Health_Check.log**
-  - **C:\ProgramData\Microsoft\IntuneManagementExtension\Logs\#DISM.log**
-- **Exit Code 0**: Remediation successful.
-- **Exit Code 1**: Remediation failed or encountered an error.
+### Purpose
+
+Detects issues that may prevent Windows Update from functioning properly.
+
+### Checks Performed
+
+The script checks:
+
+* OS build version compliance
+* Time since last Windows update
+* Registry configuration related to update pauses
+
+### Exit Codes
+
+| Code | Status                        |
+| ---- | ----------------------------- |
+| 0    | No issues detected            |
+| 1    | Windows Update issue detected |
 
 ---
 
-## Deployment via Microsoft Intune Proactive Remediation
-1. Navigate to **Intune Admin Center**:
-   - Go to **Devices > Scripts and Remediations**.
-2. Create a new Proactive Remediation package:
-   - **Detection Script**: Upload `Detect_Windows_Update_Troubleshooting.ps1`.
-   - **Remediation Script**: Upload `Remediate_Windows_Update_Troubleshooting.ps1`.
-3. Assign the package to the target devices or groups.
-4. Monitor the results in the Intune portal.
+# 🛠 Remediation Script
+
+**File**
+
+```powershell
+WindowsUpdateTroubleshooting--Remediate.ps1
+```
+
+### Purpose
+
+Attempts to automatically resolve Windows Update problems detected by the detection script.
+
+### Repair Actions
+
+The remediation script performs the following operations:
+
+1. Run Windows Update troubleshooter
+2. Repair Windows system image
+
+```powershell
+DISM /Online /Cleanup-Image /RestoreHealth
+```
+
+3. Reset Windows Update components
+4. Remove paused update policies
+5. Trigger update detection
 
 ---
 
-## Notes
-- Ensure both scripts are tested in a controlled environment before deploying to production.
-- Scripts require administrative privileges to execute correctly.
-- Logs are saved for troubleshooting purposes.
+# 📄 Logging
+
+Logs are generated to help troubleshooting.
+
+Default log locations:
+
+```
+C:\ProgramData\Microsoft\IntuneManagementExtension\Logs\#Windows_Updates_Health_Check.log
+C:\ProgramData\Microsoft\IntuneManagementExtension\Logs\#DISM.log
+```
 
 ---
 
-## License
+# ⚙️ Requirements
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+### Operating System
+
+* Windows 10
+* Windows 11
+
+### PowerShell
+
+PowerShell **5.1 or later**
+
+### Permissions
+
+Administrator privileges required.
+
+When deployed through Intune, scripts typically run in **SYSTEM context**.
 
 ---
 
-**Disclaimer**: These scripts are provided as-is. Test them in a staging environment before use in production. The author is not responsible for any unintended outcomes resulting from their use.
+# 🧭 Intune Deployment
 
+Recommended deployment method:
+
+**Microsoft Intune → Devices → Scripts and Remediations**
+
+### Detection Script
+
+```
+WindowsUpdateTroubleshooting--Detect.ps1
+```
+
+### Remediation Script
+
+```
+WindowsUpdateTroubleshooting--Remediate.ps1
+```
+
+### Recommended Settings
+
+| Setting                                | Value |
+| -------------------------------------- | ----- |
+| Run script in 64-bit PowerShell        | Yes   |
+| Run script using logged-on credentials | No    |
+| Enforce script signature check         | No    |
+
+---
+
+# 🔧 Typical Workflow
+
+1. Intune runs the **Detection Script**
+2. Script checks Windows Update health
+3. If issue detected → Exit Code **1**
+4. Intune triggers **Remediation Script**
+5. Script repairs Windows Update components
+6. Device resumes normal update operation
+
+---
+
+# 🛡 Operational Notes
+
+* Windows Update issues can prevent critical security patches from installing.
+* Automated remediation ensures update health across managed devices.
+* Always test remediation scripts on **pilot devices** before wide deployment.
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**
+
+https://opensource.org/licenses/MIT
+
+---
+
+## 👤 Author
+
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
+Version: **1.1**
+
+---
+
+## ☕ Support
+
+If this project helps you, consider supporting it:
+
+https://www.buymeacoffee.com/mabdulkadrx
+
+---
+
+## ⚠ Disclaimer
+
+This project is provided **as-is**.
+
+- Always test scripts before production deployment.
+- Validate restart policies and user experience.
+- Ensure compatibility with your organization’s device management policies.
