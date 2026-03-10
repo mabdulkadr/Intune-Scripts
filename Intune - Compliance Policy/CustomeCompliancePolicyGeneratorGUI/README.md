@@ -1,160 +1,297 @@
-
-# Custome Compliance Policy Generator GUI
+# 🧰 Intune Custom Compliance Generator
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Windows](https://img.shields.io/badge/Windows-10%2B-blue.svg)
 ![PowerShell](https://img.shields.io/badge/powershell-5.1%2B-blue.svg)
-![Intune](https://img.shields.io/badge/Intune-Compatible-green.svg)
+![Microsoft Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0-green.svg)
+---
 
-## Overview
-The **Check-ComplianceMultipleAppsFilesGenerator** is a **GUI-based tool** designed to simplify the creation of **Intune compliance detection scripts** for multiple applications. This tool allows IT administrators to easily define compliance rules for **application presence or version requirements**, ensuring compliance with corporate policies.
+# 📖 Overview
 
-The generator produces **PowerShell scripts and JSON configuration files** that can be used as **custom compliance policies in Microsoft Intune**. This eliminates the need for manual script writing and ensures consistency across managed devices.
+**Check-ComplianceMultipleAppsFilesGenerator** is a lightweight **GUI tool** designed to help IT administrators quickly generate **Microsoft Intune Custom Compliance policies** for multiple applications.
+
+The tool automatically generates the required:
+
+- **PowerShell detection script**
+- **JSON compliance rule**
+
+These files can be uploaded directly into **Microsoft Intune** to enforce application compliance policies.
+
+This eliminates the need to manually write detection scripts and JSON rules, saving time and reducing configuration errors. :contentReference[oaicite:0]{index=0}
 
 ---
 
-## **Screenshot**
-![Screenshot](Screenshot.png)
+# 🖥 Interface
+
+The tool provides a simple interface where administrators can enter application names and generate compliance files.
+
+![GUI Screenshot](Screenshot.png)
 
 ---
 
-## Features
-✔️ **Easy-to-use GUI** for generating compliance detection files.  
-✔️ **Supports multiple applications** in a single compliance policy.  
-✔️ **Two compliance check modes**:
-   - **Application Presence** (Detect if an app is installed).  
-   - **Application Version** (Verify if an app meets a minimum version requirement).  
-✔️ **Allows choosing between user-based (HKCU) and machine-wide (HKLM) installations**.  
-✔️ **Automatically generates PowerShell & JSON files for Intune deployment**.  
-✔️ **Creates a ZIP archive** with all necessary files for easy distribution.  
+# ✨ Key Features
+
+✔️ Simple **graphical interface**  
+✔️ Supports **multiple applications in one policy**  
+✔️ Generates **PowerShell detection scripts automatically**  
+✔️ Generates **JSON compliance rules for Intune**  
+✔️ Supports two compliance modes  
+✔️ No installation required (portable tool)
 
 ---
 
-## Installation & Usage
+# ⚙ Compliance Modes
 
-### 1. Download & Run
-- Download **Check-ComplianceMultipleAppsFilesGenerator.exe**.
-- Run the **.exe** file (**No installation required**).
+The generator supports two policy types.
 
-### 2. Select Applications for Compliance Check
-- Enter the **exact application names** as they appear in `Add or Remove Programs`.
-- Click **Add** to insert applications into the list.
-- Click **Remove** to delete applications from the list.
-- Click **Next** to proceed.
+## 1️⃣ Application Presence Check
 
+Checks whether an application exists on the device.
 
----
+Typical use cases:
 
-### 3. Choose Compliance Type
-- **Check app presence** → Ensures an app is **not installed**.  
-- **Check app version** → Ensures an app meets a **minimum version requirement**.  
-- Choose **HKCU (user-based install)** or **HKLM (machine-wide install)** based on the app’s installation method.
-- Click **Next** to continue.
+- Block unauthorized software
+- Detect prohibited applications
+- Enforce application removal policies
 
+Example:
 
----
+```
 
-### 4. Enter Minimum Version (If Selected)
-If you selected **Check app version**, you will be prompted to enter the **minimum required version** for each application.
+Google Chrome detected → Non-Compliant
 
-
-- Enter the required version numbers.
-- Click **OK** to proceed.
+```
 
 ---
 
-### 5. Save the Generated Files
-- After setting up the compliance rules, the tool will generate:
-  - **PowerShell detection script** (`Check-ComplianceMultipleApps.ps1`).
-  - **JSON configuration file** (`Check-ComplianceMultipleApps.json`).
-- You will be prompted to **save the files as a ZIP archive** for easy deployment.
+## 2️⃣ Application Version Check
+
+Ensures an application version meets a **minimum required version**.
+
+Example:
+
+```
+
+Installed Version: 132.0.1
+Required Version: 133.0.6943.54
+Result: Non-Compliant
+
+```
 
 ---
 
-## Example Output
+# 📂 Generated Files
 
-### 🔹 **Generated PowerShell Script**
-Example **Check-ComplianceMultipleApps.ps1**:
+The tool generates the following files:
+
+```
+
+Check-ComplianceMultipleApps.ps1
+Check-ComplianceMultipleApps.json
+
+```
+
+These files are packaged into a **ZIP archive** for easy deployment.
+
+---
+
+# 🚀 Usage
+
+## 1️⃣ Run the Tool
+
+Download and run:
+
+```
+
+Check-ComplianceMultipleAppsFilesGenerator.exe
+
+```
+
+No installation required.
+
+---
+
+## 2️⃣ Enter Application Names
+
+Enter application names exactly as they appear in:
+
+```
+
+Add or Remove Programs
+appwiz.cpl
+
+```
+
+Example:
+
+```
+
+Google Chrome
+Zoom
+TeamViewer
+
+```
+
+Click **Add** to include them in the list.
+
+---
+
+## 3️⃣ Choose Compliance Type
+
+Select one of the following:
+
+- **Check application presence**
+- **Check application version**
+
+You can also select installation scope:
+
+```
+
+HKLM → Machine-wide installation
+HKCU → User-based installation
+
+```
+
+---
+
+## 4️⃣ Configure Version (Optional)
+
+If **version check** is selected:
+
+Enter the minimum required version for each application.
+
+Example:
+
+```
+
+133.0.6943.54
+
+```
+
+---
+
+## 5️⃣ Generate Files
+
+The tool will generate:
+
+```
+
+PowerShell Detection Script
+JSON Compliance Rule
+
+````
+
+Both files are saved as a **ZIP package** ready for Intune deployment.
+
+---
+
+# 📊 Example Generated Script
+
+Example PowerShell detection script:
+
 ```powershell
-$AppNames = @("Google Chrome", "Zoom", "Microsoft Edge")
-$foundApps = @()
+$AppNames = @("Google Chrome","Zoom")
 
 foreach ($app in $AppNames) {
-    $installed = Get-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue |
-                 Where-Object { $_.DisplayName -match $app }
+    $installed = Get-ItemProperty `
+        HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* `
+        -ErrorAction SilentlyContinue |
+        Where-Object { $_.DisplayName -match $app }
 
     if ($installed) {
-        $foundApps += $app
+        Write-Host "$app detected"
+        exit 1
     }
 }
 
-if ($foundApps.Count -gt 0) {
-    Write-Host "Non-compliant: $($foundApps -join ', ') found."
-    exit 1
-} else {
-    Write-Host "Compliant: No unauthorized applications detected."
-    exit 0
-}
+exit 0
+````
+
+---
+
+# ☁ Deployment in Microsoft Intune
+
+1. Upload **PowerShell script** as a **Custom Compliance Detection Script**
+
+2. Upload **JSON file** as the **Compliance Rule**
+
+3. Assign the policy to:
+
+```
+Device groups
+or
+User groups
 ```
 
-### 🔹 **Generated JSON Compliance Rule**
-Example **Check-ComplianceMultipleApps.json**:
-```json
-{
-    "Rules":  [
-        {
-            "SettingName":  "Google Chrome",
-            "Operator":  "GreaterEquals",
-            "DataType":  "Version",
-            "Operand":  "133.0.6943.54",
-            "MoreInfoUrl":  "https://www.google.com/chrome/",
-            "RemediationStrings":  [
-                {
-                    "Language":  "en_US",
-                    "Title":  "Google Chrome is outdated or not installed.",
-                    "Description":  "Please install or update Google Chrome."
-                }
-            ]
-        }
-    ]
-}
+4. Monitor results in:
+
+```
+Intune Admin Center
+Devices → Compliance Policies
 ```
 
 ---
 
-## Deployment in Intune
-To enforce compliance policies in **Microsoft Intune**, follow these steps:
+# 💡 Example Use Cases
 
-1. **Upload `Check-App-Presence.ps1`** as a detection script in Intune.
-2. **Upload `Check-App-Presence.json`** as the compliance policy rule.
-3. Assign the compliance policy to the **targeted device groups**.
-4. Monitor compliance results in **Microsoft Endpoint Manager (Intune)**.
+### Block Unauthorized Software
 
----
+Prevent installation of:
 
-## Use Cases
-- **Block unauthorized software** (e.g., Google Chrome, TeamViewer, Zoom).  
-- **Ensure critical applications are installed and enforced** (e.g., Antivirus, Security tools).  
-- **Automate compliance enforcement** with pre-defined rules.  
+* Chrome
+* Zoom
+* TeamViewer
+* Any unapproved application
 
 ---
 
-## References
-- [Microsoft Intune Custom Compliance Policies](https://learn.microsoft.com/en-us/mem/intune/protect/device-compliance-get-started)
+### Enforce Application Versions
+
+Ensure devices run the latest version of:
+
+* Browsers
+* VPN clients
+* Security software
 
 ---
 
-## Notes
-- This tool is designed for **Microsoft Intune Custom Compliance Policies**.  
-- Modify only the **application names and versions** as needed.  
-- **Test before deployment** to avoid unintended compliance failures.  
+### Compliance Automation
+
+Automatically detect and flag non-compliant devices across the organization.
 
 ---
 
-## License 
+# ⚠ Notes
+
+* Application names must match **exactly** what appears in `appwiz.cpl`.
+* Always test policies on a **pilot device group** before production deployment.
+* Ensure scripts run in **64-bit PowerShell** within Intune.
+
+---
+
+## 📜 License
+
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-**Disclaimer:** This tool and scripts are provided as-is. Test them in a staging environment before deployment. The author is not responsible for any unintended consequences.
+## 👤 Author
+
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
+Version: **1.1**
+
+---
+
+## ☕ Support
+
+If this project helps you, consider supporting it:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+## ⚠ Disclaimer
+
+These scripts are provided as-is. Test them in a staging environment before applying them to production. The author is not responsible for any unintended outcomes resulting from their use.
