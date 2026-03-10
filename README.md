@@ -147,11 +147,8 @@ If this project helps you, consider supporting it:
 
 ---
 
-## ⚠ Disclaimer
+## ⚠️ Disclaimer
 
-This project is provided **as-is**.
-
-- Always test scripts before production deployment.
-- Validate restart policies and user experience.
-- Ensure compatibility with your organization’s device management policies.
-
+This script is provided **as-is** without warranty.
+The author is **not responsible** for unintended modifications or data loss.
+Always test thoroughly before deploying in production.
