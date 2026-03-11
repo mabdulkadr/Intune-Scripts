@@ -1,0 +1,50 @@
+{
+  "deviceThreatProtectionRequiredSecurityLevel": "unavailable",
+  "minAndroidSecurityPatchLevel": null,
+  "passwordExpirationDays": 90,
+  "passwordMinimumLength": 4,
+  "id": "d65bd364-58ba-4969-83fb-c79340deb532",
+  "passwordMinimumNumericCharacters": null,
+  "osMaximumVersion": null,
+  "passwordMinimumLetterCharacters": null,
+  "passwordMinimumUpperCaseCharacters": null,
+  "storageRequireEncryption": true,
+  "passwordMinimumLowerCaseCharacters": null,
+  "passwordMinimumNonLetterCharacters": null,
+  "securityRequireSafetyNetAttestationCertifiedDevice": null,
+  "passwordPreviousPasswordCountToBlock": 3,
+  "lastModifiedDateTime": "2025-01-07T08:50:10.3252629Z",
+  "securityRequireIntuneAppIntegrity": true,
+  "passwordMinutesOfInactivityBeforeLock": 1,
+  "requireNoPendingSystemUpdates": null,
+  "version": 1,
+  "advancedThreatProtectionRequiredSecurityLevel": "low",
+  "@odata.type": "#microsoft.graph.androidDeviceOwnerCompliancePolicy",
+  "securityBlockJailbrokenDevices": false,
+  "description": "Requires threat level of medium or under, 4 digit expiring password and encryption",
+  "createdDateTime": "2024-12-21T11:58:14.4912799Z",
+  "passwordMinimumSymbolCharacters": null,
+  "securityRequiredAndroidSafetyNetEvaluationType": "basic",
+  "passwordRequired": true,
+  "deviceThreatProtectionEnabled": true,
+  "securityRequireSafetyNetAttestationBasicIntegrity": true,
+  "osMinimumVersion": "11",
+  "passwordRequiredType": "numeric",
+  "displayName": "Android - Device Compliance",
+  "roleScopeTagIds": [
+    "0"
+  ],
+  "assignments": [
+    {
+      "id": "d65bd364-58ba-4969-83fb-c79340deb532_19a6b6ff-2088-458e-aa23-b03ab4f1e327",
+      "sourceId": "d65bd364-58ba-4969-83fb-c79340deb532",
+      "source": "direct",
+      "target": {
+        "groupId": "19a6b6ff-2088-458e-aa23-b03ab4f1e327",
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null
+      }
+    }
+  ]
+}
