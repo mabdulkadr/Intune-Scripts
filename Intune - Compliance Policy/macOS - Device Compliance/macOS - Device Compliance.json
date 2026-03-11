@@ -1,0 +1,46 @@
+{
+  "deviceThreatProtectionRequiredSecurityLevel": "unavailable",
+  "passwordMinimumLength": null,
+  "systemIntegrityProtectionEnabled": true,
+  "gatekeeperAllowedAppSource": "macAppStoreAndIdentifiedDevelopers",
+  "id": "9b8bbc43-9c93-4c42-a8bf-aef3836cbe43",
+  "passwordMinimumCharacterSetCount": null,
+  "firewallEnabled": true,
+  "storageRequireEncryption": true,
+  "passwordPreviousPasswordBlockCount": null,
+  "firewallBlockAllIncoming": false,
+  "passwordBlockSimple": false,
+  "osMinimumBuildVersion": null,
+  "lastModifiedDateTime": "2024-12-21T11:58:14.6332515Z",
+  "passwordMinutesOfInactivityBeforeLock": null,
+  "osMaximumVersion": null,
+  "version": 1,
+  "advancedThreatProtectionRequiredSecurityLevel": "unavailable",
+  "@odata.type": "#microsoft.graph.macOSCompliancePolicy",
+  "osMaximumBuildVersion": null,
+  "description": "Required system integrity protection, encryption, firewall and restricted app install sources",
+  "createdDateTime": "2024-12-21T11:58:14.6332515Z",
+  "passwordExpirationDays": null,
+  "firewallEnableStealthMode": false,
+  "passwordRequired": false,
+  "deviceThreatProtectionEnabled": false,
+  "osMinimumVersion": null,
+  "passwordRequiredType": "deviceDefault",
+  "displayName": "macOS - Device Compliance",
+  "roleScopeTagIds": [
+    "0"
+  ],
+  "assignments": [
+    {
+      "id": "9b8bbc43-9c93-4c42-a8bf-aef3836cbe43_d8b94dc9-fc5a-43df-aa95-9e09d169d8ef",
+      "sourceId": "9b8bbc43-9c93-4c42-a8bf-aef3836cbe43",
+      "source": "direct",
+      "target": {
+        "groupId": "d8b94dc9-fc5a-43df-aa95-9e09d169d8ef",
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null
+      }
+    }
+  ]
+}
