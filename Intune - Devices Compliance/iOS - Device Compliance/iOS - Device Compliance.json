@@ -1,0 +1,55 @@
+{
+  "passcodeMinutesOfInactivityBeforeLock": 0,
+  "deviceThreatProtectionEnabled": false,
+  "id": "ee027ed0-2067-406e-9952-a5f7a4b5a8e9",
+  "osMinimumVersion": null,
+  "@odata.type": "#microsoft.graph.iosCompliancePolicy",
+  "displayName": "iOS - Device Compliance",
+  "passcodeMinimumCharacterSetCount": null,
+  "osMaximumVersion": null,
+  "passcodeRequired": true,
+  "roleScopeTagIds": [
+    "0"
+  ],
+  "version": 1,
+  "description": "Blocks Jailbroken devices, required threat level of medium or below.  Blocks passwords and requires minimum 4 digit expiring password",
+  "osMinimumBuildVersion": null,
+  "deviceThreatProtectionRequiredSecurityLevel": "medium",
+  "passcodeMinutesOfInactivityBeforeScreenTimeout": 2,
+  "passcodePreviousPasscodeBlockCount": 3,
+  "passcodeMinimumLength": 4,
+  "osMaximumBuildVersion": null,
+  "lastModifiedDateTime": "2024-12-21T11:58:14.2396121Z",
+  "passcodeExpirationDays": 180,
+  "securityBlockJailbrokenDevices": true,
+  "passcodeRequiredType": "numeric",
+  "restrictedApps": [],
+  "createdDateTime": "2024-12-21T11:58:14.2396121Z",
+  "managedEmailProfileRequired": false,
+  "advancedThreatProtectionRequiredSecurityLevel": "unavailable",
+  "passcodeBlockSimple": true,
+  "assignments": [
+    {
+      "id": "ee027ed0-2067-406e-9952-a5f7a4b5a8e9_19a6b6ff-2088-458e-aa23-b03ab4f1e327",
+      "sourceId": "ee027ed0-2067-406e-9952-a5f7a4b5a8e9",
+      "source": "direct",
+      "target": {
+        "groupId": "19a6b6ff-2088-458e-aa23-b03ab4f1e327",
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null
+      }
+    },
+    {
+      "id": "ee027ed0-2067-406e-9952-a5f7a4b5a8e9_d8b94dc9-fc5a-43df-aa95-9e09d169d8ef",
+      "sourceId": "ee027ed0-2067-406e-9952-a5f7a4b5a8e9",
+      "source": "direct",
+      "target": {
+        "groupId": "d8b94dc9-fc5a-43df-aa95-9e09d169d8ef",
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null
+      }
+    }
+  ]
+}
