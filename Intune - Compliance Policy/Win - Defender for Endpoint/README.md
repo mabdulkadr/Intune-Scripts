@@ -6,7 +6,7 @@
 ![Microsoft Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
 ![Compliance](https://img.shields.io/badge/Device-Compliance-green.svg)
 ![Security](https://img.shields.io/badge/Microsoft-Defender%20for%20Endpoint-orange.svg)
-![Version](https://img.shields.io/badge/version-3.1-green.svg)
+![Version](https://img.shields.io/badge/version-1.0-green.svg)
 
 ---
 
@@ -252,7 +252,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 **Mohammad Abdulkader Omar**  
 Website: https://momar.tech  
-Version: **3.1**
+Version: **1.0**
 
 ---
 
