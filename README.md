@@ -251,32 +251,35 @@ Contributions are accepted for:
 * Performance improvements
 * Enhancements using Microsoft Graph
 
----
-
-# 📜 License
-
-Licensed under the MIT License:
-[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
 
 ---
 
-# 👤 Author
+## 📜 License
 
-**Mohammad Abdulkader Omar**
-Senior System Engineer | Microsoft 365 | Intune | Azure
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
-🌐 [https://momar.tech](https://momar.tech)
-💻 [https://github.com/mabdulkadr](https://github.com/mabdulkadr)
+---
 
+## 👤 Author
+
+**Mohammad Abdulkader Omar**  
+Website: https://momar.tech  
 Version: **1.2**
 
 ---
 
-# ⚠️ Disclaimer
+## ☕ Support
 
-This repository is provided **as-is** without warranty.
-Test all scripts in a staging environment before production use.
-The author is not responsible for any unintended impact.
+If this project helps you, consider supporting it:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
+
+---
+
+## ⚠ Disclaimer
+
+These scripts are provided as-is. Test them in a staging environment before applying them to production. The author is not responsible for any unintended outcomes resulting from their use.
+
 
 
 
