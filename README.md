@@ -1,4 +1,4 @@
-```markdown
+
 # 🚀 Intune Scripts
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -278,5 +278,5 @@ This repository is provided **as-is** without warranty.
 Test all scripts in a staging environment before production use.
 The author is not responsible for any unintended impact.
 
-```
-```
+
+
