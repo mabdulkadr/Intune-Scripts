@@ -30,17 +30,20 @@ The scripts are designed to work in modern **Microsoft Endpoint Management envir
 ```
 Intune-Scripts
 │
-├── Intune - Compliance Policy
-│   └── Scripts related to compliance settings and validation
+├── Intune Community Tools
+│   └── Helpful utilities and tools inspired by the Microsoft Intune community.
 │
-├── Intune - Remediation Scripts
-│   └── Detection + Remediation scripts for Intune Proactive Remediations
+├── Intune-Compliance-Policies
+│   └── PowerShell scripts used for custom compliance settings and device validation.
 │
-├── Intune - Scripts
-│   └── General automation scripts for Intune administration
+├── Intune-Configuration-Profiles
+│   └── Scripts and configurations for managing device settings and restrictions.
 │
-└── Intune Community Tools
-    └── Helpful utilities inspired by community solutions
+├── Intune-Management-Scripts
+│   └── General automation and administrative scripts for tenant management.
+│
+└── Intune-Proactive-Remediations
+    └── Detection and Remediation script pairs for self-healing device management.
 ```
 
 ---
