@@ -1,3 +1,4 @@
+```markdown
 # 🚀 Intune Scripts
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -5,97 +6,153 @@
 ![Microsoft Intune](https://img.shields.io/badge/Microsoft-Intune-blue.svg)
 ![Microsoft Graph](https://img.shields.io/badge/API-Microsoft%20Graph-orange.svg)
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
+![Stars](https://img.shields.io/github/stars/mabdulkadr/Intune-Scripts?style=social)
+![Forks](https://img.shields.io/github/forks/mabdulkadr/Intune-Scripts?style=social)
+![Last Commit](https://img.shields.io/github/last-commit/mabdulkadr/Intune-Scripts)
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
 
 ---
 
 # 📖 Overview
 
-**Intune Scripts** is a curated collection of **PowerShell automation scripts for Microsoft Intune and Microsoft Graph**.
+**Intune Scripts** is a production-ready repository of **PowerShell 5.1 automation scripts for Microsoft Intune and Microsoft Graph**.
 
-The repository provides ready-to-use scripts that help IT administrators automate common device management tasks such as:
+The repository is designed for enterprise environments where scalability, automation, and reliability are critical. It provides structured solutions for managing endpoints, enforcing compliance, and automating operational workflows.
 
-* Device configuration
-* Compliance enforcement
-* Automated remediation
-* Reporting and monitoring
-* Intune management automation
+---
 
-The scripts are designed to work in modern **Microsoft Endpoint Management environments** and follow a **Detection + Remediation pattern** where applicable.
+# 🔹 Enterprise Intune Automation Toolkit
+
+This repository enables:
+
+- Automated endpoint configuration  
+- Proactive issue detection and remediation  
+- Compliance validation and enforcement  
+- Tenant-level administrative automation  
+- Standardized device management operations  
+
+Built with focus on:
+
+- Stability in production environments  
+- Compatibility with Intune execution model  
+- Minimal dependencies  
+- Scalable automation across thousands of devices  
+
+---
+
+# 🧩 Real-World Coverage
+
+This repository reflects real enterprise use cases:
+
+- Managing large-scale Intune environments  
+- Automating compliance drift correction  
+- Supporting hybrid identity (Active Directory + Entra ID)  
+- Reducing manual IT operational overhead  
+- Enforcing standardized configurations across endpoints  
+
+---
+
+# 🏗 Architecture Pattern
+
+Most scripts follow a structured execution model:
+
+```
+
+Detection → Evaluation → Remediation → Compliance
+
+```
+
+Aligned with:
+
+- Microsoft Intune Proactive Remediations  
+- Enterprise self-healing strategies  
+- Automated endpoint lifecycle management  
 
 ---
 
 # 📂 Repository Structure
 
 ```
+
 Intune-Scripts
 │
 ├── Intune Community Tools
-│   └── Helpful utilities and tools inspired by the Microsoft Intune community.
+│   └── Community-driven utilities and advanced tools
 │
 ├── Intune-Compliance-Policies
-│   └── PowerShell scripts used for custom compliance settings and device validation.
+│   └── Custom compliance detection and validation scripts
 │
 ├── Intune-Configuration-Profiles
-│   └── Scripts and configurations for managing device settings and restrictions.
+│   └── Device configuration and restriction automation
 │
 ├── Intune-Management-Scripts
-│   └── General automation and administrative scripts for tenant management.
+│   └── Administrative and tenant-level automation scripts
 │
-└── Intune-Proactive-Remediations
-    └── Detection and Remediation script pairs for self-healing device management.
-```
+├── Intune-Proactive-Remediations
+│   └── Detection and remediation script pairs
+│
+└── README.md
+
+````
 
 ---
 
-# ✨ Features
+# ✨ Core Capabilities
 
-This repository includes scripts covering multiple Intune management scenarios:
+## 🖥 Device Management
+- Configuration enforcement  
+- System validation checks  
+- Device state normalization  
 
-### 🖥 Device Management
+## 🔄 Proactive Remediations
+- Detection scripts with proper exit codes  
+- Automated remediation workflows  
+- Scheduled self-healing operations  
 
-* Device configuration automation
-* System configuration checks
-* Restore point management
+## 📊 Reporting & Monitoring
+- Device health assessment  
+- Compliance verification  
+- Configuration drift detection  
 
-### 🔄 Proactive Remediations
+## 🔐 Security & Configuration
+- Secure channel repair  
+- WinRM and connectivity fixes  
+- Network and identity validation  
 
-* Detection + Remediation script patterns
-* Automated issue recovery
-* Scheduled health checks
+## ⚙ Automation
+- Windows Update orchestration  
+- System maintenance automation  
+- Device sync and recovery operations  
 
-### 📊 Reporting & Monitoring
+---
 
-* Device health checks
-* Compliance verification
-* System configuration validation
+# 🧠 Design Principles
 
-### 🔐 Security & Configuration
-
-* WinRM configuration
-* Secure channel repair
-* Network configuration scripts
-
-### ⚙ Automation
-
-* Windows update automation
-* System maintenance scripts
-* Device sync fixes
+- Graph-first approach (no legacy dependencies)  
+- PowerShell 5.1 compatibility (Intune-safe)  
+- Idempotent execution logic  
+- Modular and reusable script design  
+- Optimized for enterprise scale  
 
 ---
 
 # ⚙ Requirements
 
-Most scripts require:
+### Environment
+- Windows PowerShell **5.1 or later**  
+- Administrator privileges  
+- Microsoft Intune tenant  
 
-* **Windows PowerShell 5.1 or later**
-* **Administrator privileges**
-* **Microsoft Graph PowerShell SDK** (for Graph-related scripts)
-
-Install Microsoft Graph module:
-
+### Modules
 ```powershell
 Install-Module Microsoft.Graph -Scope CurrentUser
+````
+
+Optional (depending on script):
+
+```powershell
+Install-Module Microsoft.Graph.Authentication
 ```
 
 ---
@@ -108,7 +165,7 @@ Clone the repository:
 git clone https://github.com/mabdulkadr/Intune-Scripts.git
 ```
 
-Navigate to the desired script folder and run a script:
+Run a script:
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -117,41 +174,109 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 
 ---
 
-# 🧭 Recommended Usage
+# 🚀 Intune Deployment (Recommended)
 
-These scripts are commonly used with:
+Use with:
 
-* **Microsoft Intune Proactive Remediations**
-* **Device management automation**
-* **Endpoint health monitoring**
-* **Enterprise device troubleshooting**
+* Microsoft Intune
+* Proactive Remediations
 
----
+Deployment model:
 
-## 📜 License
-
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
----
-
-## 👤 Author
-
-**Mohammad Abdulkader Omar**  
-Website: https://momar.tech  
-Version: **1.1**
+1. Upload Detection script
+2. Upload Remediation script
+3. Assign to device group
+4. Configure schedule
 
 ---
 
-## ☕ Support
+# 🔁 Operational Workflow
 
-If this project helps you, consider supporting it:
-
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-☕-FFDD00?style=for-the-badge)](https://www.buymeacoffee.com/mabdulkadrx)
+* Detection script evaluates device state
+* Exit code determines compliance
+* Remediation script executes only if required
+* Device returns to compliant state
 
 ---
 
-## ⚠️ Disclaimer
+# 📊 Use Cases
 
-This script is provided **as-is** without warranty.
-The author is **not responsible** for unintended modifications or data loss.
-Always test thoroughly before deploying in production.
+* Enterprise endpoint standardization
+* Automated troubleshooting at scale
+* Compliance enforcement automation
+* Device health monitoring
+* IT operations optimization
+
+---
+
+# 📁 Structure Philosophy
+
+Each folder represents a functional domain:
+
+| Folder          | Purpose                         |
+| --------------- | ------------------------------- |
+| Compliance      | Policy validation               |
+| Configuration   | Device settings enforcement     |
+| Management      | Administrative automation       |
+| Remediations    | Self-healing logic              |
+| Community Tools | Advanced and experimental tools |
+
+---
+
+# 📈 Why This Repository
+
+* Built for real enterprise environments
+* Designed for large-scale deployments
+* Based on Microsoft Graph best practices
+* Avoids deprecated modules (MSOnline / AzureAD)
+* Fully compatible with Intune execution model
+
+---
+
+# ⭐ Support & Contribution
+
+If this repository supports your work:
+
+* Star the repository
+* Fork for customization
+* Share within your IT team
+
+---
+
+# 📌 Contribution
+
+Contributions are accepted for:
+
+* New automation scenarios
+* Performance improvements
+* Enhancements using Microsoft Graph
+
+---
+
+# 📜 License
+
+Licensed under the MIT License:
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+
+---
+
+# 👤 Author
+
+**Mohammad Abdulkader Omar**
+Senior System Engineer | Microsoft 365 | Intune | Azure
+
+🌐 [https://momar.tech](https://momar.tech)
+💻 [https://github.com/mabdulkadr](https://github.com/mabdulkadr)
+
+Version: **1.2**
+
+---
+
+# ⚠️ Disclaimer
+
+This repository is provided **as-is** without warranty.
+Test all scripts in a staging environment before production use.
+The author is not responsible for any unintended impact.
+
+```
+```
