@@ -98,35 +98,6 @@ Intune-Scripts
 
 ---
 
-# ✨ Core Capabilities
-
-## 🖥 Device Management
-- Configuration enforcement  
-- System validation checks  
-- Device state normalization  
-
-## 🔄 Proactive Remediations
-- Detection scripts with proper exit codes  
-- Automated remediation workflows  
-- Scheduled self-healing operations  
-
-## 📊 Reporting & Monitoring
-- Device health assessment  
-- Compliance verification  
-- Configuration drift detection  
-
-## 🔐 Security & Configuration
-- Secure channel repair  
-- WinRM and connectivity fixes  
-- Network and identity validation  
-
-## ⚙ Automation
-- Windows Update orchestration  
-- System maintenance automation  
-- Device sync and recovery operations  
-
----
-
 # ⚙ Requirements
 
 ### Environment
