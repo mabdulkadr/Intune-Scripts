@@ -127,16 +127,6 @@ Intune-Scripts
 
 ---
 
-# 🧠 Design Principles
-
-- Graph-first approach (no legacy dependencies)  
-- PowerShell 5.1 compatibility (Intune-safe)  
-- Idempotent execution logic  
-- Modular and reusable script design  
-- Optimized for enterprise scale  
-
----
-
 # ⚙ Requirements
 
 ### Environment
@@ -196,61 +186,6 @@ Deployment model:
 * Exit code determines compliance
 * Remediation script executes only if required
 * Device returns to compliant state
-
----
-
-# 📊 Use Cases
-
-* Enterprise endpoint standardization
-* Automated troubleshooting at scale
-* Compliance enforcement automation
-* Device health monitoring
-* IT operations optimization
-
----
-
-# 📁 Structure Philosophy
-
-Each folder represents a functional domain:
-
-| Folder          | Purpose                         |
-| --------------- | ------------------------------- |
-| Compliance      | Policy validation               |
-| Configuration   | Device settings enforcement     |
-| Management      | Administrative automation       |
-| Remediations    | Self-healing logic              |
-| Community Tools | Advanced and experimental tools |
-
----
-
-# 📈 Why This Repository
-
-* Built for real enterprise environments
-* Designed for large-scale deployments
-* Based on Microsoft Graph best practices
-* Avoids deprecated modules (MSOnline / AzureAD)
-* Fully compatible with Intune execution model
-
----
-
-# ⭐ Support & Contribution
-
-If this repository supports your work:
-
-* Star the repository
-* Fork for customization
-* Share within your IT team
-
----
-
-# 📌 Contribution
-
-Contributions are accepted for:
-
-* New automation scenarios
-* Performance improvements
-* Enhancements using Microsoft Graph
-
 
 ---
 
