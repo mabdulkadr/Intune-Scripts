@@ -124,14 +124,14 @@ function Test-ComplianceState {
                         $checked++
                         if ($props.NetbiosOptions -ne 2) { $nonCompliant++; Write-Log -Message "NetBIOS not disabled on $($iface.PSChildName): NetbiosOptions=$($props.NetbiosOptions)" -Level 'DEBUG' }
                     }
-                } catch {}
+                } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
             if ($checked -eq 0) { Write-Log -Message "No NetbiosOptions values found - checking via adapter method" -Level 'DEBUG'
                 # Fallback: check via WMI adapter config
                 try {
                     $adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -Filter "IPEnabled=True" -ErrorAction SilentlyContinue
                     foreach ($a in $adapters) { if ($a.TcpipNetbiosOptions -ne 2) { $nonCompliant++ } ; $checked++ }
-                } catch {}
+                } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
             if ($nonCompliant -gt 0) { $reasons.Add("NetBIOS not disabled on $nonCompliant interface(s) (expected NetbiosOptions=2)") }
             elseif ($checked -gt 0) { Write-Log -Message "NetBIOS disabled on all $checked interface(s)" -Level 'DEBUG' }

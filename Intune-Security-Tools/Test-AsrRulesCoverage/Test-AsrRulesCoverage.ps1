@@ -296,7 +296,7 @@ try {
     )
     Write-Summary -Results $results
 
-    try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch {}
+    try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
 
     Finish-Script -ExitCode 0 -Message "Test-AsrRulesCoverage completed successfully" -Level 'SUCCESS'
 }

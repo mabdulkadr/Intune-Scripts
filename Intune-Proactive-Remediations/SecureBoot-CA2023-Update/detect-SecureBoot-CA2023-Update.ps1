@@ -251,7 +251,7 @@ function Test-ComplianceState {
                 $parentProps = Get-ItemProperty -LiteralPath $SecureBootStatusPath -ErrorAction SilentlyContinue
                 if ($null -ne $parentProps.AvailableUpdatePolicy) { $policyValue = $parentProps.AvailableUpdatePolicy }
             }
-            catch { }
+            catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
         }
 
         if ($null -eq $policyValue) {
@@ -275,7 +275,7 @@ function Test-ComplianceState {
                         Write-Log -Message "SecureBoot status ${valueName}: $statusVal" -Level 'DEBUG'
                     }
                 }
-                catch { }
+                catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
         }
     }

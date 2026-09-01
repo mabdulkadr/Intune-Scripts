@@ -157,8 +157,8 @@ try {
         # Also set via WMI for consistency
         try {
             $adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -Filter "IPEnabled=True" -ErrorAction SilentlyContinue
-            foreach ($a in $adapters) { try { $null = Invoke-CimMethod -InputObject $a -MethodName SetTcpipNetbios -Arguments @{ TcpipNetbiosOptions = 2 } -ErrorAction SilentlyContinue } catch {} }
-        } catch {}
+            foreach ($a in $adapters) { try { $null = Invoke-CimMethod -InputObject $a -MethodName SetTcpipNetbios -Arguments @{ TcpipNetbiosOptions = 2 } -ErrorAction SilentlyContinue } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' } }
+        } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
     } catch { $script:failedCount++; Write-RemediationLog "Failed to disable NetBIOS: $($_.Exception.Message)" -Level 'Error' }
 
     Write-RemediationLog "Post-verification..." -Level 'Info'
