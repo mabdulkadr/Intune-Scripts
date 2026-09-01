@@ -1,0 +1,10 @@
+# Conventional Commits — استخدم هذا القالب لكل commit
+# النوع: feat | fix | chore | docs | style | refactor | test
+# مثال: feat(reporting): add Hotpatch readiness 37 tools sync
+# مثال: fix(remediation): replace empty catch with typed handler
+# مثال: chore(license): unify author to Mohammad Abdelkader Omar
+#
+# القواعد:
+# - سطر أول ≤ 72 حرف، بصيغة: type(scope): description
+# - اترك سطر فارغ ثم التفاصيل إن لزم
+# - لا تستخدم "Updates" أو "Add files via upload"
