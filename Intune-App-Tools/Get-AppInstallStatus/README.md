@@ -133,9 +133,6 @@ Generates a report filtered by application name and opens the HTML report automa
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Migrated to Enterprise Admin standards by **Mohammad Abdelkader Omar**  
-GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
-Website: [momar.tech](https://momar.tech)
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

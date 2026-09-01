@@ -132,9 +132,6 @@ Deletes confirmed cleanup candidates and exports the report to a timestamped CSV
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Migrated to Enterprise Admin standards by **Mohammad Abdelkader Omar**  
-GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
-Website: [momar.tech](https://momar.tech)
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
