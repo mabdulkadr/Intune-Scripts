@@ -66,7 +66,6 @@ Reports update rings, feature updates, quality and driver update profiles
 ```
 Flags feature update targets within 120 days of end of support and exports to CSV
 
-
 ---
 
 # ⚙️ Parameters
@@ -87,7 +86,6 @@ Flags feature update targets within 120 days of end of support and exports to CS
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -119,7 +117,6 @@ Flags feature update targets within 120 days of end of support and exports to CS
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

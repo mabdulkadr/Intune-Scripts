@@ -251,10 +251,6 @@ Intune-deployed remediation and compliance scripts require **no Graph modules** 
 * **Apple Silicon vs Intel / Rosetta (macOS):** All `Intune-macOS` checks use universal tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on both architectures; no Rosetta dependency. MAU checks invoke the native `msupdate` binary for the host arch.
 * No Azure dependencies remain — if a script still references Managed Identity or Automation variables, treat it as a bug and report it.
 
-### Attribution
-
-This library consolidates the original remediation catalog with monitoring and automation shells adapted from **Ugur Koc / IntuneAutomation** ([github.com/ugurkocde/IntuneAutomation](https://github.com/ugurkocde/IntuneAutomation), MIT). Original `.AUTHOR` fields and `CHANGELOG` entries are preserved on adapted files; catalog contributors from the pre-restructure repository remain credited in per-folder READMEs.
-
 ---
 
 ## 👤 Author

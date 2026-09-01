@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 📱 Intune Device Operations
 
@@ -25,8 +25,6 @@ Centralized toolkit for bulk device operations, inventory hygiene, and remote li
 Scripts cover four operator workflows: **bulk targeting** (CSV → Entra ID groups, app-based groups, renames), **hygiene / cleanup** (stale detection, duplicate purge, orphaned Autopilot removal), **remote actions** (wipe, restart, sync), and **reporting / remediation** (Scope Tag inventory, outdated iOS, Windows 11 readiness, primary-user repair, Delivery Optimization diagnostics).
 
 Every Graph script supports dual authentication — **interactive delegated** (MgGraphCommunity, WAM-free) and **app-only** (client secret or certificate) — with beta endpoints, paginated collection helpers, and retry-aware 429 handling. Local-only diagnostics run elevated without any Graph dependency.
-
-> Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 
 ---
 

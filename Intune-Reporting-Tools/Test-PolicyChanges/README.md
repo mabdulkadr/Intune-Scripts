@@ -72,7 +72,6 @@ Generates a report of policy changes from the last 30 days and saves to specifie
 ```
 Shows only modified policies and sends email alerts for changes
 
-
 ---
 
 # ⚙️ Parameters
@@ -97,7 +96,6 @@ Shows only modified policies and sends email alerts for changes
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -128,7 +126,6 @@ Shows only modified policies and sends email alerts for changes
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

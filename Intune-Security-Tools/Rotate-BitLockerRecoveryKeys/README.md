@@ -113,9 +113,6 @@ Rotates BitLocker keys with a 5-second delay between operations
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-**Mohammad Abdelkader Omar** (maintainer) — original author: **Ugur Koc**  
-GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
-Website: [momar.tech](https://momar.tech)
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

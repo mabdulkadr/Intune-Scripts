@@ -66,7 +66,6 @@ Audits all certificate profiles with a 90-day expiry warning window
 ```
 Uses a 180-day warning window for embedded root certificates and exports to CSV
 
-
 ---
 
 # ⚙️ Parameters
@@ -87,7 +86,6 @@ Uses a 180-day warning window for embedded root certificates and exports to CSV
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -118,7 +116,6 @@ Uses a 180-day warning window for embedded root certificates and exports to CSV
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

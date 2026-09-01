@@ -72,7 +72,6 @@ Generates reports and saves them to the specified directory
 ```
 Generates reports and forces module installation without prompting
 
-
 ---
 
 # ⚙️ Parameters
@@ -92,7 +91,6 @@ Generates reports and forces module installation without prompting
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -123,7 +121,6 @@ Generates reports and forces module installation without prompting
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

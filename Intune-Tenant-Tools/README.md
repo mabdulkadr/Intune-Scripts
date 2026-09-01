@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🏢 Intune Tenant Tools
 
@@ -23,8 +23,6 @@ Nine Graph-powered workstation tools for configuration lifecycle, assignment vis
 **Intune Tenant Tools** is the tenant governance category for Microsoft Intune — seven root scripts plus two subfolder tools covering the full configuration lifecycle.
 
 The suite exports and restores device configuration profiles, settings catalog policies, compliance policies, ADMX templates, and platform scripts as versionable JSON; audits assignment filters, builds assignment matrices, answers "what does this group get," surfaces role assignments for access reviews, compares tenant state against a baseline to flag drift, and provides on-demand remediation triggers and bulk driver approvals. Every tool runs **from an admin workstation** via Microsoft Graph — interactive delegated sign-in (WAM-free via `MgGraphCommunity` when available) or app-only (`-TenantId` / `-ClientId` + `-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation or endpoint deployment dependency.
-
-> **Attribution:** Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 
 ---
 
@@ -131,8 +129,6 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 * **Beta endpoints:** All tools intentionally remain on `https://graph.microsoft.com/beta` because the full Intune configuration surface (settings catalog bodies, ADMX, assignment filters, driver inventories, role assignments) is not exposed on `v1.0`.
 * **Throttling:** Every Graph tool pages with `Get-MgGraphAllPages` and retries on 429/503. Large tenants will pause automatically; do not abort on the first throttling message.
 * **Common:** All scripts disconnect (`Disconnect-MgGraph`) and write structured logs. Test in a staging tenant before production.
-
-> **Attribution:** Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 
 ---
 

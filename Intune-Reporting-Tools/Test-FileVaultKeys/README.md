@@ -72,7 +72,6 @@ Saves report to specified directory and shows only devices missing FileVault key
 ```
 Includes last sync information and exports results in JSON format as well
 
-
 ---
 
 # ⚙️ Parameters
@@ -95,7 +94,6 @@ Includes last sync information and exports results in JSON format as well
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -126,7 +124,6 @@ Includes last sync information and exports results in JSON format as well
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

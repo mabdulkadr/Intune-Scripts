@@ -124,8 +124,6 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 * **Local-only repair:** `Repair-CompanyPortal` modifies the local device (removes and reinstalls the Company Portal package) and never contacts Graph. It requires elevation and the `msstore` source.
 * **Interactive vs. unattended:** Leave `-TenantId`/`-ClientId` unset for interactive delegated sign-in; supply them plus `-ClientSecret` or `-CertificateThumbprint` for unattended app-only runs.
 
-> **Attribution:** Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
-
 ---
 
 ## 👤 Author
