@@ -1,0 +1,18 @@
+{
+  "Rules": [
+    {
+      "SettingName": "Compliant",
+      "Operator": "IsEquals",
+      "DataType": "Boolean",
+      "Operand": true,
+      "MoreInfoUrl": "https://learn.microsoft.com/en-us/mem/intune/protect/encrypt-devices",
+      "RemediationStrings": [
+        {
+          "Language": "en_US",
+          "Title": "BitLocker must use XTS-AES 128 or 256",
+          "Description": "OS volume encryption method is not XTS-AES 128/256. Re-encrypt with: manage-bde -on C: -EncryptionMethod XtsAes256"
+        }
+      ]
+    }
+  ]
+}
