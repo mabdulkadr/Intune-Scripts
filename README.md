@@ -2,7 +2,7 @@
 
 # 🛡️ Intune Scripts — Enterprise Library
 
-**Zero-Azure Intune Automation. 100% PowerShell.**
+**Enterprise-Grade Intune Automation — Detection, Remediation & Reporting**
 
 Production-grade collection of detection/remediation pairs, compliance checks, tenant reports, and device lifecycle operations for Microsoft Intune. Deploy via Intune or run from any admin workstation.
 
