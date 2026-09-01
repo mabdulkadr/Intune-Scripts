@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🛡️ Intune-Custom-Compliance
 
@@ -56,9 +56,13 @@ Intune-Custom-Compliance
 │   └── README.md
 │
 ├── Get-AppVersionCompliance
+│   ├── Get-AppVersionCompliance.ps1
+│   ├── Get-AppVersionCompliance.json
 │   └── README.md
 │
-├── CustomCompliancePolicyGeneratorGUI
+├── Bitlocker-EncryptionMethod
+│   ├── Get-BitlockerEncryptionMethodCompliance.ps1
+│   ├── Bitlocker-EncryptionMethod.json
 │   └── README.md
 │
 └── README.md
@@ -74,7 +78,7 @@ This folder currently contains:
 
 * `Get-AppPresenceCompliance` — reports whether configured applications are installed (`true`/`false` per app)
 * `Get-AppVersionCompliance` — reports installed application versions for minimum-version evaluation
-* `CustomCompliancePolicyGeneratorGUI` — GUI generator that produces detection scripts and JSON rules for multiple applications
+* `Bitlocker-EncryptionMethod` — reports BitLocker encryption method (XTS-AES 128/256) for conditional access compliance
 
 Each package has its own `README.md` explaining the exact workflow and files included.
 

@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🛡️ Intune Scripts — Enterprise Library
 
@@ -60,11 +60,10 @@ Intune-Scripts-main/
 │   └── <Solution>/  detect-<Solution>.ps1 · remediate-<Solution>.ps1 · README.md
 │       NEW: SecureBoot-CA2023-Update · Enable-SecureBoot-Lenovo · Disable-LLMNR-NetBIOS · Clear-TeamsCache · Get-BatteryHealth · Test-WindowsLapsDrift
 │
-├── Intune-Custom-Compliance/           3 compliance packages + generator GUI · 13 files  # +1 NEW (Bitlocker-EncryptionMethod)
+├── Intune-Custom-Compliance/           3 compliance packages · 9 files  # +1 NEW (Bitlocker-EncryptionMethod)
 │   ├── Get-AppPresenceCompliance/
 │   ├── Get-AppVersionCompliance/
 │   ├── Bitlocker-EncryptionMethod/     # NEW — XTS-AES 128/256 enforcement
-│   └── CustomCompliancePolicyGeneratorGUI/
 │
 ├── Intune-Security-Tools/              8 tools · 8 .ps1  # +1 NEW (Test-AsrRulesCoverage)
 │   ├── Backup-BitLockerKeysToKeyVault.ps1
@@ -107,10 +106,9 @@ Intune-Scripts-main/
 │   └── Get-ImeDiagnostics/             # NEW — IME log timeline (Carbon Dark HTML)
 │       └── Get-ImeDiagnostics.ps1
 │
-├── Intune-App-Tools/                   6 tools + 2 suites · 10 files
+├── Intune-App-Tools/                   6 tools + 1 suite · 8 files
 │   ├── Get-ApplicationInventory.ps1  · Get-AppInstallStatus.ps1  · Get-AppAssignmentConflicts.ps1
 │   ├── Get-DuplicateApplications.ps1  · Get-VppLicenseReport.ps1  · Remove-OrphanedApps.ps1
-│   ├── Repair-CompanyPortal/           (suite)
 │   └── Invoke-Win32AppAutoDeployer/             (Win32 app auto-deployer suite)
 │
 ├── Intune-macOS/                       8 shell checks · 8 .sh (bash/zsh)  # +1 NEW (Platform SSO GA May 2026)
@@ -136,13 +134,13 @@ Intune-Scripts-main/
 | Category | Contents | Count | Docs |
 | -------- | -------- | ----- | ---- |
 | [Intune-Proactive-Remediations](Intune-Proactive-Remediations/README.md) | Paired detection/remediation packages (cleanup, repair, hardening, notifications, status) | **68 pairs** · 205 files *(+6 NEW: CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift)* | [README](Intune-Proactive-Remediations/README.md) |
-| [Intune-Custom-Compliance](Intune-Custom-Compliance/README.md) | Custom compliance discovery scripts emitting JSON (App Presence, App Version) + GUI generator | **3 packages** + GUI · 13 files *(+1 NEW: BitLocker EncryptionMethod)* | [README](Intune-Custom-Compliance/README.md) |
+| [Intune-Custom-Compliance](Intune-Custom-Compliance/README.md) | Custom compliance discovery scripts emitting JSON (App Presence, App Version) | **3 packages** · 9 files *(+1 NEW: BitLocker EncryptionMethod)* | [README](Intune-Custom-Compliance/README.md) |
 | [Intune-Security-Tools](Intune-Security-Tools/) | BitLocker / LAPS / Key Vault / Defender / Firewall & ASR posture and rotation | **8 tools** *(+1 NEW: ASR Coverage)* | [Folder](Intune-Security-Tools/) |
 | [Intune-Reporting-Tools](Intune-Reporting-Tools/) | Tenant-wide reports: compliance, audit logs, Endpoint Analytics, Entra audits, device inventory/timeline, update rings & compliance, policy coverage | **37 tools** + integrated dashboard *(+1 NEW: Hotpatch Readiness)* | [Folder](Intune-Reporting-Tools/) |
 | [Intune-Tenant-Tools](Intune-Tenant-Tools/) | Backup/restore, assignment & filter audits, drift comparison, RBAC, bulk remediation & driver approval | **9 tools** (7 + 2 suites) · 11 files | [Folder](Intune-Tenant-Tools/) |
 | [Intune-Device-Operations](Intune-Device-Operations/) | Remote device actions & lifecycle: group bulk ops, Autopilot cleanup, sync/restart/wipe, readiness, DO, bulk actions (ToolKit) | **17 tools** (14 isolated + 2 suites + 1 from IntuneToolKit) | [Folder](Intune-Device-Operations/) |
 | [Intune-Diagnostics](Intune-Diagnostics/) | Health checks & failure analysis: diagnostics collection, check-in health, enrollment failures | **4 tools** *(+1 NEW: IME Diagnostics)* | [Folder](Intune-Diagnostics/) |
-| [Intune-App-Tools](Intune-App-Tools/) | App inventory, assignment conflicts, duplicates, orphan cleanup, VPP licensing, Win32 deployer, Company Portal repair | **8 tools** (6 + 2 suites) · 10 files | [Folder](Intune-App-Tools/) |
+| [Intune-App-Tools](Intune-App-Tools/) | App inventory, assignment conflicts, duplicates, orphan cleanup, VPP licensing, Win32 deployer | **7 tools** (6 + 1 suite) · 8 files | [Folder](Intune-App-Tools/) |
 | [Intune-macOS](Intune-macOS/README.md) | macOS shell checks: warranty, MAU status/updates, network prerequisites, XProtect/SIP/Gatekeeper/FileVault, uptime, local admins | **8 scripts** · 8 .sh *(+1 NEW: Platform SSO GA)* | [README](Intune-macOS/README.md) |
 
 ---

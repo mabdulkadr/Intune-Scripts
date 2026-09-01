@@ -4,7 +4,7 @@
 
 **App lifecycle reporting, hygiene, and deployment automation for Microsoft Intune.**
 
-Inventory, assignment health, install status, duplicate detection, license tracking, orphan cleanup, and Winget-to-Win32 deployment — plus a local Company Portal repair tool.
+Inventory, assignment health, install status, duplicate detection, license tracking, orphan cleanup, and Winget-to-Win32 deployment.
 
 [![Intune](https://img.shields.io/badge/Intune-App%20Tools-10B981?style=for-the-badge)](#-overview)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,9 +20,9 @@ Inventory, assignment health, install status, duplicate detection, license track
 
 # 📖 Overview
 
-**Intune App Tools** is the app-lifecycle category for Microsoft Intune — six Graph-powered reporting and hygiene scripts plus two standalone deployment and repair tools.
+**Intune App Tools** is the app-lifecycle category for Microsoft Intune — six Graph-powered reporting and hygiene scripts plus one standalone deployment tool.
 
-The reporting scripts surface fleet-wide application inventory, per-device install status, assignment conflicts, duplicate catalog entries, and Apple VPP license utilization entirely from Microsoft Graph. The hygiene script reports and optionally removes orphaned and superseded apps. The flagship **Invoke-Win32AppAutoDeployer** builds Entra groups, IntuneWin packages, Win32 apps, and auto-update remediations end-to-end from Winget. **Repair-CompanyPortal** is a purely local repair that cleanly reinstalls Company Portal via winget. Every Graph tool runs from an admin workstation in interactive or app-only mode; nothing in this category is deployed to endpoints by Intune itself except the artifacts AutoDeployer creates.
+The reporting scripts surface fleet-wide application inventory, per-device install status, assignment conflicts, duplicate catalog entries, and Apple VPP license utilization entirely from Microsoft Graph. The hygiene script reports and optionally removes orphaned and superseded apps. The flagship **Invoke-Win32AppAutoDeployer** builds Entra groups, IntuneWin packages, Win32 apps, and auto-update remediations end-to-end from Winget. Every Graph tool runs from an admin workstation in interactive or app-only mode; nothing in this category is deployed to endpoints by Intune itself except the artifacts AutoDeployer creates.
 
 ---
 
@@ -41,7 +41,6 @@ The reporting scripts surface fleet-wide application inventory, per-device insta
 ### 🔹 Deployment & Repair
 * Winget-to-Win32 end-to-end automation — groups, scripts, IntuneWin packaging, upload, and assignment
 * Proactive Remediation auto-update enforcement for deployed Win32 apps
-* Local Company Portal uninstall → fresh install from the Microsoft Store source with elevation guard
 
 ### 🔹 Enterprise-Ready Execution
 * Workstation dual-mode: interactive sign-in (WAM-free via MgGraphCommunity when available) or app-only with `-TenantId`/`-ClientId` + secret/certificate
@@ -61,8 +60,6 @@ Intune-App-Tools
 ├── Get-DuplicateApplications.ps1
 ├── Get-VppLicenseReport.ps1
 ├── Remove-OrphanedApps.ps1
-├── Repair-CompanyPortal/
-│   └── Repair-CompanyPortal.ps1
 ├── Invoke-Win32AppAutoDeployer/
 │   └── Invoke-Win32AppAutoDeployer.ps1
 └── README.md
@@ -81,7 +78,6 @@ Intune-App-Tools
 | `Get-VppLicenseReport.ps1` | Reports Apple VPP (iOS/macOS) license utilization (used vs. total) and flags apps above a utilization threshold plus VPP tokens nearing expiry or in an invalid state. | `DeviceManagementApps.Read.All` | Workstation — interactive or app-only |
 | `Remove-OrphanedApps.ps1` | Scans the app catalog for cleanup candidates — apps with no assignments and Win32 apps superseded by a newer app — and optionally deletes them with `-Remove`/`-WhatIf` and per-app confirmation. | `DeviceManagementApps.ReadWrite.All` | Workstation — interactive or app-only |
 | `Invoke-Win32AppAutoDeployer/Invoke-Win32AppAutoDeployer.ps1` | Flagship Winget-to-Win32 pipeline: interactive or unattended selection, Entra Install/Uninstall group creation, script generation, IntuneWin packaging, upload as Win32 LOB app, Proactive Remediation for auto-updates, and assignment. | `DeviceManagementApps.ReadWrite.All`, `DeviceManagementConfiguration.ReadWrite.All`, `Group.ReadWrite.All`, `GroupMember.ReadWrite.All` (interactive); `DeviceManagementApps.ReadWrite.All` + `DeviceManagementConfiguration.ReadWrite.All` + `Group.ReadWrite.All` (app-only) | Workstation — interactive GridView or unattended app-only |
-| `Repair-CompanyPortal/Repair-CompanyPortal.ps1` | Repairs Company Portal locally: verifies elevation, resolves winget from the App Installer package, uninstalls the existing Portal when present, and reinstalls it fresh from the `msstore` source. | None — local execution only | Local workstation — elevated Administrator console, no Graph calls |
 
 ---
 
@@ -94,9 +90,8 @@ Intune-App-Tools
 * PowerShell **5.1 or later** — the Invoke-Win32AppAutoDeployer auto-relaunches under 5.1 when invoked from PowerShell 7
 
 ### Modules
-* `Microsoft.Graph.Authentication` — required for every script except `Repair-CompanyPortal.ps1`; auto-installed when missing (prompt or `-ForceModuleInstall`)
+* `Microsoft.Graph.Authentication` — required for every script; auto-installed when missing (prompt or `-ForceModuleInstall`)
 * `MgGraphCommunity` — auto-installed when available to provide WAM-free interactive sign-in on Windows
-* `Repair-CompanyPortal` has no Graph dependency; it requires the App Installer (winget) package
 
 ```powershell
 Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
@@ -105,12 +100,10 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 ### Permissions
 * Least-privilege scopes per script are listed in the table above; consent the union for batch runs
 * Entra role: **Intune Administrator** for reporting/hygiene scripts; **Intune Service Administrator** (or equivalent) for Invoke-Win32AppAutoDeployer
-* `Repair-CompanyPortal` requires an elevated (Administrator) console only
 
 ### Logging
 * Graph tools: `C:\ProgramData\<SolutionName>\Logs\` — e.g. `C:\ProgramData\get-application-inventory-report\Logs\`, `C:\ProgramData\cleanup-orphaned-apps\Logs\`
 * Invoke-Win32AppAutoDeployer: `C:\ProgramData\Invoke-Win32AppAutoDeployer\Logs\`
-* Repair-CompanyPortal: `C:\ProgramData\Repair-CompanyPortal\Logs\`
 * Working files for Invoke-Win32AppAutoDeployer are staged under `C:\Temp\<random>-<timestamp>\`
 
 ---
@@ -121,7 +114,6 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 * **Mutates the tenant — AutoDeployer:** `Invoke-Win32AppAutoDeployer.ps1` creates Entra security groups, Win32 LOB apps, assignments, and Proactive Remediations. Never run against production without testing. Staging group names under `C:\Temp\<random>-<timestamp>\` are cleaned periodically after large batches.
 * **Read-only by default:** All other scripts are reporting-only and create no tenant objects.
 * **Throttling:** Every Graph tool pages with `Get-MgGraphAllPages` and retries on HTTP 429/503 (honoring `Retry-After` where exposed). Large tenants will pause automatically; do not abort on the first throttling message.
-* **Local-only repair:** `Repair-CompanyPortal` modifies the local device (removes and reinstalls the Company Portal package) and never contacts Graph. It requires elevation and the `msstore` source.
 * **Interactive vs. unattended:** Leave `-TenantId`/`-ClientId` unset for interactive delegated sign-in; supply them plus `-ClientSecret` or `-CertificateThumbprint` for unattended app-only runs.
 
 ---
