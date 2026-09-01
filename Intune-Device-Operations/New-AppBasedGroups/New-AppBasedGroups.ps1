@@ -1,0 +1,1029 @@
+<#
+.TITLE
+    Create App-Based Entra ID Groups
+
+.SYNOPSIS
+    Creates Entra ID groups based on applications installed on Intune-managed devices.
+
+.DESCRIPTION
+    This script queries Intune-managed devices to identify which applications are installed,
+    then creates or updates Entra ID groups containing devices with specific applications.
+    It supports multiple detection methods including detected apps and deployment status,
+    handles all app types (Win32, Store, LOB, Web apps), and provides flexible group
+    creation options. Perfect for dynamic device targeting based on installed software.
+
+    Workstation authentication modes:
+    - Interactive (default): auto-installs Microsoft.Graph.Authentication if missing and connects with delegated scopes via Connect-MgGraph / Connect-MgGraphCommunity (WAM-free when available).
+    - App-only (optional): provide -TenantId, -ClientId and either -ClientSecret or -CertificateThumbprint for unattended service-principal authentication.
+    Pass -TenantId, -ClientId and -ClientSecret (or -CertificateThumbprint) together to use app-only; otherwise interactive delegated authentication is used.
+.TAGS
+    Devices
+
+.PLATFORM
+    Windows
+
+.MINROLE
+    Intune Administrator
+
+.PERMISSIONS
+    DeviceManagementManagedDevices.Read.All,DeviceManagementApps.Read.All,Group.ReadWrite.All,Directory.Read.All
+
+.AUTHOR
+    Mohammad Abdelkader Omar
+
+.VERSION
+    1.4.1
+
+.CHANGELOG
+    1.4.1 (2026-08-26)
+    - Migrated to Enterprise Admin standards (canonical header order, structured logging, PS 5.1 contract)
+    1.4 - Added workstation contract validation, portal-safe boolean parameters, beta Graph endpoints, and terminating paging errors
+    1.3 - workstation now records script progress, outcomes, and summaries in job history
+    1.2 - Apply -MinimumVersion to report-based rows, suppress progress bars in runbooks, flag apps with incomplete report data, use hashtable device lookup, and limit list calls with projected columns
+    1.1 - Local runs now use MgGraphCommunity for WAM-free interactive sign-in (auto-installed if missing); app install status now read via deviceManagement/reports (mobileApps deviceStatuses was retired from the Graph service)
+    1.0 - Initial release
+
+.LASTUPDATE
+    2026-08-26
+
+.EXAMPLE
+    .\create-app-based-groups.ps1 -ApplicationName "TeamViewer"
+    Creates a group named "Devices-With-TeamViewer" containing all devices with TeamViewer installed
+
+.EXAMPLE
+    .\create-app-based-groups.ps1 -ApplicationName "Microsoft*" -GroupPrefix "SW-" -GroupSuffix "-Installed"
+    Creates groups for all Microsoft apps with custom naming (e.g., "SW-Microsoft Teams-Installed")
+
+.EXAMPLE
+    .\create-app-based-groups.ps1 -ApplicationName "Chrome" -MinimumVersion "120.0" -UpdateExisting "true"
+    Creates/updates a group with devices having Chrome version 120.0 or higher
+
+.EXAMPLE
+    .\create-app-based-groups.ps1 -ApplicationName "*" -FilterByType "Win32" -DryRun "true"
+    Preview groups that would be created for all Win32 applications
+
+.NOTES
+    - Requires Microsoft.Graph.Authentication module
+    - Supports wildcards in application names
+    - Can create multiple groups in a single run
+    - Uses both detected apps and deployment status for comprehensive coverage
+    - Groups are created as security groups by default
+    - Device limit per group is 100,000 (Entra ID limitation)
+    - Local interactive sign-in uses the MgGraphCommunity module to avoid the Graph SDK's mandatory WAM broker on Windows
+#>
+
+#Requires -Version 5.1
+
+[CmdletBinding(SupportsShouldProcess)]
+param(
+    [Parameter(Mandatory = $true, HelpMessage = "Application name or pattern (supports wildcards)")]
+    [string]$ApplicationName,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Prefix for group names")]
+    [string]$GroupPrefix = "Devices-With-",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Suffix for group names")]
+    [string]$GroupSuffix = "",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Update existing groups instead of creating new")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$UpdateExisting,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Minimum application version")]
+    [string]$MinimumVersion,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by app type (Win32, Store, LOB, Web, etc.)")]
+    [ValidateSet("Win32", "Store", "LOB", "Web", "iOS", "Android", "macOS", "All")]
+    [string]$FilterByType = "All",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by device platform")]
+    [ValidateSet("Windows", "iOS", "Android", "macOS", "All")]
+    [string]$FilterByPlatform = "All",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Only include devices with successful installations")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$OnlySuccessfulInstalls,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Preview changes without creating groups")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$DryRun,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Maximum devices to process (0 = all)")]
+    [int]$MaxDevices = 0,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Force module installation without prompting")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$ForceModuleInstall,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Tenant ID for app-only authentication")]
+    [string]$TenantId,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Client ID for app-only authentication")]
+    [string]$ClientId,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Client secret for app-only authentication")]
+    [string]$ClientSecret,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Certificate thumbprint for app-only authentication")]
+    [string]$CertificateThumbprint
+)
+
+$ErrorActionPreference = 'Stop'
+
+# ============================================================================
+# CONFIGURATION - solution identity and log placement.
+# ============================================================================
+
+$SolutionName = 'create-app-based-groups'
+$ScriptMode   = 'run'
+
+# ============================================================================
+# LOGGING BLOCK (embedded canonical scripts/Write-Log.ps1 - copy VERBATIM)
+# Single source of truth: Initialize-Log / Write-Banner / Write-Log / Finish-Script.
+# ============================================================================
+
+# --- Logging (CLI Configuration) --------------------------------------------
+$script:SystemDrive = if ($env:SystemDrive) { $env:SystemDrive.TrimEnd('\') } else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
+$script:LogRoot  = $null
+$script:LogFile  = $null
+$script:LogReady = $false
+
+# Creates the Intune log folder/file and reports readiness.
+function Initialize-Log {
+    [CmdletBinding()]
+    param(
+        [string]$SolutionName = 'EnterpriseAdminTool',
+        [string]$ScriptMode = 'run',
+        [ValidateSet('Intune', 'General')]
+        [string]$Type = 'General'
+    )
+
+    try {
+        if ($Type -eq 'Intune') {
+            $script:LogRoot = Join-Path $script:SystemDrive "IntuneLogs\$SolutionName"
+            $script:LogFile = Join-Path $script:LogRoot "$SolutionName-$ScriptMode.txt"
+        } else {
+            $script:LogRoot = Join-Path $env:ProgramData "$SolutionName\Logs"
+            $script:LogFile = Join-Path $script:LogRoot "$SolutionName`_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+        }
+
+        if (-not (Test-Path -LiteralPath $script:LogRoot)) {
+            $null = [System.IO.Directory]::CreateDirectory($script:LogRoot)
+        }
+        if (-not (Test-Path -LiteralPath $script:LogFile)) {
+            $null = [System.IO.File]::Create($script:LogFile).Dispose()
+        }
+
+        $script:LogReady = $true
+        return $true
+    }
+    catch {
+        Write-Host "Log initialization failed: $($_.Exception.Message)" -ForegroundColor Red
+        $script:LogReady = $false
+        return $false
+    }
+}
+
+# Writes the solution banner to console and log file.
+function Write-Banner {
+    [CmdletBinding()]
+    [Alias('Show-Banner')]
+    param()
+
+    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $bannerLine = '=' * 78
+    $lines      = @('', $bannerLine, $title, $bannerLine)
+
+    foreach ($line in $lines) {
+        if ($line -eq $title) {
+            Write-Host $line -ForegroundColor White
+        } else {
+            Write-Host $line -ForegroundColor DarkGray
+        }
+
+        if ($script:LogReady -and $script:LogFile) {
+            Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        }
+    }
+}
+
+# Writes one timestamped, level-colored line to console and log file.
+function Write-Log {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$Message = "",
+        [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
+        [string]$Level = "INFO"
+    )
+
+    # Visual spacer support: callers use Write-Log -Message "" to break sections; early-return on empty.
+    if ([string]::IsNullOrEmpty($Message)) { return }
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logLine = "[$timestamp] [$Level] $Message"
+
+    $color = switch ($Level) {
+        "DEBUG"   { "DarkGray" }
+        "INFO"    { "Cyan" }
+        "SUCCESS" { "Green" }
+        "WARNING" { "Yellow" }
+        "ERROR"   { "Red" }
+    }
+    Write-Host $logLine -ForegroundColor $color
+
+    if ($script:LogReady -and $script:LogFile) {
+        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+    }
+}
+
+# Logs the final message and terminates with the given exit code.
+function Finish-Script {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [int]$ExitCode,
+        [Parameter(Mandatory = $false)]
+        [string]$Message = "",
+        [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
+        [string]$Level = "INFO",
+        [switch]$NoExit
+    )
+
+    Write-Log -Message $Message -Level $Level
+    if (-not $NoExit) {
+        exit $ExitCode
+    }
+}
+
+# Normalize the local module-install override for workstation parameter binding.
+$forceModuleInstallRaw = [string]$ForceModuleInstall,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Tenant ID for app-only authentication")]
+    [string]$TenantId,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Client ID for app-only authentication")]
+    [string]$ClientId,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Client secret for app-only authentication")]
+    [string]$ClientSecret,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Certificate thumbprint for app-only authentication")]
+    [string]$CertificateThumbprint
+Remove-Variable -Name ForceModuleInstall
+if ([string]::IsNullOrWhiteSpace($forceModuleInstallRaw)) {
+    $ForceModuleInstall = $false
+}
+elseif ($forceModuleInstallRaw.Trim().ToLowerInvariant() -in @("true", "1", '$true')) {
+    $ForceModuleInstall = $true
+}
+elseif ($forceModuleInstallRaw.Trim().ToLowerInvariant() -in @("false", "0", '$false')) {
+    $ForceModuleInstall = $false
+}
+else {
+    throw "Parameter 'ForceModuleInstall' accepts only true, false, 1, 0, $true, or $false."
+}
+
+# workstation supplies portal parameter values as strings. Normalize the
+# public boolean parameters once so local and runbook execution use real booleans.
+foreach ($runbookBooleanParameter in @('UpdateExisting', 'OnlySuccessfulInstalls', 'DryRun')) {
+    $runbookBooleanRaw = [string](Get-Variable -Name $runbookBooleanParameter -ValueOnly)
+    Remove-Variable -Name $runbookBooleanParameter
+
+    if ([string]::IsNullOrWhiteSpace($runbookBooleanRaw)) {
+        Set-Variable -Name $runbookBooleanParameter -Value $false
+        continue
+    }
+
+    switch ($runbookBooleanRaw.Trim().ToLowerInvariant()) {
+        { $_ -in @("true", "1", '$true') } {
+            Set-Variable -Name $runbookBooleanParameter -Value $true
+        }
+        { $_ -in @("false", "0", '$false') } {
+            Set-Variable -Name $runbookBooleanParameter -Value $false
+        }
+        default {
+            throw "Parameter '$runbookBooleanParameter' accepts only true, false, 1, 0, $true, or $false."
+        }
+    }
+}
+
+# ============================================================================
+# ENVIRONMENT DETECTION AND SETUP
+# ============================================================================
+
+function Initialize-RequiredModule {
+    param(
+        [string[]]$ModuleNames,
+        [bool]$ForceInstall = $false
+    )
+
+    foreach ($ModuleName in $ModuleNames) {
+        Write-Verbose "Checking module: $ModuleName"
+
+        $module = Get-Module -ListAvailable -Name $ModuleName | Select-Object -First 1
+
+        if (-not $module) {
+else {
+                Write-Log -Message "Module '$ModuleName' not found. Installing..." -Level 'INFO'
+
+                if (-not $ForceInstall) {
+                    $response = Read-Host "Install module '$ModuleName'? (Y/N)"
+                    if ($response -notmatch '^[Yy]') {
+                        throw "Module '$ModuleName' is required but installation was declined."
+                    }
+                }
+
+                try {
+                    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+                    $scope = if ($isAdmin) { "AllUsers" } else { "CurrentUser" }
+
+                    Install-Module -Name $ModuleName -Scope $scope -Force -AllowClobber -Repository PSGallery
+                    Write-Log -Message "Successfully installed '$ModuleName'" -Level 'SUCCESS'
+                }
+                catch {
+                    throw "Failed to install module '$ModuleName': $($_.Exception.Message)"
+                }
+            }
+        }
+
+        Import-Module -Name $ModuleName -Force -ErrorAction Stop
+    }
+}
+
+# Detect execution environment
+
+# Initialize required modules
+$RequiredModules = @("Microsoft.Graph.Authentication")
+# MgGraphCommunity gives WAM-free interactive sign-in for local runs
+$RequiredModules += "MgGraphCommunity"
+
+try {
+    Initialize-RequiredModule -ModuleNames $RequiredModules -ForceInstall $ForceModuleInstall
+    Write-Verbose "All required modules are available"
+}
+catch {
+    Write-Error "Module initialization failed: $_"
+    exit 1
+}
+
+# ============================================================================
+# AUTHENTICATION (workstation dual-mode: interactive or app-only)
+# ============================================================================
+
+try {
+    if ($TenantId -and $ClientId -and ($ClientSecret -or $CertificateThumbprint)) {
+        Write-Output "Connecting to Microsoft Graph with app-only authentication..."
+        if ($CertificateThumbprint) {
+            Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -CertificateThumbprint $CertificateThumbprint -NoWelcome -ErrorAction Stop
+        }
+        else {
+            $ClientSecretSecure = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+            $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ClientId, $ClientSecretSecure
+            Connect-MgGraph -TenantId $TenantId -ClientSecretCredential $ClientSecretCredential -NoWelcome -ErrorAction Stop
+        }
+        Write-Output "Successfully connected to Microsoft Graph with app-only authentication."
+    }
+    else {
+        Write-Output "Connecting to Microsoft Graph with interactive authentication..."
+        $Scopes = @(
+            "DeviceManagementManagedDevices.Read.All",
+            "DeviceManagementApps.Read.All",
+            "Group.ReadWrite.All",
+            "Directory.Read.All"
+        )
+        Connect-MgGraphCommunity -Scopes $Scopes -NoWelcome -ErrorAction Stop
+        Write-Output "Successfully connected to Microsoft Graph."
+    }
+}
+catch {
+    Write-Error "Failed to connect to Microsoft Graph: $($_.Exception.Message)"
+    exit 1
+}
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+function Get-MgGraphAllPages {
+    param(
+        [string]$Uri,
+        [int]$DelayMs = 100
+    )
+
+    $allResults = @()
+    $nextLink = $Uri
+    $requestCount = 0
+
+    do {
+        try {
+            if ($requestCount -gt 0) {
+                Start-Sleep -Milliseconds $DelayMs
+            }
+
+            $response = Invoke-MgGraphRequest -Uri $nextLink -Method GET
+            $requestCount++
+
+            if ($null -ne $response.value) {
+                $allResults += $response.value
+            }
+            else {
+                $allResults += $response
+            }
+
+            $nextLink = $response.'@odata.nextLink'
+
+            if ($requestCount % 10 -eq 0) {
+                Write-Log -Message "." -Level 'DEBUG'
+            }
+        }
+        catch {
+            if ($_.Exception.Message -like "*429*") {
+                Write-Log -Message "Rate limit hit, waiting 60 seconds..." -Level 'WARNING'
+                Start-Sleep -Seconds 60
+                continue
+            }
+            throw "Error fetching data: $($_.Exception.Message)"
+        }
+    } while ($nextLink)
+
+    return $allResults
+}
+
+# Retrieves app installation status rows from the reports endpoint with paging
+# (the mobileApps deviceStatuses endpoint was retired from the Graph service)
+function Get-AppInstallStatusReportRow {
+    param(
+        [string]$AppId,
+        [int]$PageSize = 500,
+        [int]$DelayMs = 100
+    )
+
+    $reportUri = "https://graph.microsoft.com/beta/deviceManagement/reports/retrieveDeviceAppInstallationStatusReport"
+    $allRows = @()
+    $skip = 0
+    # MaxValue sentinel keeps the loop alive if the very first page hits a 429
+    # (a zero sentinel would end the do/while before any retry could happen)
+    $totalRows = [int]::MaxValue
+
+    do {
+        try {
+            if ($skip -gt 0) {
+                Start-Sleep -Milliseconds $DelayMs
+            }
+
+            $body = @{
+                filter   = "(ApplicationId eq '$AppId')"
+                top      = $PageSize
+                skip     = $skip
+                'select' = @("DeviceId", "DeviceName", "UserPrincipalName", "Platform", "AppVersion", "InstallState", "InstallStateDetail", "ErrorCode", "LastModifiedDateTime")
+            } | ConvertTo-Json -Depth 5
+
+            $response = Invoke-MgGraphRequest -Uri $reportUri -Method POST -Body $body -ContentType "application/json"
+
+            # The report returns columnar JSON - map Schema columns to row indexes,
+            # column order is declared by Schema, not by the request
+            $columnIndex = @{}
+            for ($i = 0; $i -lt $response['Schema'].Count; $i++) {
+                $columnIndex[$response['Schema'][$i].Column] = $i
+            }
+
+            foreach ($row in $response['Values']) {
+                $allRows += [PSCustomObject]@{
+                    DeviceId             = $row[$columnIndex['DeviceId']]
+                    DeviceName           = $row[$columnIndex['DeviceName']]
+                    UserPrincipalName    = $row[$columnIndex['UserPrincipalName']]
+                    Platform             = $row[$columnIndex['Platform']]
+                    AppVersion           = $row[$columnIndex['AppVersion']]
+                    InstallState         = $row[$columnIndex['InstallState']]
+                    InstallStateDetail   = $row[$columnIndex['InstallStateDetail']]
+                    ErrorCode            = $row[$columnIndex['ErrorCode']]
+                    LastModifiedDateTime = $row[$columnIndex['LastModifiedDateTime']]
+                }
+            }
+
+            $totalRows = $response['TotalRowCount']
+            $skip += $PageSize
+        }
+        catch {
+            if ($_.Exception.Message -like "*429*") {
+                Write-Log -Message "Rate limit hit, waiting 60 seconds..." -Level 'WARNING'
+                Start-Sleep -Seconds 60
+                continue
+            }
+            Write-Log -Message "Error fetching install status report for app $AppId : $($_.Exception.Message)" -Level 'WARNING'
+            $script:IncompleteReportApps[$AppId] = $true
+            break
+        }
+    } while ($skip -lt $totalRows)
+
+    # Comma preserves a single-row result as an array so .Count is correct
+    return , $allRows
+}
+
+# Converts report InstallState values to install state names
+# Values per the resultantAppState enum (Microsoft Graph beta)
+function Convert-InstallStateValue {
+    param($StateValue)
+
+    switch ([int]$StateValue) {
+        1 { return "installed" }
+        2 { return "failed" }
+        3 { return "notInstalled" }
+        4 { return "uninstallFailed" }
+        5 { return "pendingInstall" }
+        99 { return "unknown" }
+        -1 { return "notApplicable" }
+        default { return "unknown" }
+    }
+}
+
+function Get-AppTypeFromODataType {
+    param([string]$ODataType)
+
+    switch ($ODataType) {
+        "#microsoft.graph.win32LobApp" { return "Win32" }
+        "#microsoft.graph.microsoftStoreForBusinessApp" { return "Store" }
+        "#microsoft.graph.webApp" { return "Web" }
+        "#microsoft.graph.officeSuiteApp" { return "Office" }
+        "#microsoft.graph.winGetApp" { return "WinGet" }
+        "#microsoft.graph.iosLobApp" { return "iOS" }
+        "#microsoft.graph.iosStoreApp" { return "iOS" }
+        "#microsoft.graph.androidManagedStoreApp" { return "Android" }
+        "#microsoft.graph.androidLobApp" { return "Android" }
+        "#microsoft.graph.macOSLobApp" { return "macOS" }
+        "#microsoft.graph.macOSOfficeSuiteApp" { return "macOS" }
+        default { return "Other" }
+    }
+}
+
+function Compare-Version {
+    param(
+        [string]$Version1,
+        [string]$Version2
+    )
+
+    try {
+        $v1 = [Version]$Version1
+        $v2 = [Version]$Version2
+        return $v1 -ge $v2
+    }
+    catch {
+        # Fallback to string comparison if version parsing fails
+        return $Version1 -ge $Version2
+    }
+}
+
+function Get-SanitizedGroupName {
+    param([string]$AppName)
+
+    # Remove invalid characters for group names
+    $sanitized = $AppName -replace '[^\w\s-]', ''
+    $sanitized = $sanitized -replace '\s+', '-'
+    $sanitized = $sanitized -replace '-+', '-'
+    $sanitized = $sanitized.Trim('-')
+
+    # Ensure the name is not too long (max 256 chars for Entra ID)
+    $maxLength = 256 - $GroupPrefix.Length - $GroupSuffix.Length
+    if ($sanitized.Length -gt $maxLength) {
+        $sanitized = $sanitized.Substring(0, $maxLength)
+    }
+
+    return "${GroupPrefix}${sanitized}${GroupSuffix}"
+}
+
+# ============================================================================
+# MAIN SCRIPT LOGIC
+# ============================================================================
+
+try {
+    $null = Initialize-Log -SolutionName $SolutionName -ScriptMode 'run' -Type 'General'
+    Write-Banner
+    Write-Output "Starting app-based group creation process..."
+
+    # Get all managed devices
+    Write-Output "Retrieving managed devices..."
+    $devicesUri = "https://graph.microsoft.com/beta/deviceManagement/managedDevices?`$select=id,deviceName,operatingSystem,userPrincipalName,azureADDeviceId"
+    if ($MaxDevices -gt 0) {
+        $devicesUri += "&`$top=$MaxDevices"
+    }
+
+    $devices = Get-MgGraphAllPages -Uri $devicesUri
+
+    # Filter by platform if specified
+    if ($FilterByPlatform -ne "All") {
+        $devices = $devices | Where-Object {
+            $_.operatingSystem -like "$FilterByPlatform*"
+        }
+    }
+
+    Write-Output "`nFound $($devices.Count) managed devices"
+
+    # Hashtable for fast device lookup by Intune device id
+    $deviceById = @{}
+    foreach ($device in $devices) {
+        $deviceById[$device.id] = $device
+    }
+
+    # Dictionary to store app->devices mapping
+    $appDeviceMap = @{}
+    $processedDevices = 0
+
+    # Tracks apps whose install status report could not be fully retrieved
+    $script:IncompleteReportApps = @{}
+
+    # Process devices to get detected apps
+    Write-Output "Processing device applications..."
+
+    foreach ($device in $devices) {
+        $processedDevices++
+        
+            Write-Progress -Activity "Processing Devices" -Status "$processedDevices of $($devices.Count)" -PercentComplete (($processedDevices / $devices.Count) * 100)
+        
+
+        try {
+            # Get detected apps for the device
+            $deviceAppsUri = "https://graph.microsoft.com/beta/deviceManagement/managedDevices/$($device.id)?`$expand=detectedApps"
+            $deviceWithApps = Invoke-MgGraphRequest -Uri $deviceAppsUri -Method GET
+
+            if ($deviceWithApps.detectedApps) {
+                foreach ($app in $deviceWithApps.detectedApps) {
+                    # Check if app matches the filter
+                    if ($app.displayName -like $ApplicationName) {
+                        # Check version if specified
+                        if ($MinimumVersion -and $app.version) {
+                            if (-not (Compare-Version -Version1 $app.version -Version2 $MinimumVersion)) {
+                                continue
+                            }
+                        }
+
+                        # Add device to app mapping
+                        $appKey = $app.displayName
+                        if (-not $appDeviceMap.ContainsKey($appKey)) {
+                            $appDeviceMap[$appKey] = @{
+                                Devices    = @()
+                                Versions   = @{}
+                                Publishers = @{}
+                            }
+                        }
+
+                        $appDeviceMap[$appKey].Devices += @{
+                            DeviceId   = $device.id
+                            DeviceName = $device.deviceName
+                            Platform   = $device.operatingSystem
+                            User       = $device.userPrincipalName
+                            Version    = $app.version
+                            Publisher  = $app.publisher
+                        }
+
+                        # Track versions and publishers
+                        if ($app.version) {
+                            $currentVersionCount = $appDeviceMap[$appKey].Versions[$app.version]
+                            if ($null -eq $currentVersionCount) { $currentVersionCount = 0 }
+                            $appDeviceMap[$appKey].Versions[$app.version] = $currentVersionCount + 1
+                        }
+                        if ($app.publisher) {
+                            $currentPublisherCount = $appDeviceMap[$appKey].Publishers[$app.publisher]
+                            if ($null -eq $currentPublisherCount) { $currentPublisherCount = 0 }
+                            $appDeviceMap[$appKey].Publishers[$app.publisher] = $currentPublisherCount + 1
+                        }
+                    }
+                }
+            }
+
+            Start-Sleep -Milliseconds 50
+        }
+        catch {
+            if ($_.Exception.Message -like "*429*") {
+                Write-Output "`nRate limit hit, waiting 60 seconds..."
+                Start-Sleep -Seconds 60
+                $processedDevices--
+                continue
+            }
+            Write-Log -Message "Error processing device $($device.deviceName): $($_.Exception.Message)" -Level 'WARNING'
+        }
+    }
+
+    
+        Write-Progress -Activity "Processing Devices" -Completed
+    
+
+    # Get deployed apps if we need additional coverage
+    if ($FilterByType -ne "All" -or $OnlySuccessfulInstalls) {
+        Write-Output "Retrieving deployed application data..."
+        $appsUri = "https://graph.microsoft.com/beta/deviceAppManagement/mobileApps?`$select=id,displayName"
+        $deployedApps = Get-MgGraphAllPages -Uri $appsUri
+
+        foreach ($app in $deployedApps) {
+            if ($app.displayName -like $ApplicationName) {
+                $appType = Get-AppTypeFromODataType -ODataType $app.'@odata.type'
+
+                # Filter by type if specified
+                if ($FilterByType -ne "All" -and $appType -ne $FilterByType) {
+                    continue
+                }
+
+                # Get device installation status via the reports endpoint
+                $deviceStatuses = Get-AppInstallStatusReportRow -AppId $app.id
+
+                foreach ($status in $deviceStatuses) {
+                    # Filter by installation status if specified (InstallState 1 = installed)
+                    if ($OnlySuccessfulInstalls -and $status.InstallState -ne 1) {
+                        continue
+                    }
+
+                    # Check version if specified
+                    if ($MinimumVersion) {
+                        if ([string]::IsNullOrWhiteSpace($status.AppVersion)) {
+                            Write-Verbose "Skipping device $($status.DeviceName) for '$($app.displayName)': report row has no AppVersion to compare"
+                            continue
+                        }
+                        if (-not (Compare-Version -Version1 $status.AppVersion -Version2 $MinimumVersion)) {
+                            continue
+                        }
+                    }
+
+                    # Find matching device
+                    $matchingDevice = $deviceById[$status.DeviceId]
+                    if ($matchingDevice) {
+                        $appKey = $app.displayName
+                        if (-not $appDeviceMap.ContainsKey($appKey)) {
+                            $appDeviceMap[$appKey] = @{
+                                Devices    = @()
+                                Versions   = @{}
+                                Publishers = @{}
+                                AppType    = $appType
+                            }
+                        }
+
+                        # Check if device already added
+                        $existingDevice = $appDeviceMap[$appKey].Devices | Where-Object { $_.DeviceId -eq $matchingDevice.id }
+                        if (-not $existingDevice) {
+                            $appDeviceMap[$appKey].Devices += @{
+                                DeviceId     = $matchingDevice.id
+                                DeviceName   = $matchingDevice.deviceName
+                                Platform     = $matchingDevice.operatingSystem
+                                User         = $matchingDevice.userPrincipalName
+                                InstallState = Convert-InstallStateValue -StateValue $status.InstallState
+                                AppType      = $appType
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    # Create or update groups
+    Write-Output "`nProcessing groups for $($appDeviceMap.Count) applications..."
+    $groupsCreated = 0
+    $groupsUpdated = 0
+    $totalDevicesProcessed = 0
+
+    foreach ($appName in $appDeviceMap.Keys) {
+        $appInfo = $appDeviceMap[$appName]
+        $uniqueDevices = $appInfo.Devices | Select-Object -Property DeviceId -Unique
+        $deviceCount = $uniqueDevices.Count
+
+        if ($deviceCount -eq 0) {
+            continue
+        }
+
+        $groupName = Get-SanitizedGroupName -AppName $appName
+        Write-Output "`nProcessing: $appName ($deviceCount devices in Intune)"
+
+        if ($DryRun) {
+            Write-Output "  [DRY RUN] Would create/update group: $groupName"
+            Write-Output "  Total devices with app: $deviceCount"
+
+            # Show device names
+            Write-Output "  Devices to be added:"
+            foreach ($device in $appInfo.Devices) {
+                Write-Output "    - $($device.DeviceName) ($($device.Platform))"
+            }
+
+            if ($appInfo.Versions.Count -gt 0) {
+                Write-Output "  Versions found: $($appInfo.Versions.Keys -join ', ')"
+            }
+            $totalDevicesProcessed += $deviceCount
+            continue
+        }
+
+        # Check if group exists
+        $existingGroup = $null
+        try {
+            $groupFilter = "displayName eq '$groupName'"
+            $existingGroups = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/groups?`$filter=$groupFilter" -Method GET
+            $existingGroup = $existingGroups.value | Select-Object -First 1
+        }
+        catch {
+            Write-Verbose "No existing group found with name: $groupName"
+        }
+
+        if ($existingGroup -and -not $UpdateExisting) {
+            Write-Log -Message "Group '$groupName' already exists. Use -UpdateExisting to update it." -Level 'WARNING'
+            continue
+        }
+
+        # Prepare member list - need to get Entra ID device object IDs
+        $memberIds = @()
+        $entraDevices = @()
+
+        if ($uniqueDevices.Count -gt 0) {
+            Write-Verbose "Looking up Entra ID device objects for $($uniqueDevices.Count) devices..."
+
+            foreach ($device in $uniqueDevices) {
+                try {
+                    # Get the Intune device details first
+                    $intuneDevice = $devices | Where-Object { $_.id -eq $device.DeviceId } | Select-Object -First 1
+
+                    if ($intuneDevice -and $intuneDevice.azureADDeviceId) {
+                        # Look up the device in Entra ID by Entra ID Device ID
+                        $filter = "deviceId eq '$($intuneDevice.azureADDeviceId)'"
+                        $entraDeviceUri = "https://graph.microsoft.com/beta/devices?`$filter=$filter"
+                        $entraDeviceResponse = Invoke-MgGraphRequest -Uri $entraDeviceUri -Method GET
+
+                        if ($entraDeviceResponse.value -and $entraDeviceResponse.value.Count -gt 0) {
+                            $entraDevice = $entraDeviceResponse.value[0]
+                            $memberIds += "https://graph.microsoft.com/beta/directoryObjects/$($entraDevice.id)"
+                            $entraDevices += @{
+                                IntuneDeviceId = $device.DeviceId
+                                EntraDeviceId  = $entraDevice.id
+                                DeviceName     = $intuneDevice.deviceName
+                            }
+                            Write-Verbose "Found Entra ID device: $($intuneDevice.deviceName) -> $($entraDevice.id)"
+                        }
+                        else {
+                            Write-Log -Message "Device not found in Entra ID: $($intuneDevice.deviceName) (Entra ID Device ID: $($intuneDevice.azureADDeviceId))" -Level 'WARNING'
+                        }
+                    }
+                    else {
+                        Write-Log -Message "No Entra ID Device ID for: $($intuneDevice.deviceName)" -Level 'WARNING'
+                    }
+                }
+                catch {
+                    Write-Log -Message "Error looking up Entra ID device for $($intuneDevice.deviceName): $($_.Exception.Message)" -Level 'WARNING'
+                }
+            }
+
+            Write-Verbose "Found $($memberIds.Count) devices in Entra ID out of $($uniqueDevices.Count) Intune devices"
+        }
+
+        if ($existingGroup -and $UpdateExisting) {
+            # Update existing group
+            if ($PSCmdlet.ShouldProcess($groupName, "Update group members")) {
+                try {
+                    # Get current members
+                    $currentMembersUri = "https://graph.microsoft.com/beta/groups/$($existingGroup.id)/members"
+                    $currentMembers = Get-MgGraphAllPages -Uri $currentMembersUri
+                    $currentMemberIds = $currentMembers | ForEach-Object { $_.id }
+
+                    # Calculate additions and removals - use Entra device IDs
+                    $entraDeviceIds = $entraDevices | ForEach-Object { $_.EntraDeviceId }
+                    $deviceIdsToAdd = $entraDeviceIds | Where-Object { $_ -notin $currentMemberIds }
+                    $deviceIdsToRemove = $currentMemberIds | Where-Object { $_ -notin $entraDeviceIds }
+
+                    # Add new members
+                    if ($deviceIdsToAdd.Count -gt 0) {
+                        # Add members in batches
+                        $batchSize = 20
+                        for ($i = 0; $i -lt $deviceIdsToAdd.Count; $i += $batchSize) {
+                            $batch = $deviceIdsToAdd[$i..([Math]::Min($i + $batchSize - 1, $deviceIdsToAdd.Count - 1))]
+                            $addBody = @{
+                                "members@odata.bind" = $batch | ForEach-Object {
+                                    "https://graph.microsoft.com/beta/directoryObjects/$_"
+                                }
+                            } | ConvertTo-Json -Depth 10
+
+                            Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/groups/$($existingGroup.id)" -Method PATCH -Body $addBody -ContentType "application/json"
+                            Write-Verbose "Added batch of $($batch.Count) members"
+                        }
+                    }
+
+                    # Remove old members
+                    foreach ($memberId in $deviceIdsToRemove) {
+                        $removeUri = "https://graph.microsoft.com/beta/groups/$($existingGroup.id)/members/$memberId/`$ref"
+                        Invoke-MgGraphRequest -Uri $removeUri -Method DELETE
+                    }
+
+                    Write-Output "  Updated group: $groupName (Added: $($deviceIdsToAdd.Count), Removed: $($deviceIdsToRemove.Count))"
+
+                    # Display added devices
+                    if ($deviceIdsToAdd.Count -gt 0) {
+                        Write-Output "  Added devices:"
+                        foreach ($deviceId in $deviceIdsToAdd) {
+                            $deviceInfo = $entraDevices | Where-Object { $_.EntraDeviceId -eq $deviceId } | Select-Object -First 1
+                            if ($deviceInfo) {
+                                Write-Output "    - $($deviceInfo.DeviceName)"
+                            }
+                        }
+                    }
+
+                    $groupsUpdated++
+                }
+                catch {
+                    Write-Error "  Failed to update group: $($_.Exception.Message)"
+                }
+            }
+        }
+        else {
+            # Create new group
+            if ($PSCmdlet.ShouldProcess($groupName, "Create new group")) {
+                try {
+                    # Create group without members first
+                    $groupBody = @{
+                        displayName     = $groupName
+                        mailEnabled     = $false
+                        mailNickname    = $groupName -replace '[^a-zA-Z0-9]', ''
+                        securityEnabled = $true
+                        description     = "Devices with $appName installed (Created by Intune Automation)"
+                    } | ConvertTo-Json -Depth 10
+
+                    $newGroup = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/groups" -Method POST -Body $groupBody -ContentType "application/json"
+                    Write-Output "  Created group: $groupName"
+                    Write-Output "  Group ID: $($newGroup.id)"
+
+                    # Add members to the group if any
+                    if ($memberIds.Count -gt 0) {
+                        try {
+                            # Add members in batches of 20 (Graph API limitation)
+                            $batchSize = 20
+                            for ($i = 0; $i -lt $memberIds.Count; $i += $batchSize) {
+                                $batch = $memberIds[$i..([Math]::Min($i + $batchSize - 1, $memberIds.Count - 1))]
+                                $addMembersBody = @{
+                                    "members@odata.bind" = $batch
+                                } | ConvertTo-Json -Depth 10
+
+                                Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/groups/$($newGroup.id)" -Method PATCH -Body $addMembersBody -ContentType "application/json"
+                                Write-Verbose "Added batch of $($batch.Count) members"
+                            }
+                            Write-Output "  Added $($memberIds.Count) devices to group"
+
+                            # Display added devices
+                            Write-Output "  Added devices:"
+                            foreach ($device in $entraDevices) {
+                                Write-Output "    - $($device.DeviceName)"
+                            }
+                        }
+                        catch {
+                            Write-Log -Message "Group created but failed to add members: $($_.Exception.Message)" -Level 'WARNING'
+                        }
+                    }
+
+                    $groupsCreated++
+                }
+                catch {
+                    Write-Error "  Failed to create group: $($_.Exception.Message)"
+                    Write-Verbose "Group body: $groupBody"
+                }
+            }
+        }
+
+        $totalDevicesProcessed += $deviceCount
+    }
+
+    # Display summary
+    Write-Output "`nAPP-BASED GROUP CREATION SUMMARY"
+    Write-Output "==================================="
+    Write-Output "Applications matched: $($appDeviceMap.Count)"
+    Write-Output "Total devices processed: $totalDevicesProcessed"
+    Write-Output "Groups created: $groupsCreated"
+    Write-Output "Groups updated: $groupsUpdated"
+
+    if ($script:IncompleteReportApps.Count -gt 0) {
+        Write-Log -Message "$($script:IncompleteReportApps.Count) apps had incomplete report data - their device lists may be missing rows" -Level 'WARNING'
+    }
+
+    if ($DryRun) {
+        Write-Output "`n[DRY RUN] No changes were made"
+    }
+
+    # Display top apps by device count
+    if ($appDeviceMap.Count -gt 0) {
+        Write-Output "`nTop Applications by Device Count:"
+        $appDeviceMap.GetEnumerator() |
+        Sort-Object { $_.Value.Devices.Count } -Descending |
+        Select-Object -First 10 |
+        ForEach-Object {
+            $deviceCount = ($_.Value.Devices | Select-Object -Property DeviceId -Unique).Count
+            Write-Output "  - $($_.Key): $deviceCount devices"
+        }
+    }
+
+    Write-Output "`nApp-based group creation completed successfully!"
+}
+catch {
+    Write-Error "Script execution failed: $($_.Exception.Message)"
+    exit 1
+}
+finally {
+    try {
+        Disconnect-MgGraph | Out-Null
+        Write-Output "Disconnected from Microsoft Graph"
+    }
+    catch {
+        Write-Verbose "Graph disconnection completed"
+    }
+}
