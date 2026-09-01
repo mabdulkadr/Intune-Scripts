@@ -1,0 +1,770 @@
+<#
+.TITLE
+    BitLocker Keys Backup to Azure Key Vault
+
+.SYNOPSIS
+    Backs up BitLocker recovery keys from Entra ID to Azure Key Vault using REST API.
+
+.DESCRIPTION
+    This script connects to Microsoft Graph API to retrieve BitLocker recovery keys for Windows devices,
+    then stores them securely in Azure Key Vault using REST API. Each key is stored as a secret with
+    device information (name and serial number) included in tags.
+    Authentication uses the MgGraphCommunity module (WAM-free) and acquires two separate tokens with
+    the correct audiences: a device code sign-in for Azure Key Vault (https://vault.azure.net) and an
+    interactive browser sign-in for Microsoft Graph. No Az modules are needed. On first run, you will
+    be prompted to consent to the required permissions including Key Vault access.
+
+    Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
+
+.TAGS
+    Security,Compliance
+
+.PLATFORM
+    Windows
+
+.MINROLE
+    Intune Administrator, Key Vault Secrets Officer (ABAC) or Key Vault Administrator
+
+.PERMISSIONS
+    DeviceManagementManagedDevices.Read.All,BitlockerKey.Read.All
+
+.AUTHOR
+    Mohammad Abdelkader Omar
+
+.VERSION
+    1.5.1
+
+.CHANGELOG
+    1.5.1 (2026-08-26)
+    - Migrated to Enterprise Admin standards
+    1.5 - Added workstation boolean handling with typed validation, beta Graph endpoints, and terminating paging errors
+    1.4 - Workstation logging now records progress and summaries
+    1.3 - Removed runbook detection - workstation only
+    1.2 - A failure on one key no longer discards a device's other keys: successfully fetched keys are kept and the device is reported as Partial; secret names now always carry the volume type suffix so they stay stable across runs (previously the suffix was only added when multiple keys existed; unsuffixed secrets written by earlier versions remain untouched); results table now shows the Key Vault secret version
+    1.1 - Reworked authentication: MgGraphCommunity acquires separate Graph and Key Vault audience tokens (WAM-free). Fixed key retrieval: keys are now read from the Entra ID recovery key store (informationProtection/bitlocker); the previous Intune-side path checked a nonexistent property and could never return keys
+    1.0 - Initial release
+
+.LASTUPDATE
+    2026-08-26
+
+.EXAMPLE
+    .\backup-bitlocker-keys-to-keyvault.ps1 -VaultUri "https://bitlockerfilevaultkeys.vault.azure.net"
+    Backs up all BitLocker keys to the specified Azure Key Vault
+
+.EXAMPLE
+    .\backup-bitlocker-keys-to-keyvault.ps1 -VaultUri "https://myvault.vault.azure.net" -OverwriteExisting "true" -ShowProgress "true"
+    Backs up keys with overwrite option and progress display
+
+.NOTES
+    - Execution: LocalOnly (interactive sign-ins required)
+    - Requires Microsoft.Graph.Authentication and MgGraphCommunity modules (no Az modules needed; auto-installed if missing)
+    - Interactive sign-in uses the MgGraphCommunity module to avoid the Graph SDK's mandatory WAM broker on Windows; app-only via -TenantId/-ClientId/-ClientSecret or -CertificateThumbprint
+    - Two sign-ins are required per session: a device code sign-in for Key Vault and a browser sign-in for Graph (the two APIs need tokens with different audiences)
+        - Uses REST API directly for Key Vault operations
+    - Keys are stored with naming convention: BitLocker-{DeviceName}-{SerialNumber}-{VolumeType}
+    - Each secret includes tags for easy identification and management
+    - Consider implementing retention policies in Key Vault
+    - Regular backups ensure recovery key availability
+    - Vault URI format: https://yourvault.vault.azure.net
+
+    PERMISSION CONSENT:
+    On first run, you'll be prompted to consent to the following permissions:
+    - Azure Key Vault access (https://vault.azure.net/user_impersonation)
+    - Read Intune devices (DeviceManagementManagedDevices.Read.All)
+    - Read BitLocker keys (BitlockerKey.Read.All)
+
+    To avoid the consent prompt:
+    - Accept once and check "Consent on behalf of your organization" (admin only)
+    - Pre-consent in Entra ID portal under Enterprise Applications
+    - For unattended use, supply -TenantId/-ClientId/-ClientSecret or -CertificateThumbprint (app-only)
+#>
+
+#Requires -Version 5.1
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true, HelpMessage = "Azure Key Vault URI (e.g., https://myvault.vault.azure.net)")]
+    [ValidateNotNullOrEmpty()]
+    [ValidatePattern('^https://[a-zA-Z0-9-]+\.vault\.azure\.net/?$')]
+    [string]$VaultUri,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Overwrite existing secrets in Key Vault")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$OverwriteExisting,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Show progress during processing")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$ShowProgress,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Entra tenant ID or domain to sign in to (recommended when you have access to multiple tenants, so both sign-ins land in the same tenant)")]
+    [string]$TenantId = "",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Application (client) ID for app-only authentication")]
+    [string]$ClientId = "",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Client secret for app-only authentication")]
+    [string]$ClientSecret = "",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Certificate thumbprint for app-only authentication (alternative to client secret)")]
+    [string]$CertificateThumbprint = "",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Force module installation without prompting")]
+    [ValidateSet("true", "false", "1", "0", '$true', '$false')]
+    [string]$ForceModuleInstall
+)
+
+# Normalize the local module-install override for workstation parameter binding.
+$forceModuleInstallRaw = [string]$ForceModuleInstall
+Remove-Variable -Name ForceModuleInstall
+if ([string]::IsNullOrWhiteSpace($forceModuleInstallRaw)) {
+    $ForceModuleInstall = $false
+}
+elseif ($forceModuleInstallRaw.Trim().ToLowerInvariant() -in @("true", "1", '$true')) {
+    $ForceModuleInstall = $true
+}
+elseif ($forceModuleInstallRaw.Trim().ToLowerInvariant() -in @("false", "0", '$false')) {
+    $ForceModuleInstall = $false
+}
+else {
+    throw "Parameter 'ForceModuleInstall' accepts only true, false, 1, 0, $true, or $false."
+}
+
+# Workstation string boolean normalization. Normalize the
+# public boolean parameters once so workstation execution uses real booleans.
+foreach ($runbookBooleanParameter in @('OverwriteExisting', 'ShowProgress')) {
+    $runbookBooleanRaw = [string](Get-Variable -Name $runbookBooleanParameter -ValueOnly)
+    Remove-Variable -Name $runbookBooleanParameter
+
+    if ([string]::IsNullOrWhiteSpace($runbookBooleanRaw)) {
+        Set-Variable -Name $runbookBooleanParameter -Value $false
+        continue
+    }
+
+    switch ($runbookBooleanRaw.Trim().ToLowerInvariant()) {
+        { $_ -in @("true", "1", '$true') } {
+            Set-Variable -Name $runbookBooleanParameter -Value $true
+        }
+        { $_ -in @("false", "0", '$false') } {
+            Set-Variable -Name $runbookBooleanParameter -Value $false
+        }
+        default {
+            throw "Parameter '$runbookBooleanParameter' accepts only true, false, 1, 0, $true, or $false."
+        }
+    }
+}
+
+$ErrorActionPreference = 'Stop'
+
+# ============================================================================
+# CONFIGURATION - solution identity and logging.
+# ============================================================================
+
+$SolutionName = 'backup-bitlocker-keys-to-keyvault'
+$ScriptMode   = 'Run'
+
+# ============================================================================
+# LOGGING BLOCK (embedded canonical scripts/Write-Log.ps1 - copy VERBATIM)
+# Single source of truth: Initialize-Log / Write-Banner / Write-Log / Finish-Script.
+# ============================================================================
+
+# --- Logging (CLI Configuration) --------------------------------------------
+$script:SystemDrive = if ($env:SystemDrive) { $env:SystemDrive.TrimEnd('\') } else {
+    [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\')
+}
+$script:LogRoot  = $null
+$script:LogFile  = $null
+$script:LogReady = $false
+
+# Creates the Intune log folder/file and reports readiness.
+function Initialize-Log {
+    [CmdletBinding()]
+    param(
+        [string]$SolutionName = 'EnterpriseAdminTool',
+        [string]$ScriptMode = 'run',
+        [ValidateSet('Intune', 'General')]
+        [string]$Type = 'General'
+    )
+
+    try {
+        if ($Type -eq 'Intune') {
+            $script:LogRoot = Join-Path $script:SystemDrive "IntuneLogs\$SolutionName"
+            $script:LogFile = Join-Path $script:LogRoot "$SolutionName-$ScriptMode.txt"
+        } else {
+            $script:LogRoot = Join-Path $env:ProgramData "$SolutionName\Logs"
+            $script:LogFile = Join-Path $script:LogRoot "$SolutionName`_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+        }
+
+        if (-not (Test-Path -LiteralPath $script:LogRoot)) {
+            $null = [System.IO.Directory]::CreateDirectory($script:LogRoot)
+        }
+        if (-not (Test-Path -LiteralPath $script:LogFile)) {
+            $null = [System.IO.File]::Create($script:LogFile).Dispose()
+        }
+
+        $script:LogReady = $true
+        return $true
+    }
+    catch {
+        Write-Host "Log initialization failed: $($_.Exception.Message)" -ForegroundColor Red
+        $script:LogReady = $false
+        return $false
+    }
+}
+
+# Writes the solution banner to console and log file.
+function Write-Banner {
+    [CmdletBinding()]
+    [Alias('Show-Banner')]
+    param()
+
+    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $bannerLine = '=' * 78
+    $lines      = @('', $bannerLine, $title, $bannerLine)
+
+    foreach ($line in $lines) {
+        if ($line -eq $title) {
+            Write-Host $line -ForegroundColor White
+        } else {
+            Write-Host $line -ForegroundColor DarkGray
+        }
+
+        if ($script:LogReady -and $script:LogFile) {
+            Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        }
+    }
+}
+
+# Writes one timestamped, level-colored line to console and log file.
+function Write-Log {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$Message = "",
+        [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
+        [string]$Level = "INFO"
+    )
+
+    # Visual spacer support: callers use Write-Log -Message "" to break sections; early-return on empty.
+    if ([string]::IsNullOrEmpty($Message)) { return }
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logLine = "[$timestamp] [$Level] $Message"
+
+    $color = switch ($Level) {
+        "DEBUG"   { "DarkGray" }
+        "INFO"    { "Cyan" }
+        "SUCCESS" { "Green" }
+        "WARNING" { "Yellow" }
+        "ERROR"   { "Red" }
+    }
+    Write-Host $logLine -ForegroundColor $color
+
+    if ($script:LogReady -and $script:LogFile) {
+        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+    }
+}
+
+# Logs the final message and terminates with the given exit code.
+function Finish-Script {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [int]$ExitCode,
+        [Parameter(Mandatory = $false)]
+        [string]$Message = "",
+        [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
+        [string]$Level = "INFO",
+        [switch]$NoExit
+    )
+
+    Write-Log -Message $Message -Level $Level
+    if (-not $NoExit) {
+        exit $ExitCode
+    }
+}
+
+$null = Initialize-Log -SolutionName $SolutionName -ScriptMode $ScriptMode -Type 'General'
+Write-Banner
+
+# ============================================================================
+# ENVIRONMENT DETECTION AND SETUP
+# ============================================================================
+
+
+function Initialize-RequiredModule {
+    param(
+        [hashtable]$Modules,
+        [bool]$ForceInstall = $false
+    )
+
+    foreach ($ModuleName in $Modules.Keys) {
+        $minVersion = $Modules[$ModuleName]
+        $module = Get-Module -ListAvailable -Name $ModuleName |
+            Where-Object { -not $minVersion -or $_.Version -ge [version]$minVersion } |
+            Sort-Object Version -Descending | Select-Object -First 1
+        if (-not $module) {
+            $needed = if ($minVersion) { "$ModuleName (>= $minVersion)" } else { $ModuleName }
+            Write-Information "Module $needed not found. Installing..." -InformationAction Continue
+            if (-not $ForceInstall) {
+                $response = Read-Host "Install module '$needed'? (Y/N)"
+                if ($response -notmatch '^[Yy]') {
+                    throw "Module '$needed' is required but installation was declined."
+                }
+            }
+            $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+            $scope = if ($isAdmin) { "AllUsers" } else { "CurrentUser" }
+            $installParams = @{ Name = $ModuleName; Scope = $scope; Force = $true; AllowClobber = $true; Repository = 'PSGallery' }
+            if ($minVersion) { $installParams.MinimumVersion = $minVersion }
+            Install-Module @installParams
+        }
+        $importParams = @{ Name = $ModuleName; Force = $true; ErrorAction = 'Stop' }
+        if ($minVersion) { $importParams.MinimumVersion = $minVersion }
+        Import-Module @importParams
+    }
+}
+
+# MgGraphCommunity 1.4.0 introduced multi-session context switching, which the
+# Graph/Key Vault token toggle below depends on
+$RequiredModules = @{
+    "Microsoft.Graph.Authentication" = $null
+    "MgGraphCommunity"               = "1.4.0"
+}
+
+try {
+    Initialize-RequiredModule -Modules $RequiredModules -ForceInstall $ForceModuleInstall
+}
+catch {
+    Write-Log -Message "Module initialization failed: $_" -Level 'ERROR'
+    Write-Error "Module initialization failed: $_"
+    exit 1
+}
+
+# Ensure VaultUri ends without trailing slash for consistency
+$VaultUri = $VaultUri.TrimEnd('/')
+
+# ============================================================================
+# AUTHENTICATION
+# ============================================================================
+
+# Graph and Key Vault are different resources, so one token cannot serve both.
+# Two MgGraphCommunity sessions are used (WAM-free):
+#   1. Device code sign-in scoped to https://vault.azure.net (Key Vault audience)
+#   2. Interactive browser sign-in for Microsoft Graph
+# Selecting a session also re-points the SDK handoff (Invoke-MgGraphRequest), so
+# the Graph session must be active whenever Graph is called. Set-KeyVaultSecret
+# switches to the vault session for each Key Vault call and switches back after.
+try {
+    $isAppOnly = (-not [string]::IsNullOrWhiteSpace($TenantId) -and -not [string]::IsNullOrWhiteSpace($ClientId) -and (-not [string]::IsNullOrWhiteSpace($ClientSecret) -or -not [string]::IsNullOrWhiteSpace($CertificateThumbprint)))
+    if ($isAppOnly) {
+        Write-Output "Connecting to Microsoft Graph (app-only) for BitLocker and Key Vault..."
+        if (-not [string]::IsNullOrWhiteSpace($CertificateThumbprint)) {
+            Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -CertificateThumbprint $CertificateThumbprint -NoWelcome -ErrorAction Stop
+        }
+        else {
+            $secureSecret = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+            Connect-MgGraph -TenantId $TenantId -ClientId $ClientId -ClientSecret $secureSecret -NoWelcome -ErrorAction Stop
+        }
+        $script:VaultCacheKey = $null
+        $script:GraphCacheKey = $null
+        Write-Output "✓ Successfully connected to Microsoft Graph (app-only)"
+        Write-Log -Message "Connected to Microsoft Graph (app-only)" -Level 'SUCCESS'
+    }
+    else {
+        Write-Output "Step 1/2: Sign in for Azure Key Vault access (device code)..."
+        $vaultConnect = @{
+            UseDeviceCode = $true
+            Scopes        = @("https://vault.azure.net/user_impersonation")
+            NoWelcome     = $true
+            ErrorAction   = 'Stop'
+        }
+        if ($TenantId) { $vaultConnect.TenantId = $TenantId }
+        Connect-MgGraphCommunity @vaultConnect
+
+        $vaultSession = Get-MgGraphCommunityContext -ListAvailable |
+            Where-Object { $_.FlowType -eq 'DeviceCode' } | Select-Object -First 1
+        if (-not $vaultSession) {
+            throw "Key Vault session not found after device code sign-in."
+        }
+
+        Write-Output "Step 2/2: Sign in for Microsoft Graph access (browser)..."
+        $Scopes = @(
+            "DeviceManagementManagedDevices.Read.All",
+        "BitlockerKey.Read.All"
+        )
+        $graphConnect = @{
+            Scopes      = $Scopes
+            NoWelcome   = $true
+            ErrorAction = 'Stop'
+        }
+        if ($TenantId) { $graphConnect.TenantId = $TenantId }
+        Connect-MgGraphCommunity @graphConnect
+
+        $graphSession = Get-MgGraphCommunityContext -ListAvailable |
+            Where-Object { $_.FlowType -eq 'Interactive' } | Select-Object -First 1
+        if (-not $graphSession) {
+            throw "Graph session not found after interactive sign-in."
+        }
+
+        $script:VaultCacheKey = $vaultSession.CacheKey
+        $script:GraphCacheKey = $graphSession.CacheKey
+        Write-Output "✓ Successfully connected to Microsoft Graph and Azure Key Vault"
+        Write-Log -Message "Connected to Microsoft Graph and Azure Key Vault" -Level 'SUCCESS'
+    }
+}
+catch {
+    Write-Log -Message "Failed to connect: $($_.Exception.Message)" -Level 'ERROR'
+    Write-Error "Failed to connect: $($_.Exception.Message)"
+    exit 1
+}
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+# Function to get all pages of results from Graph API
+function Get-MgGraphAllPage {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Uri,
+        [int]$DelayMs = 100
+    )
+
+    $AllResults = @()
+    $NextLink = $Uri
+    $RequestCount = 0
+
+    do {
+        try {
+            # Add delay to respect rate limits
+            if ($RequestCount -gt 0) {
+                Start-Sleep -Milliseconds $DelayMs
+            }
+
+            $Response = Invoke-MgGraphRequest -Uri $NextLink -Method GET
+            $RequestCount++
+
+            if ($null -ne $Response.value) {
+                $AllResults += $Response.value
+            }
+            else {
+                $AllResults += $Response
+            }
+
+            $NextLink = $Response.'@odata.nextLink'
+        }
+        catch {
+            if ($_.Exception.Message -like "*429*" -or $_.Exception.Message -like "*throttled*") {
+                Write-Information "`nRate limit hit, waiting 60 seconds..." -InformationAction Continue
+                Start-Sleep -Seconds 60
+                continue
+            }
+            throw "Error fetching data from $NextLink : $($_.Exception.Message)"
+        }
+    } while ($NextLink)
+
+    return $AllResults
+}
+
+Set-Alias -Name Get-MgGraphAllPages -Value Get-MgGraphAllPage -Scope Global
+
+
+# Function to get BitLocker recovery keys from the Entra ID recovery key store.
+# BitLocker keys escrowed by Intune live in Entra ID and are read via
+# /informationProtection/bitlocker/recoveryKeys filtered on the Entra device ID.
+function Get-BitLockerRecoveryKeyFromAzureAD {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$AzureADDeviceId,
+        [Parameter(Mandatory = $false)]
+        [string]$DeviceName = "Unknown"
+    )
+
+    try {
+        # Get the key IDs from Entra ID
+        $keyIdUri = "https://graph.microsoft.com/beta/informationProtection/bitlocker/recoveryKeys?`$filter=deviceId eq '$AzureADDeviceId'"
+        $keyIdResponse = Invoke-MgGraphRequest -Uri $keyIdUri -Method GET
+    }
+    catch {
+        Write-Warning "Error retrieving BitLocker key list from Entra ID for device $DeviceName : $($_.Exception.Message)"
+        return $null
+    }
+
+    if ($keyIdResponse.value.Count -eq 0) {
+        Write-Verbose "No BitLocker keys found in Entra ID for device $DeviceName"
+        return $null
+    }
+
+    # Fetch each key individually so one failure does not discard the
+    # keys that were already retrieved successfully
+    $keys = @()
+    $failedKeyCount = 0
+    foreach ($keyInfo in $keyIdResponse.value) {
+        try {
+            # Get the actual recovery key
+            $keyUri = "https://graph.microsoft.com/beta/informationProtection/bitlocker/recoveryKeys/$($keyInfo.id)?`$select=key"
+            $keyResponse = Invoke-MgGraphRequest -Uri $keyUri -Method GET
+
+            $keys += @{
+                Id = $keyInfo.id
+                Key = $keyResponse.key
+                VolumeType = $keyInfo.volumeType
+                CreatedDateTime = $keyInfo.createdDateTime
+            }
+        }
+        catch {
+            Write-Warning "Error retrieving BitLocker key $($keyInfo.id) from Entra ID for device $DeviceName : $($_.Exception.Message)"
+            $failedKeyCount++
+        }
+    }
+
+    return @{
+        Keys = $keys
+        FailedKeyCount = $failedKeyCount
+    }
+}
+
+# Function to create or update secret in Key Vault using REST API.
+# Uses Invoke-MgGraphCommunityRequest, whose active session carries the Key
+# Vault-audience token (selected in the authentication block above).
+function Set-KeyVaultSecret {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SecretName,
+        [Parameter(Mandatory = $true)]
+        [string]$SecretValue,
+        [Parameter(Mandatory = $true)]
+        [hashtable]$Tags,
+        [Parameter(Mandatory = $true)]
+        [string]$VaultUri
+    )
+
+    try {
+        # Sanitize secret name (remove invalid characters)
+        $SecretName = $SecretName -replace '[^a-zA-Z0-9-]', '-'
+
+        $uri = "$VaultUri/secrets/$SecretName`?api-version=7.4"
+
+        # Route the Key Vault calls with the vault-audience session
+        if ($script:VaultCacheKey) { if ($script:VaultCacheKey) { Select-MgGraphCommunityContext -CacheKey $script:VaultCacheKey | Out-Null } }
+
+        # Key Vault creates a new secret version on every PUT, so honor
+        # -OverwriteExisting by checking for the secret first
+        if (-not $OverwriteExisting) {
+            $existing = $null
+            try {
+                $existing = Invoke-MgGraphCommunityRequest -Method GET -Uri $uri
+            }
+            catch {
+                # Secret does not exist (or is not readable) - proceed with create
+                $existing = $null
+            }
+            if ($existing) {
+                return @{
+                    Success = $false
+                    Error = "Secret already exists. Use -OverwriteExisting to update."
+                }
+            }
+        }
+
+        $body = @{
+            value = $SecretValue
+            tags = $Tags
+            attributes = @{
+                enabled = $true
+            }
+        }
+
+        $response = Invoke-MgGraphCommunityRequest -Method PUT -Uri $uri -Body $body
+
+        return @{
+            Success = $true
+            SecretId = $response.id
+            # The secret version is the trailing segment of the secret id URI
+            Version = ($response.id -split '/')[-1]
+        }
+    }
+    catch {
+        return @{
+            Success = $false
+            Error = $_.Exception.Message
+        }
+    }
+    finally {
+        # Restore the Graph session so Invoke-MgGraphRequest keeps the Graph token
+        try {
+            if ($script:GraphCacheKey) { if ($script:GraphCacheKey) { Select-MgGraphCommunityContext -CacheKey $script:GraphCacheKey | Out-Null } }
+        }
+        catch {
+            Write-Warning "Failed to restore the Graph session: $($_.Exception.Message)"
+        }
+    }
+}
+
+# ============================================================================
+# MAIN SCRIPT LOGIC
+# ============================================================================
+
+try {
+    Write-Log -Message "Starting BitLocker keys backup to Azure Key Vault..." -Level 'INFO'
+    Write-Output "Starting BitLocker keys backup to Azure Key Vault..."
+
+    # Get all Windows devices from Intune
+    Write-Output "Retrieving Windows devices from Intune..."
+    $devicesUri = "https://graph.microsoft.com/beta/deviceManagement/managedDevices?`$filter=operatingSystem eq 'Windows'&`$select=id,deviceName,serialNumber,azureADDeviceId,model,manufacturer,isEncrypted"
+    $devices = Get-MgGraphAllPage -Uri $devicesUri
+
+    if ($devices.Count -eq 0) {
+        Write-Warning "No Windows devices found in Intune"
+        return
+    }
+
+    Write-Output "Found $($devices.Count) Windows devices. Processing BitLocker keys..."
+    Write-Log -Message "Found $($devices.Count) Windows devices in Intune" -Level 'INFO'
+
+    $results = @()
+    $processedCount = 0
+    $successCount = 0
+    $failedCount = 0
+    $skippedCount = 0
+
+    foreach ($device in $devices) {
+        $processedCount++
+
+        if ($ShowProgress) {
+            $percentComplete = [math]::Round(($processedCount / $devices.Count) * 100, 1)
+            Write-Progress -Activity "Backing up BitLocker Keys" -Status "Processing device: $($device.deviceName)" -PercentComplete $percentComplete
+        }
+
+        # Devices without BitLocker or without an Entra device ID cannot have escrowed keys
+        if (-not $device.isEncrypted -or -not $device.azureADDeviceId) {
+            $reason = if (-not $device.isEncrypted) { "Not BitLocker Encrypted" } else { "No Entra Device ID" }
+            Write-Verbose "Skipping device $($device.deviceName): $reason"
+            $results += [PSCustomObject]@{
+                DeviceName = $device.deviceName
+                SerialNumber = $device.serialNumber
+                Status = $reason
+                KeyVaultSecret = "N/A"
+                Version = "N/A"
+                Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            }
+            $skippedCount++
+            continue
+        }
+
+        # Get BitLocker recovery keys from the Entra ID recovery key store
+        $keyResult = Get-BitLockerRecoveryKeyFromAzureAD -AzureADDeviceId $device.azureADDeviceId -DeviceName $device.deviceName
+
+        if (-not $keyResult) {
+            Write-Verbose "No BitLocker keys found for device: $($device.deviceName)"
+            $results += [PSCustomObject]@{
+                DeviceName = $device.deviceName
+                SerialNumber = $device.serialNumber
+                Status = "No Keys Found"
+                KeyVaultSecret = "N/A"
+                Version = "N/A"
+                Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            }
+            $skippedCount++
+            continue
+        }
+
+        foreach ($recoveryKey in $keyResult.Keys) {
+            # Volume type is always part of the name so it stays stable across runs
+            $secretName = "BitLocker-$($device.deviceName)-$($device.serialNumber)-$($recoveryKey.VolumeType)"
+
+            $tags = @{
+                DeviceName = if ($device.deviceName) { $device.deviceName } else { "Unknown" }
+                SerialNumber = if ($device.serialNumber) { $device.serialNumber } else { "NoSerial" }
+                AzureADDeviceId = $device.azureADDeviceId
+                VolumeType = $recoveryKey.VolumeType
+                Model = if ($device.model) { $device.model } else { "Unknown" }
+                Manufacturer = if ($device.manufacturer) { $device.manufacturer } else { "Unknown" }
+                BackupDate = (Get-Date -Format "yyyy-MM-dd")
+                Source = "IntuneWorkstation"
+            }
+
+            # Store in Key Vault
+            $kvResult = Set-KeyVaultSecret -SecretName $secretName -SecretValue $recoveryKey.Key -Tags $tags -VaultUri $VaultUri
+
+            if ($kvResult.Success) {
+                Write-Output "✓ Successfully backed up key for: $($device.deviceName)"
+                $successCount++
+                $status = "Success"
+            }
+            else {
+                Write-Warning "✗ Failed to backup key for $($device.deviceName): $($kvResult.Error)"
+                $failedCount++
+                $status = "Failed: $($kvResult.Error)"
+            }
+
+            $results += [PSCustomObject]@{
+                DeviceName = $device.deviceName
+                SerialNumber = $device.serialNumber
+                Status = $status
+                KeyVaultSecret = $secretName
+                Version = if ($kvResult.Success) { $kvResult.Version } else { "N/A" }
+                Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            }
+        }
+
+        # Some keys could not be retrieved: record the device as Partial
+        if ($keyResult.FailedKeyCount -gt 0) {
+            Write-Warning "✗ $($keyResult.FailedKeyCount) key(s) could not be retrieved for $($device.deviceName)"
+            $failedCount++
+            $results += [PSCustomObject]@{
+                DeviceName = $device.deviceName
+                SerialNumber = $device.serialNumber
+                Status = "Partial: $($keyResult.FailedKeyCount) key(s) could not be retrieved"
+                KeyVaultSecret = "N/A"
+                Version = "N/A"
+                Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            }
+        }
+    }
+
+    if ($ShowProgress) {
+        Write-Progress -Activity "Backing up BitLocker Keys" -Completed
+    }
+
+    # Display results
+    Write-Output "`nBitLocker Keys Backup Results:"
+    $results | Format-Table -AutoSize
+
+    Write-Output "✓ BitLocker keys backup completed successfully"
+    Write-Log -Message "BitLocker keys backup completed - success: $successCount, failed: $failedCount, skipped: $skippedCount" -Level 'SUCCESS'
+}
+catch {
+    Write-Log -Message "Script failed: $($_.Exception.Message)" -Level 'ERROR'
+    Write-Error "Script failed: $($_.Exception.Message)"
+    exit 1
+}
+finally {
+    # Cleanup operations - clear both the SDK context and all MgGraphCommunity
+    # sessions (drops the in-memory Graph and Key Vault tokens)
+    try {
+        Disconnect-MgGraph -ErrorAction SilentlyContinue | Out-Null
+        Disconnect-MgGraphCommunity -ErrorAction SilentlyContinue | Out-Null
+        Write-Output "Disconnected from Microsoft Graph and Azure Key Vault"
+    }
+    catch {
+        # Ignore disconnect errors
+    }
+}
+
+# ============================================================================
+# SCRIPT SUMMARY
+# ============================================================================
+
+Write-Output "
+========================================
+Script Execution Summary
+========================================
+Script: BitLocker Keys Backup to Key Vault
+Total Devices Processed: $processedCount
+Successfully Backed Up: $successCount
+Failed: $failedCount
+Skipped (No Keys): $skippedCount
+Key Vault: $VaultUri
+Status: Completed
+========================================
+"
