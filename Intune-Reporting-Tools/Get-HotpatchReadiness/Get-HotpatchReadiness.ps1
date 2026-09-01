@@ -68,18 +68,13 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$_scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } elseif ($PSCommandPath) { Split-Path -Parent $PSCommandPath } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
-$_canonicalLogging = "C:\Users\m.abdelkader\.config\opencode\skills\powershell-enterprise-admin\scripts\Write-Log.ps1"
-if (Test-Path -LiteralPath $_canonicalLogging) { . (Get-Item -LiteralPath $_canonicalLogging).FullName }
-else {
-    $script:SystemDrive = if ($env:SystemDrive) { $env:SystemDrive.TrimEnd('\') } else { [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\') }
-    $script:LogRoot=$null;$script:LogFile=$null;$script:LogReady=$false
-    function Initialize-Log{param([string]$SolutionName='EnterpriseAdminTool',[string]$ScriptMode='run',[ValidateSet('Intune','General')][string]$Type='General');$script:LogRoot=Join-Path $env:ProgramData "$SolutionName\Logs";$script:LogFile=Join-Path $script:LogRoot "$SolutionName`_$(Get-Date -Format 'yyyyMMdd_HHmmss').log";try{if(-not(Test-Path -LiteralPath $script:LogRoot)){$null=[System.IO.Directory]::CreateDirectory($script:LogRoot)};if(-not(Test-Path -LiteralPath $script:LogFile)){$null=[System.IO.File]::Create($script:LogFile).Dispose()};$script:LogReady=$true;return $true}catch{$script:LogReady=$false;return $false}}
-    function Write-Banner{param();Write-Host "Get-HotpatchReadiness | Run" -ForegroundColor White}
-    function Write-Log{param([Parameter(Mandatory=$false)][AllowEmptyString()][string]$Message="",[ValidateSet("INFO","SUCCESS","WARNING","ERROR","DEBUG")][string]$Level="INFO");if([string]::IsNullOrEmpty($Message)){return};Write-Host "[$Level] $Message" -ForegroundColor Cyan}
-    function Write-Summary{param([object[]]$Results);Write-Host "Summary: $($Results.Count) items" -ForegroundColor Green}
-    function Finish-Script{param([int]$ExitCode,[string]$Message,[string]$Level="INFO",[switch]$NoExit);Write-Log -Message $Message -Level $Level;if(-not $NoExit){exit $ExitCode}}
-}
+$script:SystemDrive = if ($env:SystemDrive) { $env:SystemDrive.TrimEnd('\') } else { [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\') }
+$script:LogRoot=$null;$script:LogFile=$null;$script:LogReady=$false
+function Initialize-Log{param([string]$SolutionName='EnterpriseAdminTool',[string]$ScriptMode='run',[ValidateSet('Intune','General')][string]$Type='General');$script:LogRoot=Join-Path $env:ProgramData "$SolutionName\Logs";$script:LogFile=Join-Path $script:LogRoot "$SolutionName`_$(Get-Date -Format 'yyyyMMdd_HHmmss').log";try{if(-not(Test-Path -LiteralPath $script:LogRoot)){$null=[System.IO.Directory]::CreateDirectory($script:LogRoot)};if(-not(Test-Path -LiteralPath $script:LogFile)){$null=[System.IO.File]::Create($script:LogFile).Dispose()};$script:LogReady=$true;return $true}catch{$script:LogReady=$false;return $false}}
+function Write-Banner{param();Write-Host "Get-HotpatchReadiness | Run" -ForegroundColor White}
+function Write-Log{param([Parameter(Mandatory=$false)][AllowEmptyString()][string]$Message="",[ValidateSet("INFO","SUCCESS","WARNING","ERROR","DEBUG")][string]$Level="INFO");if([string]::IsNullOrEmpty($Message)){return};Write-Host "[$Level] $Message" -ForegroundColor Cyan}
+function Write-Summary{param([object[]]$Results);Write-Host "Summary: $($Results.Count) items" -ForegroundColor Green}
+function Finish-Script{param([int]$ExitCode,[string]$Message,[string]$Level="INFO",[switch]$NoExit);Write-Log -Message $Message -Level $Level;if(-not $NoExit){exit $ExitCode}}
 
 $SolutionName='Get-HotpatchReadiness';$ScriptMode='Run'
 $scriptBase = if ($PSScriptRoot) { $PSScriptRoot } elseif ($PSCommandPath) { Split-Path -Parent $PSCommandPath } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
@@ -112,7 +107,7 @@ function Get-LocalHotpatchReadiness {
         # Registry fallback
         $vbsReg = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' -ErrorAction SilentlyContinue
         if ($vbsReg -and $vbsReg.Enabled -eq 1) { $result.HVCIEnabled = $true }
-    } catch {}
+    } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
     # Hotpatch eligibility: Enterprise/Education + VBS + Build >= 26100 (24H2)
     $enterpriseSKUs = @(4, 27, 72, 121, 122, 125, 126) # Enterprise, Enterprise N, Education etc
     $isEnterprise = $enterpriseSKUs -contains $result.SKU
@@ -215,7 +210,7 @@ try {
 
     $results = @([PSCustomObject]@{ Target = 'Hotpatch Check'; Success = $true; Skipped = $false })
     Write-Summary -Results $results
-    try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch {}
+    try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
     Finish-Script -ExitCode 0 -Message "Get-HotpatchReadiness completed successfully" -Level 'SUCCESS'
 }
 catch {

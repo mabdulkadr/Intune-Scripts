@@ -148,13 +148,13 @@ function Parse-ImeLog {
                     $timePart = $Matches[1].Split('.')[0]
                     $datePart = $Matches[2]
                     $timestamp = [datetime]::ParseExact("$datePart $timePart", "MM-dd-yyyy HH:mm:ss", $null)
-                } catch {}
+                } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
             elseif ($line -match '^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]') {
-                try { $timestamp = [datetime]$Matches[1] } catch {}
+                try { $timestamp = [datetime]$Matches[1] } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
             elseif ($line -match '(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})') {
-                try { $timestamp = [datetime]$Matches[1] } catch {}
+                try { $timestamp = [datetime]$Matches[1] } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
             }
 
             # Categorize by keywords
@@ -327,7 +327,7 @@ try {
     Write-Summary -Results $results
 
     if (-not $NoOpen) {
-        try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch {}
+        try { Start-Process -FilePath $htmlPath -ErrorAction SilentlyContinue } catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
     }
 
     Finish-Script -ExitCode 0 -Message "Get-ImeDiagnostics completed successfully" -Level 'SUCCESS'

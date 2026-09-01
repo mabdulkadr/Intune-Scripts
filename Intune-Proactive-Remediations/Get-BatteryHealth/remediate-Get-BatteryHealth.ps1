@@ -82,7 +82,7 @@ if($report.Count -gt 0){
 $jsonPath=Join-Path $script:LogRoot "BatteryHealth_$(Get-Date -Format 'yyyyMMdd_HHmmss').json"
 $report | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $jsonPath -Encoding UTF8 -ErrorAction SilentlyContinue
 Write-RemediationLog "Report saved to $jsonPath" -Level 'Info'
-try{ New-EventLog -LogName Application -Source "Intune-BatteryHealth" -ErrorAction SilentlyContinue; Write-EventLog -LogName Application -Source "Intune-BatteryHealth" -EventId 1001 -EntryType Warning -Message "Battery health degraded: $($report | ConvertTo-Json -Compress)" -ErrorAction SilentlyContinue }catch{}
+try{ New-EventLog -LogName Application -Source "Intune-BatteryHealth" -ErrorAction SilentlyContinue; Write-EventLog -LogName Application -Source "Intune-BatteryHealth" -EventId 1001 -EntryType Warning -Message "Battery health degraded: $($report | ConvertTo-Json -Compress)" -ErrorAction SilentlyContinue }catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
 }
 $script:remediationResult.Status="Success"
 $script:remediationResult.PostCheckStatus+="Report generated"

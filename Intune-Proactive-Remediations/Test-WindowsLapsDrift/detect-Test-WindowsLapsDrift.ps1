@@ -74,12 +74,12 @@ try{
 $csePath="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions\$LegacyCseGuid"
 if(Test-Path -LiteralPath $csePath){ $legacyCsePresent=$true; Write-Log -Message "Legacy LAPS CSE found at $csePath" -Level 'DEBUG' }
 if(Test-Path -LiteralPath $LegacyDllPath){ $legacyCsePresent=$true; Write-Log -Message "Legacy DLL found at $LegacyDllPath" -Level 'DEBUG' }
-}catch{}
+}catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
 # Check Windows LAPS configuration
 if(Test-Path -LiteralPath $WindowsLapsRegPath){ $windowsLapsConfigured=$true; Write-Log -Message "Windows LAPS policy found at $WindowsLapsRegPath" -Level 'DEBUG'
 try{ $props=Get-ItemProperty -LiteralPath $WindowsLapsRegPath -ErrorAction SilentlyContinue
 if($props.BackupDirectory -ne 1 -and $props.BackupDirectory -ne 2){ Write-Log -Message "Windows LAPS BackupDirectory not set to Entra (1) or AD (2)" -Level 'DEBUG' }
-}catch{}
+}catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
 }
 # Also check Intune LAPS policy via CSP path
 $intuneLapsPath='HKLM:\SOFTWARE\Microsoft\Policies\Microsoft\LAPS'

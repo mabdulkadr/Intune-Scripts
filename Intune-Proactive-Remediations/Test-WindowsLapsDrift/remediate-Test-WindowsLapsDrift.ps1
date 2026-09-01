@@ -87,7 +87,7 @@ Write-RemediationLog "  1. Confirm Windows LAPS password escrowed in Entra ID (G
 Write-RemediationLog "  2. Uninstall legacy LAPS MSI: msiexec /x {product-code} /qn" -Level 'Info'
 Write-RemediationLog "  3. Remove legacy GPO CSE registration and delete AdmPwd.dll" -Level 'Info'
 Write-RemediationLog "  4. Re-run detection to confirm compliant" -Level 'Info'
-try{ New-EventLog -LogName Application -Source "Intune-LAPSDrift" -ErrorAction SilentlyContinue; Write-EventLog -LogName Application -Source "Intune-LAPSDrift" -EventId 1002 -EntryType Warning -Message "LAPS drift detected - legacy CSE present. See IntuneLogs\Test-WindowsLapsDrift" -ErrorAction SilentlyContinue }catch{}
+try{ New-EventLog -LogName Application -Source "Intune-LAPSDrift" -ErrorAction SilentlyContinue; Write-EventLog -LogName Application -Source "Intune-LAPSDrift" -EventId 1002 -EntryType Warning -Message "LAPS drift detected - legacy CSE present. See IntuneLogs\Test-WindowsLapsDrift" -ErrorAction SilentlyContinue }catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' }
 $reportPath=Join-Path $script:LogRoot "LapsDrift_$(Get-Date -Format 'yyyyMMdd_HHmmss').json"
 $remediationResult | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding UTF8 -ErrorAction SilentlyContinue
 Write-RemediationLog "Report saved to $reportPath" -Level 'Info'

@@ -69,7 +69,7 @@ function Test-RemediationPrerequisites{try{$script:remediationResult.PreCheckSta
 function Clear-TeamsCachePath{param([string]$Path)
 try{
 if(-not(Test-Path -LiteralPath $Path)){return $true}
-Get-Process -Name ms-teams,Teams -ErrorAction SilentlyContinue | ForEach-Object{ try{ $_.CloseMainWindow() | Out-Null; Start-Sleep -Seconds 2; if(-not $_.HasExited){ Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue } }catch{} }
+Get-Process -Name ms-teams,Teams -ErrorAction SilentlyContinue | ForEach-Object{ try{ $_.CloseMainWindow() | Out-Null; Start-Sleep -Seconds 2; if(-not $_.HasExited){ Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue } }catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' } }
 $subPaths=@('Cache','CachedData','GPUCache','Code Cache','tmp','logs','blob_storage','IndexedDB','Local Storage','CacheStorage')
 foreach($sub in $subPaths){
 $full=Join-Path $Path $sub
@@ -77,7 +77,7 @@ if(Test-Path -LiteralPath $full){
 try{ Remove-Item -LiteralPath $full -Recurse -Force -ErrorAction Stop; Write-RemediationLog "Cleared $full" -Level 'Info' }catch{ Write-RemediationLog "Partial clear $full : $($_.Exception.Message)" -Level 'Warning' }
 }
 }
-Get-ChildItem -LiteralPath $Path -Recurse -File -ErrorAction SilentlyContinue | Where-Object{ $_.LastWriteTime -lt (Get-Date).AddDays(-1)} | ForEach-Object{ try{ Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }catch{} }
+Get-ChildItem -LiteralPath $Path -Recurse -File -ErrorAction SilentlyContinue | Where-Object{ $_.LastWriteTime -lt (Get-Date).AddDays(-1)} | ForEach-Object{ try{ Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }catch [System.Exception] { Write-Log -Message $_.Exception.Message -Level 'DEBUG' } }
 return $true
 }catch{ Write-RemediationLog "Clear failed for $Path : $($_.Exception.Message)" -Level 'Error'; return $false}
 }

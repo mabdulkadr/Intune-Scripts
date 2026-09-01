@@ -447,7 +447,7 @@ if ($Mode -eq 'Analyze') {
                 if ($ss.currentValue) { Write-Log -Message "    Value  : $($ss.currentValue)" -Level 'DEBUG' }
                 if ($ss.sources) { foreach ($src in $ss.sources) { Write-Log -Message "    Source : $($src.displayName) = $($src.value)" -Level 'WARNING' } }
                 Write-Log -Message "" -Level 'INFO'
-                $settingReport.Add([PSCustomObject]@{ DeviceName=$device.deviceName; PolicyName=$cs.displayName; SettingPath=$ss.setting; SettingName=$ss.settingName; State=$ss.state; Value=$ss.currentValue; Sources=if($ss.sources){($ss.sources|%{"$($_.displayName)=$($_.value)"})-join'; '}else{'-'} })
+                $settingReport.Add([PSCustomObject]@{ DeviceName=$device.deviceName; PolicyName=$cs.displayName; SettingPath=$ss.setting; SettingName=$ss.settingName; State=$ss.state; Value=$ss.currentValue; Sources=if($ss.sources){($ss.sources | ForEach-Object {"$($_.displayName)=$($_.value)"})-join'; '}else{'-'} })
             }
         }
     }
@@ -469,8 +469,8 @@ if ($Mode -eq 'Analyze') {
     Write-Log -Message "=== ANALYSIS COMPLETE ===" -Level 'INFO'
     Write-Log -Message "" -Level 'INFO'
     Write-Log -Message "  Policies on device       : $($allStates.Count)" -Level 'INFO'
-    Write-Host "  Settings in conflict     : $(($settingReport | Where-Object { $_.State -eq 'conflict' }).Count)" -ForegroundColor $(if(($settingReport|?{$_.State -eq 'conflict'}).Count -gt 0){'Red'}else{'Green'})
-    Write-Host "  Settings in error        : $(($settingReport | Where-Object { $_.State -eq 'error' }).Count)" -ForegroundColor $(if(($settingReport|?{$_.State -eq 'error'}).Count -gt 0){'Red'}else{'Green'})
+    Write-Host "  Settings in conflict     : $(($settingReport | Where-Object { $_.State -eq 'conflict' }).Count)" -ForegroundColor $(if(($settingReport | Where-Object { $_.State -eq 'conflict' }).Count -gt 0){'Red'}else{'Green'})
+    Write-Host "  Settings in error        : $(($settingReport | Where-Object { $_.State -eq 'error' }).Count)" -ForegroundColor $(if(($settingReport | Where-Object { $_.State -eq 'error' }).Count -gt 0){'Red'}else{'Green'})
     Write-Host "  Settings with overlaps   : $($overlaps.Count)" -ForegroundColor $(if($overlaps.Count -gt 0){'Yellow'}else{'Green'})
     Write-Log -Message "" -Level 'INFO'
     if ($settingReport.Count -eq 0 -and $overlaps.Count -eq 0) {
@@ -671,7 +671,7 @@ if ($Mode -eq 'Analyze') {
     Write-Log -Message "  Policies touching feature  : $($policiesWithMatchingSettings.Count)" -Level 'INFO'
     Write-Log -Message "  Total related settings     : $($featureSettings.Count)" -Level 'INFO'
     Write-Host "  Restrictive values found   : $($restrictive.Count)" -ForegroundColor $(if($restrictive.Count -gt 0){'Red'}else{'Green'})
-    Write-Host "  Settings in conflict/error : $(($featureSettings | Where-Object { $_.SettingState -in @('conflict','error') }).Count)" -ForegroundColor $(if(($featureSettings|?{$_.SettingState -in @('conflict','error')}).Count -gt 0){'Red'}else{'Green'})
+    Write-Host "  Settings in conflict/error : $(($featureSettings | Where-Object { $_.SettingState -in @('conflict','error') }).Count)" -ForegroundColor $(if(($featureSettings | Where-Object { $_.SettingState -in @('conflict','error') }).Count -gt 0){'Red'}else{'Green'})
     Write-Log -Message "" -Level 'INFO'
 
     if ($restrictive.Count -gt 0) {

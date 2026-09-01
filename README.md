@@ -22,7 +22,7 @@ Production-grade collection of detection/remediation pairs, compliance checks, t
 
 **Intune Scripts — Enterprise Library** is a production-ready, **Azure-free** repository of **PowerShell 5.1 and macOS shell automation for Microsoft Intune and Microsoft Graph**.
 
-The repository consolidates the original remediation catalog with the adapted IntuneAutomation collection into a single functional taxonomy. Every script runs in exactly two contexts: **deployed by Intune** (proactive remediations, custom compliance, shell script profiles) or **standalone from an admin workstation** via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed — see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for attribution and removal details.
+The repository consolidates the original remediation catalog with the adapted IntuneAutomation collection into a single functional taxonomy. Every script runs in exactly two contexts: **deployed by Intune** (proactive remediations, custom compliance, shell script profiles) or **standalone from an admin workstation** via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed.
 
 Designed for enterprise scale: standardized headers, structured logging, deterministic exit codes, and a README per solution folder so each package is deployable independently.
 
@@ -77,7 +77,7 @@ Intune-Scripts-main/
 │   └── Test-AsrRulesCoverage/          # NEW — ASR 18-rule GAP vs 25H2 baseline
 │       └── Test-AsrRulesCoverage.ps1
 │
-├── Intune-Reporting-Tools/             47 reports (15 curated + 31 from IntuneToolKit) + integrated dashboard suite · 47 .ps1 + READMEs  # +1 NEW (Hotpatch)
+├── Intune-Reporting-Tools/             37 reports (curated + adapted) + integrated dashboard suite · 37 .ps1 + READMEs  # +1 NEW (Hotpatch)
 │   ├── Check-* / Get-* health & compliance suites (15 curated)
 │   ├── Export-*/Find-*/Get-Entra*/Get-Intune* audit & inventory suites (31 from IntuneToolKit)
 │   ├── Export-IntuneDashboard/           (integrated tenant dashboard — merged with former Get-DailyTenantReport in v2.0)
@@ -123,8 +123,6 @@ Intune-Scripts-main/
 │   ├── last-reboot.sh
 │   └── local-admins.sh
 │
-├── THIRD-PARTY-NOTICES.md              Upstream MIT attribution (Ugur Koc / IntuneAutomation)
-├── RESTRUCTURE-PLAN.md                 File-by-file migration map and auth-unification spec
 ├── ROADMAP.md                          Expansion roadmap (Secure Boot CA 2023, Autopilot, hardening)
 └── README.md                           This file (master index)
 ```
@@ -140,7 +138,7 @@ Intune-Scripts-main/
 | [Intune-Proactive-Remediations](Intune-Proactive-Remediations/README.md) | Paired detection/remediation packages (cleanup, repair, hardening, notifications, status) | **68 pairs** · 205 files *(+6 NEW: CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift)* | [README](Intune-Proactive-Remediations/README.md) |
 | [Intune-Custom-Compliance](Intune-Custom-Compliance/README.md) | Custom compliance discovery scripts emitting JSON (App Presence, App Version) + GUI generator | **3 packages** + GUI · 13 files *(+1 NEW: BitLocker EncryptionMethod)* | [README](Intune-Custom-Compliance/README.md) |
 | [Intune-Security-Tools](Intune-Security-Tools/) | BitLocker / LAPS / Key Vault / Defender / Firewall & ASR posture and rotation | **8 tools** *(+1 NEW: ASR Coverage)* | [Folder](Intune-Security-Tools/) |
-| [Intune-Reporting-Tools](Intune-Reporting-Tools/) | Tenant-wide reports: compliance, audit logs, Endpoint Analytics, Entra audits, device inventory/timeline, update rings & compliance, policy coverage | **47 tools** (15 curated + 31 from IntuneToolKit) + integrated dashboard *(+1 NEW: Hotpatch Readiness)* | [Folder](Intune-Reporting-Tools/) |
+| [Intune-Reporting-Tools](Intune-Reporting-Tools/) | Tenant-wide reports: compliance, audit logs, Endpoint Analytics, Entra audits, device inventory/timeline, update rings & compliance, policy coverage | **37 tools** + integrated dashboard *(+1 NEW: Hotpatch Readiness)* | [Folder](Intune-Reporting-Tools/) |
 | [Intune-Tenant-Tools](Intune-Tenant-Tools/) | Backup/restore, assignment & filter audits, drift comparison, RBAC, bulk remediation & driver approval | **9 tools** (7 + 2 suites) · 11 files | [Folder](Intune-Tenant-Tools/) |
 | [Intune-Device-Operations](Intune-Device-Operations/) | Remote device actions & lifecycle: group bulk ops, Autopilot cleanup, sync/restart/wipe, readiness, DO, bulk actions (ToolKit) | **17 tools** (14 isolated + 2 suites + 1 from IntuneToolKit) | [Folder](Intune-Device-Operations/) |
 | [Intune-Diagnostics](Intune-Diagnostics/) | Health checks & failure analysis: diagnostics collection, check-in health, enrollment failures | **4 tools** *(+1 NEW: IME Diagnostics)* | [Folder](Intune-Diagnostics/) |
@@ -255,7 +253,7 @@ Intune-deployed remediation and compliance scripts require **no Graph modules** 
 
 ### Attribution
 
-This library consolidates the original remediation catalog with monitoring and automation shells adapted from **Ugur Koc / IntuneAutomation** ([github.com/ugurkocde/IntuneAutomation](https://github.com/ugurkocde/IntuneAutomation), MIT) — see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for full upstream attribution and license. Original `.AUTHOR` fields and `CHANGELOG` entries are preserved on adapted files; catalog contributors from the pre-restructure repository remain credited in per-folder READMEs.
+This library consolidates the original remediation catalog with monitoring and automation shells adapted from **Ugur Koc / IntuneAutomation** ([github.com/ugurkocde/IntuneAutomation](https://github.com/ugurkocde/IntuneAutomation), MIT). Original `.AUTHOR` fields and `CHANGELOG` entries are preserved on adapted files; catalog contributors from the pre-restructure repository remain credited in per-folder READMEs.
 
 ---
 
