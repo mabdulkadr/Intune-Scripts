@@ -2,9 +2,9 @@
 
 # 🛡️ Intune Scripts — Enterprise Library
 
-**A unified, Azure-free collection of Intune remediation pairs, reporting tools, and device operations**
+**Zero-Azure Intune Automation. 100% PowerShell.**
 
-Curated PowerShell and shell automation for Microsoft Intune — detection/remediation pairs, compliance checks, tenant reporting, and device lifecycle operations that run from Intune or an admin workstation with no Azure Automation dependency.
+Production-grade collection of detection/remediation pairs, compliance checks, tenant reports, and device lifecycle operations for Microsoft Intune. Deploy via Intune or run from any admin workstation.
 
 [![Intune](https://img.shields.io/badge/Microsoft-Intune%20%2B%20Graph-0078D4?style=for-the-badge)](#-overview)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
