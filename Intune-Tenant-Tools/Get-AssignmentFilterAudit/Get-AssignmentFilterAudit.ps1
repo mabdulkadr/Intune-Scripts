@@ -139,7 +139,7 @@ foreach ($runbookBooleanParameter in @('ExportToCsv')) {
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'get-assignment-filter-audit'
+$SolutionName = 'Get-Assignment-Filter-Audit'
 $ScriptMode   = 'run'
 
 # ============================================================================

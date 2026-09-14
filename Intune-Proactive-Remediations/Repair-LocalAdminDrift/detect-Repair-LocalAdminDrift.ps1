@@ -229,7 +229,7 @@ function Get-AdministratorsGroupMember {
             $sid = (New-Object System.Security.Principal.SecurityIdentifier($sidBytes, 0)).Value
         }
         catch {
-            # Orphaned entries may not expose a SID - fall back to the path
+            Write-Log -Message "SID resolution failed for a local group member - falling back to the path" -Level 'DEBUG'
         }
         [PSCustomObject]@{ Name = $name; Path = $path; Sid = $sid }
     }

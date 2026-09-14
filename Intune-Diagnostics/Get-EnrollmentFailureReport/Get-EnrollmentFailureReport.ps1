@@ -90,7 +90,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'get-enrollment-failure-report'
+$SolutionName = 'Get-Enrollment-Failure-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

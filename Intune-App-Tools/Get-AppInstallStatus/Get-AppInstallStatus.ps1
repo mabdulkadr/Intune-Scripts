@@ -974,7 +974,7 @@ function Export-StandardHtmlReport {
 # Flow: init log -> banner -> module setup -> Graph auth -> main logic.
 # ============================================================================
 
-$SolutionName = 'get-app-installation-status-report'
+$SolutionName = 'Get-App-Installation-Status-Report'
 $ScriptMode   = 'run'
 
 $null = Initialize-Log -SolutionName $SolutionName -ScriptMode $ScriptMode -Type 'General'

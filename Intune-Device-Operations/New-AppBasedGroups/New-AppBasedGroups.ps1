@@ -134,7 +134,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'create-app-based-groups'
+$SolutionName = 'Create-App-Based-Groups'
 $ScriptMode   = 'run'
 
 # ============================================================================

@@ -98,7 +98,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and script-relative path anchoring.
 # ============================================================================
 
-$SolutionName = 'check-connector-health'
+$SolutionName = 'Check-Connector-Health'
 $ScriptMode   = 'run'
 
 $scriptBasePath = if ($PSScriptRoot) { $PSScriptRoot }

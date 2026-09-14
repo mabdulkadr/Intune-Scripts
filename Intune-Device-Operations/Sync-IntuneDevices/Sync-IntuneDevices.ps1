@@ -200,7 +200,7 @@ $TargetMode = $selectedTargets[0]
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'sync-devices'
+$SolutionName = 'Sync-Devices'
 $ScriptMode   = 'run'
 
 # ============================================================================

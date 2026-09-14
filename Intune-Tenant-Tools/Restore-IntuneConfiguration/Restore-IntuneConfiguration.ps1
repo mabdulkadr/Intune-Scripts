@@ -152,7 +152,7 @@ foreach ($runbookBooleanParameter in @('RestoreAssignments')) {
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'restore-intune-configuration'
+$SolutionName = 'Restore-Intune-Configuration'
 $ScriptMode   = 'run'
 
 # ============================================================================

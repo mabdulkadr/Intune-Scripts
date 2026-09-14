@@ -151,7 +151,7 @@ foreach ($runbookBooleanParameter in @('IncludeUnassigned', 'ExportToCsv')) {
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'get-assignment-matrix-report'
+$SolutionName = 'Get-Assignment-Matrix-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

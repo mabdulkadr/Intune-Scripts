@@ -115,7 +115,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'cleanup-duplicate-device-records'
+$SolutionName = 'Cleanup-Duplicate-Device-Records'
 $ScriptMode   = 'run'
 
 # ============================================================================

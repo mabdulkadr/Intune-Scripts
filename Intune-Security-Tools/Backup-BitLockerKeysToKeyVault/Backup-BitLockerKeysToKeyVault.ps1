@@ -159,7 +159,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'backup-bitlocker-keys-to-keyvault'
+$SolutionName = 'Backup-Bitlocker-Keys-To-Keyvault'
 $ScriptMode   = 'Run'
 
 # ============================================================================
@@ -749,7 +749,7 @@ finally {
         Write-Output "Disconnected from Microsoft Graph and Azure Key Vault"
     }
     catch {
-        # Ignore disconnect errors
+        Write-Log -Message "Disconnect error ignored - expected when no Graph session was established" -Level 'DEBUG'
     }
 }
 

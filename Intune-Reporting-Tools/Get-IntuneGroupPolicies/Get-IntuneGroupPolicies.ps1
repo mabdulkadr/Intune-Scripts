@@ -144,7 +144,7 @@ $ErrorActionPreference = 'Stop'
 
 
 
-$SolutionName = 'get-intunegrouppolicies'
+$SolutionName = 'Get-Intunegrouppolicies'
 
 $ScriptMode   = 'run'
 
@@ -320,9 +320,11 @@ function Write-Log {
 
     param(
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
 
-        [string]$Message,
+        [AllowEmptyString()]
+
+        [string]$Message = "",
 
         [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
 
@@ -381,9 +383,11 @@ function Finish-Script {
 
         [int]$ExitCode,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
 
-        [string]$Message,
+        [AllowEmptyString()]
+
+        [string]$Message = "",
 
         [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
 

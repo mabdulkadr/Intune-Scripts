@@ -112,7 +112,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and script-relative path anchoring.
 # ============================================================================
 
-$SolutionName = 'check-bitlocker-keys'
+$SolutionName = 'Check-Bitlocker-Keys'
 $ScriptMode   = 'run'
 
 $scriptBasePath = if ($PSScriptRoot) { $PSScriptRoot }

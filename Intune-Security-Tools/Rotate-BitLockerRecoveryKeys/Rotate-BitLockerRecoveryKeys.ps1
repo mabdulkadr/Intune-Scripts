@@ -147,7 +147,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'rotate-bitlocker-keys'
+$SolutionName = 'Rotate-Bitlocker-Keys'
 $ScriptMode   = 'Run'
 
 # ============================================================================

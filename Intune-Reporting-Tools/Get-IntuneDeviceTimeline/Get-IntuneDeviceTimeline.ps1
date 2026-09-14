@@ -61,7 +61,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-device-timeline'
+$SolutionName = 'Get-Intune-Device-Timeline'
 $ScriptMode   = 'run'
 
 # ============================================================================

@@ -163,7 +163,7 @@ $GroupLookupMode = $selectedGroupIdentifiers[0]
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'get-group-assignments'
+$SolutionName = 'Get-Group-Assignments'
 $ScriptMode   = 'run'
 
 # ============================================================================

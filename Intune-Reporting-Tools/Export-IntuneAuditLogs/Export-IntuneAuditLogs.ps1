@@ -177,7 +177,7 @@ foreach ($boolParamName in @('OnlyFailures', 'ExportToCsv', 'ExportToHtml', 'Ope
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'get-intune-audit-logs'
+$SolutionName = 'Get-Intune-Audit-Logs'
 $ScriptMode   = 'run'
 
 # Anchor the default export location beside this script (Enterprise Law 12):

@@ -117,7 +117,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and script-relative path anchoring.
 # ============================================================================
 
-$SolutionName = 'check-apple-token-validity'
+$SolutionName = 'Check-Apple-Token-Validity'
 $ScriptMode   = 'run'
 
 $scriptBasePath = if ($PSScriptRoot) { $PSScriptRoot }

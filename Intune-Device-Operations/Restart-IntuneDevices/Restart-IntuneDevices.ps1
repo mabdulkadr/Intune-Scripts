@@ -194,7 +194,7 @@ $TargetMode = $selectedTargets[0]
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'restart-devices'
+$SolutionName = 'Restart-Devices'
 $ScriptMode   = 'run'
 
 # ============================================================================

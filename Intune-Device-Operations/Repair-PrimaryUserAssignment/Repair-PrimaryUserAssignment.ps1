@@ -103,7 +103,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'fix-primary-user-assignment'
+$SolutionName = 'Fix-Primary-User-Assignment'
 $ScriptMode   = 'run'
 
 # ============================================================================

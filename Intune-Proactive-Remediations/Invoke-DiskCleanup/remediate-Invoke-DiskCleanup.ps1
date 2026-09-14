@@ -77,7 +77,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and desired state values.
 # ============================================================================
 
-$SolutionName = 'disk-cleanup'
+$SolutionName = 'Disk-Cleanup'
 $ScriptMode   = 'Remediation'
 
 $script:CleanmgrTimeoutSeconds = 300

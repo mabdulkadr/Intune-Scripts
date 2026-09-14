@@ -115,7 +115,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'rename-devices-from-csv'
+$SolutionName = 'Rename-Devices-From-Csv'
 $ScriptMode   = 'run'
 
 # ============================================================================

@@ -143,7 +143,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'get-compliance-policy-coverage'
+$SolutionName = 'Get-Compliance-Policy-Coverage'
 $ScriptMode   = 'Run'
 
 # ============================================================================

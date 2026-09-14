@@ -58,7 +58,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-autopilot-report'
+$SolutionName = 'Get-Intune-Autopilot-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

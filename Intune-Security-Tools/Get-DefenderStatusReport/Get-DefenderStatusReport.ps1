@@ -148,7 +148,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'get-defender-status-report'
+$SolutionName = 'Get-Defender-Status-Report'
 $ScriptMode   = 'Run'
 
 # ============================================================================

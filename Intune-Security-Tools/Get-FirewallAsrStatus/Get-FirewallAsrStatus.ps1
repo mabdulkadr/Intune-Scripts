@@ -142,7 +142,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'get-firewall-and-asr-status'
+$SolutionName = 'Get-Firewall-And-Asr-Status'
 $ScriptMode   = 'Run'
 
 # ============================================================================

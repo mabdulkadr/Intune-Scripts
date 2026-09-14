@@ -314,7 +314,7 @@ function Test-FixApplied {
                 $sid = (New-Object System.Security.Principal.SecurityIdentifier($sidBytes, 0)).Value
             }
             catch {
-                # Orphaned entries may not expose a SID
+                Write-RemediationLog -Message "SID resolution failed for a local group member - falling back to the path" -Level 'Info'
             }
             [PSCustomObject]@{
                 Name    = $adsiMember.InvokeGet("Name")
@@ -372,9 +372,9 @@ try {
             $sidBytes = $adsiMember.InvokeGet("objectSID")
             $sid = (New-Object System.Security.Principal.SecurityIdentifier($sidBytes, 0)).Value
         }
-        catch {
-            # Orphaned entries may not expose a SID
-        }
+catch {
+                Write-RemediationLog -Message "SID resolution failed for an administrator group member - falling back to the path" -Level 'Info'
+            }
         [PSCustomObject]@{
             Name    = $adsiMember.InvokeGet("Name")
             AdsPath = $adsiMember.InvokeGet("AdsPath")

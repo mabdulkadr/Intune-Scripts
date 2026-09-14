@@ -264,7 +264,7 @@ function Finish-Script {
 # Flow: init log -> banner -> module setup -> Graph auth -> main logic.
 # ============================================================================
 
-$SolutionName = 'cleanup-orphaned-apps'
+$SolutionName = 'Cleanup-Orphaned-Apps'
 $ScriptMode   = 'run'
 
 $null = Initialize-Log -SolutionName $SolutionName -ScriptMode $ScriptMode -Type 'General'

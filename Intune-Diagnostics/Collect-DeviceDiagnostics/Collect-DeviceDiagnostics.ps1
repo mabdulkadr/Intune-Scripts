@@ -96,7 +96,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'collect-device-diagnostics'
+$SolutionName = 'Collect-Device-Diagnostics'
 $ScriptMode   = 'run'
 
 # ============================================================================

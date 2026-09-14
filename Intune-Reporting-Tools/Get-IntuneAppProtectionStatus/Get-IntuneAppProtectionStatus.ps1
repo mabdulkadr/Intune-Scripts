@@ -56,7 +56,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-app-protection-status'
+$SolutionName = 'Get-Intune-App-Protection-Status'
 $ScriptMode   = 'run'
 
 # ============================================================================

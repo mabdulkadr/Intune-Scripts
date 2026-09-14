@@ -6,7 +6,7 @@
     Verifies that Secure Boot is enabled via Lenovo WMI BIOS interface.
 
 .DESCRIPTION
-    Evaluates Lenovo Secure Boot state by querying root\WMI Lenovo_BiosSetting where
+    Evaluates Lenovo Secure Boot state by querying root\WMI Lenovo_BiosSetting records
     CurrentSetting matches SecureBoot. On non-Lenovo hardware the script exits 0
     (not applicable) so the remediation does not run on Dell/HP. This script NEVER
     modifies the system.

@@ -142,7 +142,7 @@ foreach ($runbookBooleanParameter in @('ExportToCsv')) {
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'get-policy-drift-report'
+$SolutionName = 'Get-Policy-Drift-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================
