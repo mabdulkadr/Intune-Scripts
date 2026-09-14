@@ -155,7 +155,7 @@ function Write-Banner {
     [Alias('Show-Banner')]
     param()
 
-    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $title      = '{0} | {1} | {2}' -f $SolutionName, $ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
     $bannerLine = '=' * 78
     $lines      = @('', $bannerLine, $title, $bannerLine)
 
@@ -186,7 +186,9 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logLine = "[$timestamp] [$Level] $Message"
+    # Console = clean, no timestamp/level prefix - color alone conveys severity.
+    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
+    $fileLine  = "[$timestamp] [$Level] $Message"
 
     $color = switch ($Level) {
         "DEBUG"   { "DarkGray" }
@@ -195,10 +197,10 @@ function Write-Log {
         "WARNING" { "Yellow" }
         "ERROR"   { "Red" }
     }
-    Write-Host $logLine -ForegroundColor $color
+    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
-        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
     }
 }
 
@@ -513,7 +515,6 @@ try {
         # Preserved legacy outcome: missing transport service is a failed
         # remediation, not a crash.
         $script:RemediationResult.Status = "Failed"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
         Finish-Script -ExitCode 1 -Message "Required service is missing: $DmServiceName" -Level 'ERROR'
     }
     Write-MirroredLog ("DmWapPushService state: {0}; start mode: {1}" -f $dmServiceInfo.State, $dmServiceInfo.StartMode) -Level 'Info'
@@ -621,14 +622,12 @@ try {
 
         Write-Output "Remediation completed successfully"
         Write-Output "Targets processed: $targetCount (failed: $script:FailedCount)"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
 
         Finish-Script -ExitCode 0 -Message 'Intune sync remediation completed successfully.' -Level 'SUCCESS'
     }
     else {
         $script:RemediationResult.Status = "Failed"
         Write-Output "Remediation finished but verification failed"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
         Finish-Script -ExitCode 1 -Message 'No EnterpriseMgmt sync task was triggered successfully.' -Level 'ERROR'
     }
 }
@@ -639,9 +638,5 @@ catch {
         Type       = $_.Exception.GetType().FullName
         StackTrace = $_.ScriptStackTrace
     }
-    Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
     Finish-Script -ExitCode 2 -Message "Script execution error: $($_.Exception.Message)" -Level 'ERROR'
-}
-finally {
-    Write-Log -Message "Cleanup complete." -Level 'DEBUG'
 }

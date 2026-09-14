@@ -196,7 +196,7 @@ function Write-Banner {
     [Alias('Show-Banner')]
     param()
 
-    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $title      = '{0} | {1} | {2}' -f $SolutionName, $ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
     $bannerLine = '=' * 78
     $lines      = @('', $bannerLine, $title, $bannerLine)
 
@@ -227,7 +227,9 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logLine = "[$timestamp] [$Level] $Message"
+    # Console = clean, no timestamp/level prefix - color alone conveys severity.
+    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
+    $fileLine  = "[$timestamp] [$Level] $Message"
 
     $color = switch ($Level) {
         "DEBUG"   { "DarkGray" }
@@ -236,10 +238,10 @@ function Write-Log {
         "WARNING" { "Yellow" }
         "ERROR"   { "Red" }
     }
-    Write-Host $logLine -ForegroundColor $color
+    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
-        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
     }
 }
 
@@ -541,7 +543,6 @@ try {
         $remediationResult.Status = "Success"
         $remediationResult.PostCheckStatus += "Verification passed - device needs no restart notification"
         Write-Output "No restart notification is required"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
         Finish-Script -ExitCode 0 -Message "No restart notification is required. PendingReboot=$pendingReboot | UptimeDays=$uptimeDays" -Level 'SUCCESS'
     }
 
@@ -1084,7 +1085,6 @@ try {
     $remediationResult.PostCheckStatus += "Verification passed after remediation - restart notification was delivered"
 
     Write-Output "Restart notification delivered to the logged-on user"
-    Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
     Finish-Script -ExitCode 0 -Message "Remediation finished. PendingReboot=$pendingReboot | UptimeDays=$uptimeDays" -Level 'SUCCESS'
 }
 catch {
@@ -1103,12 +1103,10 @@ catch {
         Write-RemediationLog "Dialog failed; fallback restart scheduling attempted for 900 second(s). Scheduled=$scheduled" -Level 'Warning'
 
         if ($scheduled) {
-            Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
             Finish-Script -ExitCode 0 -Message "Dialog failed but fallback restart was scheduled" -Level 'WARNING'
         }
     }
 
-    Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
     Finish-Script -ExitCode 2 -Message "Script execution error: $($_.Exception.Message)" -Level 'ERROR'
 }
 
