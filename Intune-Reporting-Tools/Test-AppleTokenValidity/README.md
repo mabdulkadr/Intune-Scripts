@@ -72,7 +72,6 @@ Generates reports with 60-day expiration warning and saves to specified director
 ```
 Shows only problematic tokens and certificates and sends email alerts for critical issues
 
-
 ---
 
 # ⚙️ Parameters
@@ -96,7 +95,6 @@ Shows only problematic tokens and certificates and sends email alerts for critic
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -127,7 +125,6 @@ Shows only problematic tokens and certificates and sends email alerts for critic
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

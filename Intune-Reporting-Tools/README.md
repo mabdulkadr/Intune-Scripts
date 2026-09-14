@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 📊 Intune Reporting Tools
 
@@ -150,7 +150,6 @@ Intune-Reporting-Tools
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).

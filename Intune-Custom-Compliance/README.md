@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🛡️ Intune-Custom-Compliance
 
@@ -52,13 +52,22 @@ Intune-Custom-Compliance
 │
 ├── Get-AppPresenceCompliance
 │   ├── Get-AppPresenceCompliance.ps1
-│   ├── Get-AppPresenceCompliance.json
+│   ├── App-Presence-Compliance.json
 │   └── README.md
 │
 ├── Get-AppVersionCompliance
+│   ├── Get-AppVersionCompliance.ps1
+│   ├── App-Version-Compliance.json
 │   └── README.md
 │
-├── CustomCompliancePolicyGeneratorGUI
+├── Bitlocker-EncryptionMethod
+│   ├── Get-BitlockerEncryptionMethodCompliance.ps1
+│   ├── Bitlocker-EncryptionMethod.json
+│   └── README.md
+│
+├── TrendMicro-Agent-Compliance
+│   ├── Get-TrendMicroAgentCompliance.ps1
+│   ├── TrendMicro-Agent-Compliance.json
 │   └── README.md
 │
 └── README.md
@@ -74,7 +83,8 @@ This folder currently contains:
 
 * `Get-AppPresenceCompliance` — reports whether configured applications are installed (`true`/`false` per app)
 * `Get-AppVersionCompliance` — reports installed application versions for minimum-version evaluation
-* `CustomCompliancePolicyGeneratorGUI` — GUI generator that produces detection scripts and JSON rules for multiple applications
+* `Bitlocker-EncryptionMethod` — reports the BitLocker encryption method (XTS-AES 128/256) for disk-encryption compliance
+* `TrendMicro-Agent-Compliance` — reports Trend Micro Apex One agent presence for security-agent compliance
 
 Each package has its own `README.md` explaining the exact workflow and files included.
 

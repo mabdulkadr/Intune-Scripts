@@ -72,7 +72,6 @@ Includes devices in error and grace-period states in addition to non-compliant o
 ```
 Saves the reports to the specified directory and opens the HTML report when finished
 
-
 ---
 
 # ⚙️ Parameters
@@ -92,7 +91,6 @@ Saves the reports to the specified directory and opens the HTML report when fini
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -123,7 +121,6 @@ Saves the reports to the specified directory and opens the HTML report when fini
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

@@ -72,7 +72,6 @@ Generates reports with 90-day analysis period and saves to specified directory
 ```
 Generates detailed reports with security recommendations
 
-
 ---
 
 # ⚙️ Parameters
@@ -94,7 +93,6 @@ Generates detailed reports with security recommendations
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -126,7 +124,6 @@ Generates detailed reports with security recommendations
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

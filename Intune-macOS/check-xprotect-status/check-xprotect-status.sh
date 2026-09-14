@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Check XProtect and Security Status
 # SYNOPSIS: Checks XProtect, XProtect Remediator, MRT, and system security settings
@@ -10,7 +10,7 @@
 # TAGS: Monitoring,Security
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:

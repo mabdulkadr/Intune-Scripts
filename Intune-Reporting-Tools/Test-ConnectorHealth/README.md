@@ -66,7 +66,6 @@ Checks all connectors with a 30-day expiry warning window
 ```
 Uses a 60-day warning window and exports the report to CSV
 
-
 ---
 
 # ⚙️ Parameters
@@ -87,7 +86,6 @@ Uses a 60-day warning window and exports the report to CSV
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -119,7 +117,6 @@ Uses a 60-day warning window and exports the report to CSV
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

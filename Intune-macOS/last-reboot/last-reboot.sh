@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Get Last Reboot Time
 # SYNOPSIS: Retrieves the last system reboot time on macOS
@@ -10,7 +10,7 @@
 # TAGS: Monitoring,Device
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:

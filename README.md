@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🛡️ Intune Scripts — Enterprise Library
 
@@ -22,7 +22,7 @@ Production-grade collection of detection/remediation pairs, compliance checks, t
 
 **Intune Scripts — Enterprise Library** is a production-ready, **Azure-free** repository of **PowerShell 5.1 and macOS shell automation for Microsoft Intune and Microsoft Graph**.
 
-The repository consolidates the original remediation catalog with the adapted IntuneAutomation collection into a single functional taxonomy. Every script runs in exactly two contexts: **deployed by Intune** (proactive remediations, custom compliance, shell script profiles) or **standalone from an admin workstation** via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed.
+The repository consolidates the original remediation catalog into a single functional taxonomy. Every script runs in exactly two contexts: **deployed by Intune** (proactive remediations, custom compliance, shell script profiles) or **standalone from an admin workstation** via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed.
 
 Designed for enterprise scale: standardized headers, structured logging, deterministic exit codes, and a README per solution folder so each package is deployable independently.
 
@@ -56,15 +56,15 @@ Designed for enterprise scale: standardized headers, structured logging, determi
 ```text
 Intune-Scripts-main/
 │
-├── Intune-Proactive-Remediations/      68 pairs · 205 files (138 .ps1 + READMEs)  # +6 NEW in v2.1 (CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift)
+├── Intune-Proactive-Remediations/      70 pairs · 213 files (142 .ps1 + READMEs)  # +8 NEW in v2.1 (CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift, MultiSession, KB5124008)
 │   └── <Solution>/  detect-<Solution>.ps1 · remediate-<Solution>.ps1 · README.md
-│       NEW: SecureBoot-CA2023-Update · Enable-SecureBoot-Lenovo · Disable-LLMNR-NetBIOS · Clear-TeamsCache · Get-BatteryHealth · Test-WindowsLapsDrift
+│       NEW: SecureBoot-CA2023-Update · Enable-SecureBoot-Lenovo · Disable-LLMNR-NetBIOS · Clear-TeamsCache · Get-BatteryHealth · Test-WindowsLapsDrift · Enable-MultiSession · Repair-KB5124008SecureChannel
 │
-├── Intune-Custom-Compliance/           3 compliance packages + generator GUI · 13 files  # +1 NEW (Bitlocker-EncryptionMethod)
+├── Intune-Custom-Compliance/           4 compliance packages · 13 files  # +2 NEW (Bitlocker-EncryptionMethod, TrendMicro)
 │   ├── Get-AppPresenceCompliance/
 │   ├── Get-AppVersionCompliance/
 │   ├── Bitlocker-EncryptionMethod/     # NEW — XTS-AES 128/256 enforcement
-│   └── CustomCompliancePolicyGeneratorGUI/
+│   ├── TrendMicro-Agent-Compliance/     # NEW — TrendMicro Apex One agent check
 │
 ├── Intune-Security-Tools/              8 tools · 8 .ps1  # +1 NEW (Test-AsrRulesCoverage)
 │   ├── Backup-BitLockerKeysToKeyVault.ps1
@@ -110,7 +110,6 @@ Intune-Scripts-main/
 ├── Intune-App-Tools/                   6 tools + 2 suites · 10 files
 │   ├── Get-ApplicationInventory.ps1  · Get-AppInstallStatus.ps1  · Get-AppAssignmentConflicts.ps1
 │   ├── Get-DuplicateApplications.ps1  · Get-VppLicenseReport.ps1  · Remove-OrphanedApps.ps1
-│   ├── Repair-CompanyPortal/           (suite)
 │   └── Invoke-Win32AppAutoDeployer/             (Win32 app auto-deployer suite)
 │
 ├── Intune-macOS/                       8 shell checks · 8 .sh (bash/zsh)  # +1 NEW (Platform SSO GA May 2026)
@@ -135,14 +134,14 @@ Intune-Scripts-main/
 
 | Category | Contents | Count | Docs |
 | -------- | -------- | ----- | ---- |
-| [Intune-Proactive-Remediations](Intune-Proactive-Remediations/README.md) | Paired detection/remediation packages (cleanup, repair, hardening, notifications, status) | **68 pairs** · 205 files *(+6 NEW: CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift)* | [README](Intune-Proactive-Remediations/README.md) |
-| [Intune-Custom-Compliance](Intune-Custom-Compliance/README.md) | Custom compliance discovery scripts emitting JSON (App Presence, App Version) + GUI generator | **3 packages** + GUI · 13 files *(+1 NEW: BitLocker EncryptionMethod)* | [README](Intune-Custom-Compliance/README.md) |
+| [Intune-Proactive-Remediations](Intune-Proactive-Remediations/README.md) | Paired detection/remediation packages (cleanup, repair, hardening, notifications, status) | **70 pairs** · 213 files *(+8 NEW: CA 2023, Lenovo, LLMNR, TeamsCache, Battery, LAPS drift, MultiSession, KB5124008)* | [README](Intune-Proactive-Remediations/README.md) |
+| [Intune-Custom-Compliance](Intune-Custom-Compliance/README.md) | Custom compliance discovery scripts emitting JSON (App Presence, App Version, BitLocker, TrendMicro) | **4 packages** · 13 files *(+2 NEW: BitLocker, TrendMicro)* | [README](Intune-Custom-Compliance/README.md) |
 | [Intune-Security-Tools](Intune-Security-Tools/) | BitLocker / LAPS / Key Vault / Defender / Firewall & ASR posture and rotation | **8 tools** *(+1 NEW: ASR Coverage)* | [Folder](Intune-Security-Tools/) |
 | [Intune-Reporting-Tools](Intune-Reporting-Tools/) | Tenant-wide reports: compliance, audit logs, Endpoint Analytics, Entra audits, device inventory/timeline, update rings & compliance, policy coverage | **37 tools** + integrated dashboard *(+1 NEW: Hotpatch Readiness)* | [Folder](Intune-Reporting-Tools/) |
 | [Intune-Tenant-Tools](Intune-Tenant-Tools/) | Backup/restore, assignment & filter audits, drift comparison, RBAC, bulk remediation & driver approval | **9 tools** (7 + 2 suites) · 11 files | [Folder](Intune-Tenant-Tools/) |
 | [Intune-Device-Operations](Intune-Device-Operations/) | Remote device actions & lifecycle: group bulk ops, Autopilot cleanup, sync/restart/wipe, readiness, DO, bulk actions (ToolKit) | **17 tools** (14 isolated + 2 suites + 1 from IntuneToolKit) | [Folder](Intune-Device-Operations/) |
 | [Intune-Diagnostics](Intune-Diagnostics/) | Health checks & failure analysis: diagnostics collection, check-in health, enrollment failures | **4 tools** *(+1 NEW: IME Diagnostics)* | [Folder](Intune-Diagnostics/) |
-| [Intune-App-Tools](Intune-App-Tools/) | App inventory, assignment conflicts, duplicates, orphan cleanup, VPP licensing, Win32 deployer, Company Portal repair | **8 tools** (6 + 2 suites) · 10 files | [Folder](Intune-App-Tools/) |
+| [Intune-App-Tools](Intune-App-Tools/) | App inventory, assignment conflicts, duplicates, orphan cleanup, VPP licensing, Win32 deployer | **7 tools** (6 + 1 suite) · 8 files | [Folder](Intune-App-Tools/) |
 | [Intune-macOS](Intune-macOS/README.md) | macOS shell checks: warranty, MAU status/updates, network prerequisites, XProtect/SIP/Gatekeeper/FileVault, uptime, local admins | **8 scripts** · 8 .sh *(+1 NEW: Platform SSO GA)* | [README](Intune-macOS/README.md) |
 
 ---
@@ -250,10 +249,6 @@ Intune-deployed remediation and compliance scripts require **no Graph modules** 
 * Destructive tools (`Invoke-DeviceWipe`, `Remove-StaleAutopilotDevices`, `Remove-DuplicateDeviceRecords`, `Remove-OrphanedApps`) are flagged with ⚠ in their READMEs — confirm scope and backup before use.
 * **Apple Silicon vs Intel / Rosetta (macOS):** All `Intune-macOS` checks use universal tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on both architectures; no Rosetta dependency. MAU checks invoke the native `msupdate` binary for the host arch.
 * No Azure dependencies remain — if a script still references Managed Identity or Automation variables, treat it as a bug and report it.
-
-### Attribution
-
-This library consolidates the original remediation catalog with monitoring and automation shells adapted from **Ugur Koc / IntuneAutomation** ([github.com/ugurkocde/IntuneAutomation](https://github.com/ugurkocde/IntuneAutomation), MIT). Original `.AUTHOR` fields and `CHANGELOG` entries are preserved on adapted files; catalog contributors from the pre-restructure repository remain credited in per-folder READMEs.
 
 ---
 

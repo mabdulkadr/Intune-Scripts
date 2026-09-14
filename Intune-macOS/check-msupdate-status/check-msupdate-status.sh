@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Check Microsoft AutoUpdate Status
 # SYNOPSIS: Checks the status of Microsoft AutoUpdate (MAU) on macOS devices
@@ -9,7 +9,7 @@
 # TAGS: Monitoring,Updates
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:
