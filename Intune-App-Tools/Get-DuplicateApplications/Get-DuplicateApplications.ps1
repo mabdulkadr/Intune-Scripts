@@ -938,7 +938,7 @@ function Export-StandardHtmlReport {
 # Flow: init log -> banner -> module setup -> Graph auth -> main logic.
 # ============================================================================
 
-$SolutionName = 'get-duplicate-applications'
+$SolutionName = 'Get-Duplicate-Applications'
 $ScriptMode   = 'run'
 
 $null = Initialize-Log -SolutionName $SolutionName -ScriptMode $ScriptMode -Type 'General'

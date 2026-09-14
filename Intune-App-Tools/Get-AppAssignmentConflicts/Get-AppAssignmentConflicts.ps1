@@ -252,7 +252,7 @@ function Finish-Script {
 # Flow: init log -> banner -> module setup -> Graph auth -> main logic.
 # ============================================================================
 
-$SolutionName = 'get-app-assignment-conflicts'
+$SolutionName = 'Get-App-Assignment-Conflicts'
 $ScriptMode   = 'run'
 
 $null = Initialize-Log -SolutionName $SolutionName -ScriptMode $ScriptMode -Type 'General'

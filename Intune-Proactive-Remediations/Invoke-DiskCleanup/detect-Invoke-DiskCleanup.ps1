@@ -75,7 +75,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and compliance target values.
 # ============================================================================
 
-$SolutionName = 'disk-cleanup'
+$SolutionName = 'Disk-Cleanup'
 $ScriptMode   = 'Detection'
 
 $threshold = 1GB

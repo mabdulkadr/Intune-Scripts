@@ -107,7 +107,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-noncompliant-devices-with-reasons'
+$SolutionName = 'Get-Noncompliant-Devices-With-Reasons'
 $ScriptMode   = 'run'
 
 # ============================================================================

@@ -79,7 +79,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and desired state values.
 # ============================================================================
 
-$SolutionName = 'onedrive-kfm'
+$SolutionName = 'Onedrive-Kfm'
 $ScriptMode   = 'Remediation'
 
 # Set this to your Entra tenant ID before deploying

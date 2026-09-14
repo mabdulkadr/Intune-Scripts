@@ -91,7 +91,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'get-device-checkin-health'
+$SolutionName = 'Get-Device-Checkin-Health'
 $ScriptMode   = 'run'
 
 # ============================================================================

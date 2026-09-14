@@ -454,7 +454,7 @@ function Get-EnterpriseMgmtTasks {
             return @($tasks)
         }
         catch {
-            # Fall back to schtasks parsing below.
+            Write-SyncFixerEntry -Message "Get-ScheduledTask enumeration failed - falling back to schtasks parsing" -Level 'Info'
         }
     }
 
@@ -481,7 +481,7 @@ function Get-EnterpriseMgmtTasks {
         }
     }
     catch {
-        # schtasks parsing failed as well - report an empty task list upstream.
+        Write-SyncFixerEntry -Message "schtasks parsing failed as well - reporting an empty task list upstream" -Level 'Info'
     }
 
     return @($tasks)

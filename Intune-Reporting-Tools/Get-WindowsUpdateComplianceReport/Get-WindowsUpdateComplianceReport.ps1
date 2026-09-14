@@ -137,7 +137,7 @@ foreach ($boolParamName in @('ExportToCsv')) {
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'get-windows-update-compliance-report'
+$SolutionName = 'Get-Windows-Update-Compliance-Report'
 $ScriptMode   = 'run'
 
 # Anchor the default export location beside this script (Enterprise Law 12):

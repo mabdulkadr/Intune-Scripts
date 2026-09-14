@@ -122,7 +122,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and script-relative path anchoring.
 # ============================================================================
 
-$SolutionName = 'check-policy-changes'
+$SolutionName = 'Check-Policy-Changes'
 $ScriptMode   = 'run'
 
 $scriptBasePath = if ($PSScriptRoot) { $PSScriptRoot }

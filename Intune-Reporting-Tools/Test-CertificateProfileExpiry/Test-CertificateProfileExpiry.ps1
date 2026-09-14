@@ -98,7 +98,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and script-relative path anchoring.
 # ============================================================================
 
-$SolutionName = 'check-certificate-profile-expiry'
+$SolutionName = 'Check-Certificate-Profile-Expiry'
 $ScriptMode   = 'run'
 
 $scriptBasePath = if ($PSScriptRoot) { $PSScriptRoot }

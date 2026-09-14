@@ -149,7 +149,7 @@ foreach ($runbookBooleanParameter in @('SkipScriptContent')) {
 # CONFIGURATION - solution identity for structured logging.
 # ============================================================================
 
-$SolutionName = 'backup-intune-configuration'
+$SolutionName = 'Backup-Intune-Configuration'
 $ScriptMode   = 'run'
 
 # ============================================================================

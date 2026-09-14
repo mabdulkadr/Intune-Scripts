@@ -307,7 +307,7 @@ function Parse-CMTraceTimestampUtc {
             return $localDate.ToUniversalTime()
         }
         catch {
-            # Unparseable CMTrace timestamp variant - try the fallback pattern below.
+            Write-Log -Message "Unparseable CMTrace timestamp variant - trying the fallback pattern" -Level 'DEBUG'
         }
     }
 
@@ -324,7 +324,7 @@ function Parse-CMTraceTimestampUtc {
             return $localDate.ToUniversalTime()
         }
         catch {
-            # Unparseable fallback timestamp - treat this line as having no stamp.
+            Write-Log -Message "Unparseable fallback timestamp - treating this line as having no stamp" -Level 'DEBUG'
         }
     }
 
@@ -355,7 +355,7 @@ function Get-LastLogTimestampUtc {
         }
     }
     catch {
-        # Continue to file timestamp fallback.
+        Write-Log -Message "CMTrace timestamp parse failed - continuing to file timestamp fallback" -Level 'DEBUG'
     }
 
     try {

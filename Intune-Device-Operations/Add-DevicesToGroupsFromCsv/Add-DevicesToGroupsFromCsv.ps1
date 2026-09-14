@@ -151,7 +151,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'add-devices-to-groups-from-csv'
+$SolutionName = 'Add-Devices-To-Groups-From-Csv'
 $ScriptMode   = 'run'
 
 # ============================================================================

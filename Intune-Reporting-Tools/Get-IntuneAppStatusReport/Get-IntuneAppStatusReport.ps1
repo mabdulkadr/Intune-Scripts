@@ -79,7 +79,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-app-status-report'
+$SolutionName = 'Get-Intune-App-Status-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

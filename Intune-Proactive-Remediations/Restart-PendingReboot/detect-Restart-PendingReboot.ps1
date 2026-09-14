@@ -229,7 +229,7 @@ function Test-PendingReboot {
         }
     }
     catch {
-        # Value not present - nothing pending
+        Write-Log -Message "PendingFileRenameOperations registry value not present - nothing pending" -Level 'DEBUG'
     }
 
     try {
@@ -240,7 +240,7 @@ function Test-PendingReboot {
         }
     }
     catch {
-        # Ignore - rename detection is best effort
+        Write-Log -Message "Computer rename detection failed - best-effort check skipped" -Level 'DEBUG'
     }
 
     return @($reasons)

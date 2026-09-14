@@ -146,7 +146,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'get-windows-laps-audit'
+$SolutionName = 'Get-Windows-Laps-Audit'
 $ScriptMode   = 'Run'
 
 # ============================================================================

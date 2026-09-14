@@ -127,7 +127,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'cleanup-autopilot-devices'
+$SolutionName = 'Cleanup-Autopilot-Devices'
 $ScriptMode   = 'run'
 
 # ============================================================================

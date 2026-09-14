@@ -147,7 +147,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and logging.
 # ============================================================================
 
-$SolutionName = 'get-intune-role-assignments'
+$SolutionName = 'Get-Intune-Role-Assignments'
 $ScriptMode   = 'Run'
 
 # ============================================================================

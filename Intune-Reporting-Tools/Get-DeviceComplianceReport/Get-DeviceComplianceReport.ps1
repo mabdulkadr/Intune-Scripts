@@ -97,7 +97,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-device-compliance-report'
+$SolutionName = 'Get-Device-Compliance-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

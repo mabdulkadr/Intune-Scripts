@@ -177,7 +177,7 @@ if ($IncludeAll) {
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'get-endpoint-analytics-report'
+$SolutionName = 'Get-Endpoint-Analytics-Report'
 $ScriptMode   = 'run'
 
 # Anchor the default report location beside this script (Enterprise Law 12):

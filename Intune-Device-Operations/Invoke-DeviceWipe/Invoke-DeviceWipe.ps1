@@ -212,7 +212,7 @@ $TargetMode = $selectedTargets[0]
 # CONFIGURATION - solution identity used by the logging helpers.
 # ============================================================================
 
-$SolutionName = 'wipe-devices'
+$SolutionName = 'Wipe-Devices'
 $ScriptMode   = 'run'
 
 # ============================================================================

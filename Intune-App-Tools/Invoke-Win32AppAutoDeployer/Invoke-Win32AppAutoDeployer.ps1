@@ -213,6 +213,10 @@ function Write-Log {
     if ($script:LogReady -and $script:LogFile) {
         Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
     }
+
+    if ($gitBackupLogPath) {
+        Add-Content -LiteralPath $gitBackupLogPath -Value "$(Get-Date -Format 'yyyy/MM/dd HH:mm:ss') $Message" -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+    }
 }
 
 # Logs the final message and terminates with the given exit code.
@@ -231,17 +235,6 @@ function Finish-Script {
     Write-Log -Message $Message -Level $Level
     if (-not $NoExit) {
         exit $ExitCode
-    }
-}
-
-# Bridges legacy log calls to Write-Log while feeding the temp file ingested by the Git backup.
-function Write-Log {
-    [CmdletBinding()]
-    param([string]$LogString)
-
-    Write-Log -Message $LogString -Level 'INFO'
-    if ($gitBackupLogPath) {
-        Add-Content -LiteralPath $gitBackupLogPath -Value "$(Get-Date -Format 'yyyy/MM/dd HH:mm:ss') $LogString" -Encoding UTF8
     }
 }
 
@@ -566,7 +559,7 @@ function Invoke-MgGraphRequestWithRetry {
                     }
                 }
                 catch {
-                    # Retry-After header unavailable; keep the default backoff window.
+                    Write-Log -Message "Retry-After header unavailable - using the default backoff window" -Level 'DEBUG'
                 }
                 Write-Log -Message "Graph returned $statusCode; retrying in $retryAfterSeconds seconds (attempt $attempt of $maxAttempts)" -Level 'WARNING'
                 Start-Sleep -Seconds $retryAfterSeconds

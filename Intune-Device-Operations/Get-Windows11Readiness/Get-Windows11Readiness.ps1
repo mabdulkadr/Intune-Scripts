@@ -102,7 +102,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'get-windows11-readiness-report'
+$SolutionName = 'Get-Windows11-Readiness-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

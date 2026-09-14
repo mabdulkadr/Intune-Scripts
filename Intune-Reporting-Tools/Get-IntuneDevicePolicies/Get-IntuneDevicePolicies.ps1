@@ -73,7 +73,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-device-policies'
+$SolutionName = 'Get-Intune-Device-Policies'
 $ScriptMode   = 'run'
 
 # ============================================================================

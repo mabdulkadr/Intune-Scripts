@@ -82,7 +82,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-compliance-report'
+$SolutionName = 'Get-Intune-Compliance-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================

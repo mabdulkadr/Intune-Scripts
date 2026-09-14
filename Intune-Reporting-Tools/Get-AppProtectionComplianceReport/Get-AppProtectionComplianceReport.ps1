@@ -110,7 +110,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-maa-compliance-report'
+$SolutionName = 'Get-Maa-Compliance-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================
@@ -1840,6 +1840,6 @@ finally {
         Write-Output "Disconnected from Microsoft Graph"
     }
     catch {
-        # Ignore disconnect errors - expected when no Graph session was established.
+        Write-Log -Message "Disconnect error ignored - expected when no Graph session was established" -Level 'DEBUG'
     }
 }

@@ -85,7 +85,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity for the embedded logging block.
 # ============================================================================
 
-$SolutionName = 'get-intune-bitlocker-keys'
+$SolutionName = 'Get-Intune-Bitlocker-Keys'
 $ScriptMode   = 'run'
 
 # ============================================================================

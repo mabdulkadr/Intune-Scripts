@@ -102,7 +102,7 @@ $ErrorActionPreference = 'Stop'
 # CONFIGURATION - solution identity and log placement.
 # ============================================================================
 
-$SolutionName = 'get-outdated-ios-devices-report'
+$SolutionName = 'Get-Outdated-Ios-Devices-Report'
 $ScriptMode   = 'run'
 
 # ============================================================================
