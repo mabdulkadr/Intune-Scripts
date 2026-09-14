@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Check AppleCare Warranty Status
 # SYNOPSIS: Checks Apple warranty and AppleCare status on macOS devices
@@ -9,7 +9,7 @@
 # TAGS: Monitoring,Device
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-02
 # CHANGELOG:

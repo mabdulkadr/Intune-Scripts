@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Check Network Requirements
 # SYNOPSIS: Checks connectivity to Apple security and software update services
@@ -10,7 +10,7 @@
 # TAGS: Monitoring,Network
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:

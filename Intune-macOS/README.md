@@ -153,10 +153,6 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ---
 
-### Attribution
-
-Monitoring shells adapted from ugurkocde/IntuneAutomation monitoring pack (MIT) — see THIRD-PARTY-NOTICES.md.
-
 ---
 
 ## ⚠ Disclaimer

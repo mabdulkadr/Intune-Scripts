@@ -133,9 +133,6 @@ Forces module installation without prompting and generates the report.
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Migrated to Enterprise Admin standards by **Mohammad Abdelkader Omar**  
-GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
-Website: [momar.tech](https://momar.tech)
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

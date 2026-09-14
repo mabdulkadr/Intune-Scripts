@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: Check Available Microsoft Updates
 # SYNOPSIS: Checks for available updates for Microsoft applications via MAU
@@ -10,7 +10,7 @@
 # TAGS: Monitoring,Updates
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:

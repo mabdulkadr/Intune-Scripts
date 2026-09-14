@@ -78,7 +78,6 @@ Shows all audit entries for a specific user and exports to CSV
 ```
 Shows audit entries related to policy changes and opens HTML report
 
-
 ---
 
 # ⚙️ Parameters
@@ -107,7 +106,6 @@ Shows audit entries related to policy changes and opens HTML report
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -138,9 +136,6 @@ Shows audit entries related to policy changes and opens HTML report
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-**Mohammad Abdelkader Omar** (maintainer) — original author: **Ugur Koc**
-
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

@@ -33,7 +33,7 @@
     None (local SYSTEM context) - folder and process executable-presence checks only
 
 .AUTHOR
-    AI Generated
+    Mohammad Abdelkader Omar
 
 .VERSION
     2.1.0

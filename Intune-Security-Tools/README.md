@@ -124,10 +124,6 @@ This skill and every script it generates are provided as-is with no warranty of 
 
 ---
 
-## 📜 Attribution
-
-Adapted from [ugurkocde/IntuneAutomation](https://github.com/ugurkocde/IntuneAutomation). See [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md) for full upstream license, preserved `.AUTHOR`/`.CHANGELOG` fields, and excluded Azure-only assets. **Clarification — Key Vault destination:** `Backup-BitLockerKeysToKeyVault.ps1` writes to Azure Key Vault (`https://vault.azure.net`) as a **vault-destination RESOURCE** (audience-specific REST writes via `Invoke-MgGraphCommunityRequest`), not as an Azure Automation runbook — no Automation dependency or Managed Identity code path is introduced; the remaining scripts in this folder do not touch Azure at all.
-
 ---
 
 <div align="center">

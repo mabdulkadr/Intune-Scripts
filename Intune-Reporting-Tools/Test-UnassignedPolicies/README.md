@@ -72,7 +72,6 @@ Generates a detailed report and saves to specified directory
 ```
 Generates report for policies created in the last 7 days
 
-
 ---
 
 # ⚙️ Parameters
@@ -93,7 +92,6 @@ Generates report for policies created in the last 7 days
 | ---- | ------ |
 | 0 | Success |
 | 1 | Failure |
-
 
 ---
 
@@ -125,7 +123,6 @@ Generates report for policies created in the last 7 days
 GitHub: [@mabdulkadr](https://github.com/mabdulkadr)  
 Website: [momar.tech](https://momar.tech)
 
-Adapted in part from github.com/ugurkocde/IntuneAutomation (Ugur Koc, MIT) — see THIRD-PARTY-NOTICES.md.
 ## 📜 License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 

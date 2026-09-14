@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # TITLE: List Local Admin Users
 # SYNOPSIS: Lists all users with local administrator privileges on macOS
@@ -9,7 +9,7 @@
 # TAGS: Monitoring,Security
 # PLATFORM: macOS
 # MIN_OS_VERSION: 10.15
-# AUTHOR: Ugur Koc
+# AUTHOR: Mohammad Abdelkader Omar
 # VERSION: 1.0
 # LASTUPDATE: 2025-06-04
 # CHANGELOG:
