@@ -4,13 +4,13 @@
 
 **Intune Proactive Remediation package that repairs a broken computer secure channel to the Active Directory domain.**
 
-Detection verifies domain membership and tests the machine secure channel, then remediation runs `Test-ComputerSecureChannel -Repair` to restore domain trust — built for enterprise fleet baselines.
+Detection verifies domain membership and tests the machine secure channel, then remediation repairs it via `Test-ComputerSecureChannel -Repair` with an automatic `nltest /sc_reset` fallback when the native reset is denied — built for enterprise fleet baselines.
 
 [![Intune](https://img.shields.io/badge/Intune-Proactive%20Remediation-10B981?style=for-the-badge)](#-intune-deployment)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0F172A?style=for-the-badge)](#%EF%B8%8F-requirements)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
-[![Version](https://img.shields.io/badge/Version-2.0.0-334155?style=for-the-badge)](#-overview)
+[![Version](https://img.shields.io/badge/Version-2.1.0-334155?style=for-the-badge)](#-overview)
 
 [Overview](#-overview) • [Deployment](#-intune-deployment) • [Workflow](#-typical-workflow) • [Requirements](#%EF%B8%8F-requirements) • [License](#-license)
 
@@ -34,7 +34,7 @@ The machine account password can fall out of sync after snapshot restores, long 
 * Never modifies the system during detection; non-domain-joined devices exit `0`
 
 ### 🔹 Verified Remediation
-* Repairs the secure channel with `Test-ComputerSecureChannel -Repair` using a pre-check → fix → post-verify flow
+* Repairs the secure channel via `Test-ComputerSecureChannel -Repair` with an automatic `nltest /sc_reset` fallback, using a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
 * Idempotent — safe to run repeatedly on the same device
 * Optional post-repair reboot scheduling remains disabled by configuration (`$ForceRebootAfterRepair = $false`, unchanged from the legacy script)
@@ -89,11 +89,11 @@ remediate-Repair-ADSecureChannel.ps1
 ```
 
 ### Purpose
-Repairs the machine secure channel with `Test-ComputerSecureChannel -Repair`, using a pre-check → fix → post-verify flow with structured JSON output.
+Repairs the machine secure channel with `Test-ComputerSecureChannel -Repair` and an automatic `nltest /sc_reset` fallback, using a pre-check → fix → post-verify flow with structured JSON output.
 
 ### Logic
 1. Pre-check: confirm the device is domain-joined; non-domain-joined devices exit `0` as not applicable
-2. Fix: run `Test-ComputerSecureChannel -Repair` against a writable domain controller
+2. Fix: repair the secure channel with `Test-ComputerSecureChannel -Repair`, falling back automatically to `nltest.exe /sc_reset:<Domain>` when the native reset is denied
 3. Post-verify: re-run `Test-ComputerSecureChannel` and compare against the healthy state
 
 ### Exit Codes
@@ -147,7 +147,7 @@ remediate-Repair-ADSecureChannel.ps1
 1. Intune runs the **Detection Script**
 2. Detection exits with code `1` when the secure channel is broken on a domain-joined device
 3. Intune runs the **Remediation Script**
-4. Remediation repairs the channel, verifies it, and logs results
+4. Remediation repairs the channel (native repair with `nltest /sc_reset` fallback), verifies it, and logs results
 
 ---
 
@@ -156,6 +156,7 @@ remediate-Repair-ADSecureChannel.ps1
 * Secure channel repair requires line-of-sight to a writable domain controller; without DC connectivity the verification fails and the script exits `1`.
 * Non-domain-joined devices always exit `0` in both scripts (not applicable).
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
+* **Access denied (0x80070005) during the password reset means the computer account lacks the AD 'Reset password' right.** Grant that right on the computer object, run `netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*` once from the console, or rejoin to a fresh machine account — then re-run remediation. The script logs exactly which method was denied (`Test-ComputerSecureChannel -Repair` vs `nltest /sc_reset`).
 
 ---
 

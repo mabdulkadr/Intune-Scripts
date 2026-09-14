@@ -51,14 +51,14 @@ if(-not(Test-Path -LiteralPath $script:LogRoot)){$null=[System.IO.Directory]::Cr
 if(-not(Test-Path -LiteralPath $script:LogFile)){$null=[System.IO.File]::Create($script:LogFile).Dispose()}
 $script:LogReady=$true;return $true}catch{Write-Host "Log init failed: $($_.Exception.Message)" -ForegroundColor Red;$script:LogReady=$false;return $false}}
 function Write-Banner{[CmdletBinding()][Alias('Show-Banner')]param()
-$title='{0} | {1}' -f $SolutionName,$ScriptMode;$bannerLine='='*78;$lines=@('',$bannerLine,$title,$bannerLine)
+\$title      = '{0} | {1} | {2}' -f \$SolutionName, \$ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss');$bannerLine='='*78;$lines=@('',$bannerLine,$title,$bannerLine)
 foreach($line in $lines){if($line -eq $title){Write-Host $line -ForegroundColor White}else{Write-Host $line -ForegroundColor DarkGray}
 if($script:LogReady -and $script:LogFile){Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false}}}
 function Write-Log{[CmdletBinding()]param([Parameter(Mandatory=$false)][AllowEmptyString()][string]$Message="",[ValidateSet("INFO","SUCCESS","WARNING","ERROR","DEBUG")][string]$Level="INFO")
 if([string]::IsNullOrEmpty($Message)){return};$timestamp=Get-Date -Format "yyyy-MM-dd HH:mm:ss";$logLine="[$timestamp] [$Level] $Message"
 $color=switch($Level){"DEBUG"{"DarkGray"}"INFO"{"Cyan"}"SUCCESS"{"Green"}"WARNING"{"Yellow"}"ERROR"{"Red"}}
-Write-Host $logLine -ForegroundColor $color
-if($script:LogReady -and $script:LogFile){Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false}}
+Write-Host $Message -ForegroundColor $color
+if($script:LogReady -and $script:LogFile){Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false}}
 function Finish-Script{[CmdletBinding()]param([Parameter(Mandatory=$true)][int]$ExitCode,[Parameter(Mandatory=$false)][AllowEmptyString()][string]$Message="",[ValidateSet("INFO","SUCCESS","WARNING","ERROR","DEBUG")][string]$Level="INFO",[switch]$NoExit)
 Write-Log -Message $Message -Level $Level;if(-not $NoExit){exit $ExitCode}}
 function Write-RemediationLog{[CmdletBinding()]param([Parameter(Mandatory=$false)][AllowEmptyString()][string]$Message="",[ValidateSet('Info','Warning','Error')][string]$Level='Info')
@@ -105,17 +105,13 @@ foreach($p in $paths){ $targetCount++; if(-not(Clear-TeamsCachePath -Path $p)){ 
 $verificationPassed=($script:failedCount -eq 0)
 if($verificationPassed){ $script:remediationResult.Status="Success"; $script:remediationResult.PostCheckStatus+="Teams cache cleared"
 Write-Output "Remediation completed successfully"
-Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
 Finish-Script -ExitCode 0 -Message "Remediation completed successfully" -Level 'SUCCESS'
 }else{ $script:remediationResult.Status="Failed"
 Write-Output "Remediation finished with $script:failedCount failure(s)"
-Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
 Finish-Script -ExitCode 1 -Message "Post-remediation verification failed" -Level 'ERROR'}
 }
 catch{
 $script:remediationResult.Status="Error"
 $script:remediationResult.Error=@{Message=$_.Exception.Message;Type=$_.Exception.GetType().FullName;StackTrace=$_.ScriptStackTrace}
-Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
 Finish-Script -ExitCode 2 -Message "Script execution error: $($_.Exception.Message)" -Level 'ERROR'
 }
-finally{ Write-Log -Message "Cleanup complete" -Level 'DEBUG' }

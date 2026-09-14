@@ -147,7 +147,7 @@ function Write-Banner {
     [Alias('Show-Banner')]
     param()
 
-    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $title      = '{0} | {1} | {2}' -f $SolutionName, $ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
     $bannerLine = '=' * 78
     $lines      = @('', $bannerLine, $title, $bannerLine)
 
@@ -178,7 +178,9 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logLine = "[$timestamp] [$Level] $Message"
+    # Console = clean, no timestamp/level prefix - color alone conveys severity.
+    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
+    $fileLine  = "[$timestamp] [$Level] $Message"
 
     $color = switch ($Level) {
         "DEBUG"   { "DarkGray" }
@@ -187,10 +189,10 @@ function Write-Log {
         "WARNING" { "Yellow" }
         "ERROR"   { "Red" }
     }
-    Write-Host $logLine -ForegroundColor $color
+    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
-        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
     }
 }
 
@@ -369,7 +371,6 @@ try {
 
         Write-Output "Update successful - Definitions are current"
         Write-Output "Targets processed: $targetCount (failed: $failedCount)"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
 
         Finish-Script -ExitCode 0 -Message "Remediation completed successfully" -Level 'SUCCESS'
     }
@@ -381,7 +382,6 @@ try {
         else {
             Write-Output "Update may have failed - Definitions still outdated"
         }
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
         Finish-Script -ExitCode 1 -Message "Post-remediation verification failed" -Level 'ERROR'
     }
 }
@@ -392,11 +392,7 @@ catch {
         Type       = $_.Exception.GetType().FullName
         StackTrace = $_.ScriptStackTrace
     }
-    Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
     Finish-Script -ExitCode 2 -Message "Script execution error: $($_.Exception.Message)" -Level 'ERROR'
-}
-finally {
-    Write-Log -Message "Cleanup complete." -Level 'DEBUG'
 }
 
 

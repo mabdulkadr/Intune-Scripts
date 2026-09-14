@@ -8,9 +8,11 @@
 .DESCRIPTION
     Paired remediation for Repair-ADSecureChannel. Runs only when
     detect-Repair-ADSecureChannel.ps1 returns exit 1. Performs: (1) pre-remediation
-    validation, (2) secure channel repair with failure tracking, (3) post-remediation
-    verification, (4) structured JSON result output for Intune diagnostics.
-    Devices that are not domain-joined are skipped as not applicable and exit 0.
+    validation, (2) secure channel repair with a multi-method fallback chain
+    (Test-ComputerSecureChannel -Repair, then nltest.exe /sc_reset:<Domain>),
+    (3) post-remediation verification, (4) structured JSON result output for Intune
+    diagnostics. Devices that are not domain-joined are skipped as not applicable and
+    exit 0.
 
     Exit contract:
     Exit 0 = success (fix applied and verified)
@@ -33,15 +35,28 @@
     Intune Service Administrator
 
 .PERMISSIONS
-    None (local SYSTEM context) - resets the machine secure channel via Test-ComputerSecureChannel -Repair.
+    None (local SYSTEM context) - resets the machine secure channel via
+    Test-ComputerSecureChannel -Repair, falling back to nltest.exe /sc_reset when
+    the native repair is denied by the domain.
 
 .AUTHOR
     Mohammad Abdelkader Omar
 
 .VERSION
-    2.0.0
+    2.1.0
 
 .CHANGELOG
+    2.1.0 (2026-09-14)
+    - Fixed scope mismatch between $remediationResult and $script:RemediationResult so
+      the structured audit trail is actually populated in the JSON output.
+    - Fixed $failedCount vs $script:FailedCount so the post-verify gate and status
+      message reflect the real failure count.
+    - Added a multi-method secure channel repair chain to survive Access Denied
+      (0x80070005): Test-ComputerSecureChannel -Repair runs first, nltest.exe
+      /sc_reset:<Domain> falls back automatically, and when both are denied the script
+      surfaces explicit operator guidance.
+    - Added [AllowEmptyString()] to Write-Log and Finish-Script parameters for
+      canonical consistency.
     2.0.0 (2026-08-26)
     - Migrated to Enterprise Standards canonical structure (header, logging, exit contract)
     - Added pre-check / per-target fix / post-verify flow with JSON result output
@@ -51,7 +66,7 @@
     - Initial release
 
 .LASTUPDATE
-    2026-08-26
+    2026-09-14
 
 .EXAMPLE
     .\remediate-Repair-ADSecureChannel.ps1
@@ -64,6 +79,10 @@
 .NOTES
     - Runs in SYSTEM context via Intune Proactive Remediations.
     - Requires line-of-sight to a writable domain controller while repairing.
+    - Access denied (0x80070005) during the password reset means the computer account
+      lacks the AD 'Reset password' right - grant it, run 'netdom resetpwd
+      /server:<DC> /userd:<admin> /passwordd:*' once from the console, or rejoin the
+      domain; then re-run remediation.
     - Idempotent: safe to run repeatedly; verify-before-and-after.
     - Logs: <SystemDrive>\IntuneLogs\Repair-ADSecureChannel\Repair-ADSecureChannel-Remediation.txt
 #>
@@ -85,7 +104,7 @@ $ScriptMode   = 'Remediation'
 # Original behavior preserved: reboot scheduling stays disabled unless enabled here.
 $ForceRebootAfterRepair = $false
 
-$remediationResult = @{
+$script:RemediationResult = @{
     Status             = "Unknown"
     PreCheckStatus     = @()
     RemediationActions = @()
@@ -149,7 +168,7 @@ function Write-Banner {
     [Alias('Show-Banner')]
     param()
 
-    $title      = '{0} | {1}' -f $SolutionName, $ScriptMode
+    $title      = '{0} | {1} | {2}' -f $SolutionName, $ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
     $bannerLine = '=' * 78
     $lines      = @('', $bannerLine, $title, $bannerLine)
 
@@ -171,6 +190,7 @@ function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
         [string]$Message = "",
         [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
         [string]$Level = "INFO"
@@ -180,7 +200,9 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logLine = "[$timestamp] [$Level] $Message"
+    # Console = clean, no timestamp/level prefix - color alone conveys severity.
+    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
+    $fileLine  = "[$timestamp] [$Level] $Message"
 
     $color = switch ($Level) {
         "DEBUG"   { "DarkGray" }
@@ -189,10 +211,10 @@ function Write-Log {
         "WARNING" { "Yellow" }
         "ERROR"   { "Red" }
     }
-    Write-Host $logLine -ForegroundColor $color
+    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
-        Add-Content -LiteralPath $script:LogFile -Value $logLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
+        Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
     }
 }
 
@@ -203,6 +225,7 @@ function Finish-Script {
         [Parameter(Mandatory = $true)]
         [int]$ExitCode,
         [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
         [string]$Message = "",
         [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
         [string]$Level = "INFO",
@@ -279,6 +302,67 @@ function Invoke-FixTarget {
 }
 
 # ============================================================================
+# SECURE CHANNEL REPAIR (multi-method fallback chain)
+# ============================================================================
+
+# Method 1: native secure-channel password reset via the machine account.
+function Test-SecureChannelRepair {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$Domain
+    )
+    Write-RemediationLog "Secure channel repair method 1/2: Test-ComputerSecureChannel -Repair for '$Domain'..." -Level 'Info'
+    try {
+        $ok = Test-ComputerSecureChannel -Repair -Verbose:$false -ErrorAction Stop
+        if ($ok) {
+            Write-RemediationLog "Secure channel reset succeeded via Test-ComputerSecureChannel -Repair." -Level 'Info'
+            return $true
+        }
+        Write-RemediationLog "Test-ComputerSecureChannel -Repair returned false - the machine-account password reset was denied." -Level 'Warning'
+    }
+    catch {
+        Write-RemediationLog "Test-ComputerSecureChannel -Repair failed: $($_.Exception.Message)" -Level 'Warning'
+    }
+    return $false
+}
+
+# Method 2: netlogon secure-channel reset via nltest.exe (ships with Windows).
+function Reset-SecureChannelWithNltest {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)][string]$Domain
+    )
+    $nltestPath = Join-Path -Path $env:SystemRoot -ChildPath 'System32\nltest.exe'
+    if (-not (Test-Path -LiteralPath $nltestPath)) {
+        Write-RemediationLog "nltest.exe was not found at '$nltestPath' - falling back to operator guidance." -Level 'Warning'
+        return $false
+    }
+    Write-RemediationLog "Secure channel repair method 2/2: nltest /sc_reset:$Domain ..." -Level 'Info'
+    $previousEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $output = @(& $nltestPath "/sc_reset:$Domain" 2>&1 | ForEach-Object { $_.ToString() })
+        $exitCode = $LASTEXITCODE
+    }
+    catch {
+        Write-RemediationLog "nltest /sc_reset could not run: $($_.Exception.Message)" -Level 'Warning'
+        return $false
+    }
+    finally {
+        $ErrorActionPreference = $previousEap
+    }
+    foreach ($line in $output) {
+        Write-RemediationLog ("nltest: {0}" -f $line) -Level 'Info'
+    }
+    if ($exitCode -eq 0) {
+        Write-RemediationLog "Secure channel reset succeeded via nltest /sc_reset (exit 0)." -Level 'Info'
+        return $true
+    }
+    Write-RemediationLog "nltest /sc_reset exited with code $exitCode - the machine account could not reset its own password." -Level 'Warning'
+    return $false
+}
+
+# ============================================================================
 # POST-REMEDIATION VERIFICATION
 # ============================================================================
 
@@ -330,10 +414,21 @@ try {
 
     $targetCount++
     $fixApplied = Invoke-FixTarget -TargetName "Secure channel to $($computerSystem.Domain)" -Fix {
-        $null = Test-ComputerSecureChannel -Repair -Verbose:$false -ErrorAction Stop
+        $channelFixed = Test-SecureChannelRepair -Domain $computerSystem.Domain
+        if (-not $channelFixed) {
+            Write-RemediationLog "Native repair was denied - trying nltest fallback for '$($computerSystem.Domain)'..." -Level 'Info'
+            $channelFixed = Reset-SecureChannelWithNltest -Domain $computerSystem.Domain
+        }
+        if (-not $channelFixed) {
+            throw "Secure channel reset was denied by the domain (both Test-ComputerSecureChannel -Repair and nltest /sc_reset). Grant the computer account the AD 'Reset password' right, or run 'netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*' once, or rejoin the domain - then re-run remediation."
+        }
+        Start-Sleep -Seconds 2
     }
     if ($fixApplied) {
         Write-RemediationLog "Secure channel repair command completed successfully." -Level 'Info'
+    }
+    else {
+        Write-RemediationLog "Secure channel repair failed for domain '$($computerSystem.Domain)' - all reset methods exhausted; manual operator action is required." -Level 'Warning'
     }
 
     if ($ForceRebootAfterRepair) {
@@ -345,7 +440,7 @@ try {
     Write-RemediationLog "Performing post-remediation verification..." -Level 'Info'
     $verificationPassed = Test-FixApplied
 
-    if ($targetCount -gt 0 -and $failedCount -ge $targetCount) {
+    if ($targetCount -gt 0 -and $script:FailedCount -ge $targetCount) {
         $verificationPassed = $false
     }
 
@@ -355,15 +450,13 @@ try {
         $script:RemediationResult.PostCheckStatus += "Verification passed after remediation"
 
         Write-Output "Remediation completed successfully"
-        Write-Output "Targets processed: $targetCount (failed: $failedCount)"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
+        Write-Output "Targets processed: $targetCount (failed: $script:FailedCount)"
 
         Finish-Script -ExitCode 0 -Message "Secure channel remediation completed successfully." -Level 'SUCCESS'
     }
     else {
         $script:RemediationResult.Status = "Failed"
         Write-Output "Remediation finished but verification failed"
-        Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
         Finish-Script -ExitCode 1 -Message "Post-remediation verification failed" -Level 'ERROR'
     }
 }
@@ -374,9 +467,5 @@ catch {
         Type       = $_.Exception.GetType().FullName
         StackTrace = $_.ScriptStackTrace
     }
-    Write-Output ($remediationResult | ConvertTo-Json -Depth 6 -Compress)
     Finish-Script -ExitCode 2 -Message "Script execution error: $($_.Exception.Message)" -Level 'ERROR'
-}
-finally {
-    Write-Log -Message "Cleanup complete." -Level 'DEBUG'
 }
