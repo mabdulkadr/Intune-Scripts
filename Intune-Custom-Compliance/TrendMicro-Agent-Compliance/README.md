@@ -83,6 +83,12 @@ The companion `TrendMicro-Agent-Compliance.json` defines the validation rules In
 
 ---
 
+# ⚙️ Parameters
+
+The discovery script takes **no parameters**. Intune Custom Compliance invokes `Get-TrendMicroAgentCompliance.ps1` without arguments; all evaluation settings (property name, expected value, operator, more-info URL, non-compliance message) are configured in the companion `TrendMicro-Agent-Compliance.json` rule file.
+
+---
+
 # ⚙️ Requirements
 
 ### Operating System

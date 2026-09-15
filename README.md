@@ -12,7 +12,7 @@ Production-grade collection of detection/remediation pairs, compliance checks, t
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
 [![Version](https://img.shields.io/badge/Version-2.1-334155?style=for-the-badge)](#-overview)
 
-[Overview](#-overview) • [Categories](#-categories) • [Quick Start](#-quick-start) • [Requirements](#%EF%B8%8F-requirements) • [License](#-license)
+[Overview](#-overview) • [Scripts Included](#-scripts-included) • [Quick Start](#-quick-start) • [Requirements](#%EF%B8%8F-requirements) • [License](#-license)
 
 </div>
 
@@ -130,7 +130,7 @@ Intune-Scripts-main/
 
 ---
 
-# 🧭 Categories
+# 📁 Scripts Included
 
 | Category | Contents | Count | Docs |
 | -------- | -------- | ----- | ---- |

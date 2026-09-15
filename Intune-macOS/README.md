@@ -7,6 +7,7 @@
 Lightweight bash checks for Intune-managed Macs — deployed as shell script profiles or custom attributes to surface FileVault, update, and security posture without agents.
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-5391FE?style=for-the-badge&logo=gnu-bash&logoColor=white)](#-overview)
+[![Intune](https://img.shields.io/badge/Microsoft-Intune-0078D4?style=for-the-badge)](#-overview)
 [![Platform](https://img.shields.io/badge/Platform-macOS-0F172A?style=for-the-badge)](#%EF%B8%8F-requirements)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
 [![Version](https://img.shields.io/badge/Version-1.0-334155?style=for-the-badge)](#-overview)
