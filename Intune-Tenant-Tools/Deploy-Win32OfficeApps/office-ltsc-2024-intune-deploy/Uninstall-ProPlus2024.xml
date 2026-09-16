@@ -1,6 +1,6 @@
 <Configuration>
     <Remove>
-        <Product ID="Standard2024Volume" />
+        <Product ID="ProPlus2024Volume" />
     </Remove>
 
     <Display Level="None" AcceptEULA="TRUE" />

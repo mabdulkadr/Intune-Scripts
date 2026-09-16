@@ -3,10 +3,10 @@
     Uninstall-OfficeLTSC2024
 
 .SYNOPSIS
-    Silent uninstaller for Office LTSC Standard 2024 (volume) via the Office Deployment Tool.
+    Silent uninstaller for Office LTSC Professional Plus 2024 (volume) via the Office Deployment Tool.
 
 .DESCRIPTION
-    PowerShell wrapper for `setup.exe /configure Uninstall-Standard2024.xml` designed to run under an Intune
+    PowerShell wrapper for `setup.exe /configure Uninstall-ProPlus2024.xml` designed to run under an Intune
     Win32 app assignment (SYSTEM context) or an elevated prompt.
     - Anchors every path to the script folder (dot-source safe, $PSScriptRoot fallback).
     - Refuses to run without elevation and fails fast when bundle files are missing.
@@ -26,9 +26,10 @@
     Mohammad Abdelkader Omar | GitHub @mabdulkadr | momar.tech
 
 .VERSION
-    1.1.0
+    1.2.0
 
 .CHANGELOG
+    1.2.0 (2026-09-16) - Migrated to ProPlus2024Volume; uninstall config renamed to Uninstall-ProPlus2024.xml.
     1.1.0 (2026-09-16) - Migrated to Standard2024Volume; uninstall config renamed to Uninstall-Standard2024.xml.
     1.0.1 (2026-09-16) - Repackaged for GitHub.
     1.0.0 (2026-09-16) - Initial release; replaces uninstall.cmd.
@@ -37,7 +38,7 @@
     2026-09-16
 
 .PARAMETER ConfigurationPath
-    Path to Uninstall-Standard2024.xml. Defaults to the file beside this script.
+    Path to Uninstall-ProPlus2024.xml. Defaults to the file beside this script.
 
 .PARAMETER SetupPath
     Path to setup.exe (Office Deployment Tool). Defaults to the file beside this script.
@@ -69,7 +70,7 @@ elseif ($PSCommandPath) { Split-Path -Parent $PSCommandPath }
 elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path }
 else { (Get-Location).Path }
 
-if (-not $ConfigurationPath) { $ConfigurationPath = Join-Path $scriptBase 'Uninstall-Standard2024.xml' }
+if (-not $ConfigurationPath) { $ConfigurationPath = Join-Path $scriptBase 'Uninstall-ProPlus2024.xml' }
 if (-not $SetupPath) { $SetupPath = Join-Path $scriptBase 'setup.exe' }
 
 # --- Logging (CLI Configuration) ---------------------------------------------

@@ -3,10 +3,10 @@
     Detect-OfficeLTSC2024
 
 .SYNOPSIS
-    Intune custom detection script for Office LTSC Standard 2024 (volume, Click-to-Run).
+    Intune custom detection script for Office LTSC Professional Plus 2024 (volume, Click-to-Run).
 
 .DESCRIPTION
-    Verifies that Office LTSC Standard 2024 (volume licensed) is installed and that a core
+    Verifies that Office LTSC Professional Plus 2024 (volume licensed) is installed and that a core
     application (WINWORD.EXE) exists on disk. Touches only the Click-to-Run registry hive and
     the disk probe; the only write is the detection output captured by Intune.
     Exit contract: 0 = installed (compliant), 1 = not installed (non-compliant),
@@ -31,9 +31,11 @@
     Mohammad Abdelkader Omar | GitHub @mabdulkadr | momar.tech
 
 .VERSION
-    1.1.0
+    1.2.0
 
 .CHANGELOG
+    1.2.0 (2026-09-16) - Migrated detection to ProPlus2024Volume (Office LTSC Professional
+                          Plus 2024), matching the re-issued install configs.
     1.1.0 (2026-09-16) - Standardized header to the canonical multi-line format and aligned
                          the detection exit contract documentation with the paired Install/
                          Uninstall scripts.
@@ -57,7 +59,7 @@ $ErrorActionPreference = 'Stop'
 
 # Reads the ClickToRun registry, confirms the product + core binary, then exits 0/1/2.
 $c2rKey = 'HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration'
-$productId = 'Standard2024Volume'
+$productId = 'ProPlus2024Volume'
 
 # Script error (exit 2) when the authoritative registry key cannot be read.
 try {

@@ -1,6 +1,7 @@
 <Configuration>
-  <Add OfficeClientEdition="32" Channel="PerpetualVL2024">
-    <Product ID="Standard2024Volume" PIDKEY="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX">
+  <Remove All="TRUE" />
+  <Add OfficeClientEdition="64" Channel="PerpetualVL2024">
+    <Product ID="ProPlus2024Volume" PIDKEY="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX">
       <Language ID="ar-sa" />
     </Product>
     <Product ID="ProofingTools">
@@ -8,7 +9,7 @@
     </Product>
   </Add>
   <Property Name="SharedComputerLicensing" Value="0" />
-  <Property Name="FORCEAPPSHUTDOWN" Value="FALSE" />
+  <Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
   <Property Name="DeviceBasedLicensing" Value="0" />
   <Property Name="SCLCacheOverride" Value="0" />
   <Property Name="AUTOACTIVATE" Value="1" />
