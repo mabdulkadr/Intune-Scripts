@@ -1,0 +1,7 @@
+<Configuration>
+<Remove>
+<Product ID="VisioPro2024Volume" />
+</Remove>
+<Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
+<Display Level="None" AcceptEULA="TRUE" />
+</Configuration>
