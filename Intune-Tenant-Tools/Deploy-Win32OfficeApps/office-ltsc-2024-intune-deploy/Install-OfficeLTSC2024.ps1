@@ -3,10 +3,10 @@
     Install-OfficeLTSC2024
 
 .SYNOPSIS
-    Silent installer for Office LTSC Standard 2024 (volume) via the Office Deployment Tool.
+    Silent installer for Office LTSC Professional Plus 2024 (volume) via the Office Deployment Tool.
 
 .DESCRIPTION
-    PowerShell wrapper for `setup.exe /configure Install-Standard2024-<arch>-<lang>.xml` designed to
+    PowerShell wrapper for `setup.exe /configure Install-ProPlus2024-<arch>-<lang>.xml` designed to
     run under an Intune Win32 app assignment (SYSTEM context) or an elevated prompt.
     - Anchors every path to the script folder (dot-source safe, $PSScriptRoot fallback).
     - Detects the installed Office Click-to-Run architecture (x64/x86) and selects the matching
@@ -29,9 +29,12 @@
     Mohammad Abdelkader Omar | GitHub @mabdulkadr | momar.tech
 
 .VERSION
-    1.4.0
+    1.5.0
 
 .CHANGELOG
+    1.5.0 (2026-09-16) - Migrated from Standard2024Volume back to ProPlus2024Volume
+                         (Office LTSC Professional Plus 2024); XML configs renamed to
+                         Install-ProPlus2024-<arch>-<lang>.xml.
     1.4.0 (2026-09-16) - Added -Language Auto (default) that detects the OS UI culture
                          via InstalledUICulture and selects English or Arabic accordingly.
                          Explicit -Language English|Arabic overrides still available.
@@ -55,14 +58,14 @@
     and selects English or Arabic. Pass English or Arabic to override.
 
 .PARAMETER ConfigurationPath
-    Path to Install-Standard2024-<arch>-<lang>.xml. Defaults to the file beside this script.
+    Path to Install-ProPlus2024-<arch>-<lang>.xml. Defaults to the file beside this script.
 
 .PARAMETER SetupPath
     Path to setup.exe (Office Deployment Tool). Defaults to the file beside this script.
 
 .EXAMPLE
     powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-OfficeLTSC2024.ps1
-    Auto-detects architecture and installs Office LTSC Standard 2024 in the OS UI language (Auto).
+    Auto-detects architecture and installs Office LTSC Professional Plus 2024 in the OS UI language (Auto).
 
 .EXAMPLE
     powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-OfficeLTSC2024.ps1 -Architecture x86 -Language Arabic
@@ -70,7 +73,7 @@
 
 .NOTES
     - Intune Win32 app install command; runs as System.
-    - Product installed: Standard2024Volume (perpetual volume, KMS activation).
+    - Product installed: ProPlus2024Volume (perpetual volume, KMS activation).
       Replace the placeholder PIDKEY in the XML with your organization's KMS GVLK.
     - Returns the Office Deployment Tool exit code (0 = success).
 #>
@@ -237,7 +240,7 @@ if ($Language -eq 'Auto') {
 }
 
 if (-not $ConfigurationPath) {
-    $ConfigurationPath = Join-Path $scriptBase "Install-Standard2024-$arch-$Language.xml"
+    $ConfigurationPath = Join-Path $scriptBase "Install-ProPlus2024-$arch-$Language.xml"
     Write-Log -Message "Configuration file resolved: $ConfigurationPath" -Level 'DEBUG'
 }
 
@@ -246,18 +249,18 @@ if (-not (Test-Path -LiteralPath $SetupPath)) {
     exit 1
 }
 if (-not (Test-Path -LiteralPath $ConfigurationPath)) {
-    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-Standard2024-$arch-$Language.xml is packaged beside this script)" -Level 'ERROR'
+    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-ProPlus2024-$arch-$Language.xml is packaged beside this script)" -Level 'ERROR'
     exit 1
 }
 
-Write-Log -Message "Installing Office LTSC Standard 2024 ($arch, $Language) with: $ConfigurationPath" -Level 'INFO'
+Write-Log -Message "Installing Office LTSC Professional Plus 2024 ($arch, $Language) with: $ConfigurationPath" -Level 'INFO'
 
 $exitCode = 1
 try {
     & $SetupPath /configure $ConfigurationPath
     $exitCode = $LASTEXITCODE
     if ($exitCode -eq 0) {
-        Write-Log -Message 'Office LTSC Standard 2024 installed successfully.' -Level 'SUCCESS'
+        Write-Log -Message 'Office LTSC Professional Plus 2024 installed successfully.' -Level 'SUCCESS'
     } else {
         Write-Log -Message "setup.exe exited with code $exitCode - see %temp% for ODT logs." -Level 'ERROR'
     }

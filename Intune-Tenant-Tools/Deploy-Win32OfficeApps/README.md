@@ -21,7 +21,7 @@ Each subfolder is a self-contained Intune Win32 app package:
 
 | Package | Product | Volume Channel |
 | --- | --- | --- |
-| [office-ltsc-2024-intune-deploy](./office-ltsc-2024-intune-deploy) | Office LTSC Standard 2024 (`Standard2024Volume`) | `PerpetualVL2024` |
+| [office-ltsc-2024-intune-deploy](./office-ltsc-2024-intune-deploy) | Office LTSC Professional Plus 2024 (`ProPlus2024Volume`) | `PerpetualVL2024` |
 | [microsoft-project-2024-intune-deploy](./microsoft-project-2024-intune-deploy) | Microsoft Project Professional 2024 (`ProjectPro2024Volume`) | `PerpetualVL2024` |
 | [microsoft-visio-2024-intune-deploy](./microsoft-visio-2024-intune-deploy) | Microsoft Visio Professional 2024 (`VisioPro2024Volume`) | `PerpetualVL2024` |
 
@@ -31,11 +31,11 @@ Every package follows the same pattern so deployments scale consistently across 
 
 # 📂 Packages In This Collection
 
-## 1. Office LTSC Standard 2024
-Silent install of Office LTSC Standard 2024 on `PerpetualVL2024`, language auto-detected from the OS UI culture, with auto-detected architecture and four XML variants.
+## 1. Office LTSC Professional Plus 2024
+Silent install of Office LTSC Professional Plus 2024 on `PerpetualVL2024`, language auto-detected from the OS UI culture, with auto-detected architecture and four XML variants.
 
 - **Readme**: [office-ltsc-2024-intune-deploy/README.md](./office-ltsc-2024-intune-deploy/README.md)
-- **Files**: `Install-Standard2024-<arch>-<lang>.xml` ×4, `Uninstall-Standard2024.xml`, `Install-OfficeLTSC2024.ps1` (v1.4.0), `Uninstall-OfficeLTSC2024.ps1` (v1.1.0), `Detect-OfficeLTSC2024.ps1`
+- **Files**: `Install-ProPlus2024-<arch>-<lang>.xml` ×4, `Uninstall-ProPlus2024.xml`, `Install-OfficeLTSC2024.ps1` (v1.5.0), `Uninstall-OfficeLTSC2024.ps1` (v1.2.0), `Detect-OfficeLTSC2024.ps1` (v1.2.0)
 
 ## 2. Microsoft Project Professional 2024
 Silent install of Project Pro 2024 on `PerpetualVL2024` (project/portfolio features only — no Word/Excel), language auto-detected from the OS UI culture, four XML variants.
