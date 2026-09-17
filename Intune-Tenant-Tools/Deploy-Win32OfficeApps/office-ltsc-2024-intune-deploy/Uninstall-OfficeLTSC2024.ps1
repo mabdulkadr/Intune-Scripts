@@ -86,6 +86,7 @@ function Initialize-Log {
     [CmdletBinding()]
     param(
         [string]$SolutionName = 'EnterpriseAdminTool',
+        [string]$ScriptMode = 'run',
         [ValidateSet('Intune', 'General')]
         [string]$Type = 'General'
     )

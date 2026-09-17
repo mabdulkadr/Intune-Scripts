@@ -2,9 +2,9 @@
 
 # 📦 Deploy-Win32OfficeApps
 
-**Intune Win32 deployment packages for Office LTSC 2024, Project 2024 and Visio 2024 — silent, volume-licensed, auto-detects the OS language (English/Arabic).**
+**Intune Win32 deployment packages for Office LTSC 2024, Project 2024 and Visio 2024 — silent, volume-licensed, OS language (MatchOS).**
 
-Central collection of Office Deployment Tool (ODT) packages for Intune Win32 apps. Each package ships with four configuration variants (64/32-bit × English/Arabic), PowerShell install/uninstall wrappers with dedicated logging, and a registry-driven custom detection script. The default `-Language Auto` picks English or Arabic from the device's UI culture.
+Central collection of Office Deployment Tool (ODT) packages for Intune Win32 apps. Each package ships with two configuration files (64/32-bit, `MatchOS` language), PowerShell install/uninstall wrappers with dedicated logging, and a registry-driven custom detection script.
 
 [![Intune](https://img.shields.io/badge/Intune-Win32%20App-10B981?style=for-the-badge)](#%EF%B8%8F-quick-reference)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -32,36 +32,32 @@ Every package follows the same pattern so deployments scale consistently across 
 # 📂 Packages In This Collection
 
 ## 1. Office LTSC Professional Plus 2024
-Silent install of Office LTSC Professional Plus 2024 on `PerpetualVL2024`, language auto-detected from the OS UI culture, with auto-detected architecture and four XML variants.
+Silent install of Office LTSC Professional Plus 2024 on `PerpetualVL2024` in the OS language (`MatchOS`), with auto-detected architecture and two XML configs.
 
 - **Readme**: [office-ltsc-2024-intune-deploy/README.md](./office-ltsc-2024-intune-deploy/README.md)
-- **Files**: `Install-ProPlus2024-<arch>-<lang>.xml` ×4, `Uninstall-ProPlus2024.xml`, `Install-OfficeLTSC2024.ps1` (v1.5.0), `Uninstall-OfficeLTSC2024.ps1` (v1.2.0), `Detect-OfficeLTSC2024.ps1` (v1.2.0)
+- **Files**: `Install-ProPlus2024-<arch>.xml` ×2, `Uninstall-ProPlus2024.xml`, `Install-OfficeLTSC2024.ps1` (v1.6.0), `Uninstall-OfficeLTSC2024.ps1` (v1.2.0), `Detect-OfficeLTSC2024.ps1` (v1.2.0)
 
 ## 2. Microsoft Project Professional 2024
-Silent install of Project Pro 2024 on `PerpetualVL2024` (project/portfolio features only — no Word/Excel), language auto-detected from the OS UI culture, four XML variants.
+Silent install of Project Pro 2024 on `PerpetualVL2024` (project/portfolio features only — no Word/Excel) in the OS language (`MatchOS`), two XML configs.
 
 - **Readme**: [microsoft-project-2024-intune-deploy/README.md](./microsoft-project-2024-intune-deploy/README.md)
-- **Files**: `Install-ProjectPro2024-<arch>-<lang>.xml` ×4, `Uninstall-ProjectPro2024.xml`, `Install-ProjectPro2024.ps1` (v1.4.0), `Uninstall-ProjectPro2024.ps1` (v1.2.0), `Detect-ProjectPro2024.ps1` (v1.2.0)
+- **Files**: `Install-ProjectPro2024-<arch>.xml` ×2, `Uninstall-ProjectPro2024.xml`, `Install-ProjectPro2024.ps1` (v1.5.0), `Uninstall-ProjectPro2024.ps1` (v1.2.0), `Detect-ProjectPro2024.ps1` (v1.2.0)
 
 ## 3. Microsoft Visio Professional 2024
-Silent install of Visio Pro 2024 on `PerpetualVL2024`, language auto-detected from the OS UI culture, four XML variants.
+Silent install of Visio Pro 2024 on `PerpetualVL2024` in the OS language (`MatchOS`), two XML configs.
 
 - **Readme**: [microsoft-visio-2024-intune-deploy/README.md](./microsoft-visio-2024-intune-deploy/README.md)
-- **Files**: `Install-VisioPro2024-<arch>-<lang>.xml` ×4, `Uninstall-VisioPro2024.xml`, `Install-VisioPro2024.ps1` (v1.4.0), `Uninstall-VisioPro2024.ps1` (v1.2.0), `Detect-VisioPro2024.ps1` (v1.2.0)
+- **Files**: `Install-VisioPro2024-<arch>.xml` ×2, `Uninstall-VisioPro2024.xml`, `Install-VisioPro2024.ps1` (v1.6.0), `Uninstall-VisioPro2024.ps1` (v1.2.0), `Detect-VisioPro2024.ps1` (v1.2.0)
 
 ---
 
-# 🧭 XML Variant Matrix
+# 🧭 XML Config Matrix
 
-Each install script resolves `Install-<Product>-<arch>-<lang>.xml` automatically:
+Each install script resolves `Install-<Product>-<arch>.xml` automatically (ODT resolves `MatchOS` to the OS language at install time):
 
-| Language | `x64` | `x86` | Content |
+| Config | `x64` | `x86` | Content |
 | --- | --- | --- | --- |
-| `Auto` (default) | auto: OS UI culture → `x64-English` or `x64-Arabic` | auto: OS UI culture → `x86-English` or `x86-Arabic` | `InstalledUICulture` `^ar` → Arabic, else English |
-| `English` | `<Product>-x64-English.xml` | `<Product>-x86-English.xml` | `en-us` only |
-| `Arabic` | `<Product>-x64-Arabic.xml` | `<Product>-x86-Arabic.xml` | `ar-sa` + Arabic ProofingTools |
-
-**By default** `-Language Auto` installs in the device's OS UI language (Arabic if the culture starts with `ar`, otherwise English). Override per app by passing `-Language English|Arabic` in the Intune install command — or upload a separate app per variant.
+| OS language | `<Product>-x64.xml` | `<Product>-x86.xml` | `MatchOS` for the product + ProofingTools |
 
 ---
 
@@ -78,7 +74,7 @@ Each package is deployed the same way:
 
 > ⚠ **GVLK placeholder**: XML files ship with `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` as PIDKEY. Replace with your organization's KMS GVLK — see [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys) — before packaging.
 
-> ⚠ **Legacy `.intunewin`**: a stale `Visio.intunewin` from an earlier build remains in the Visio folder (`Install_MS_project.intunewin` and `Install_MS_Visio.intunewin` were removed). Regenerate packages with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) so they include the current variant set.
+> ⚠ **Legacy `.intunewin`**: a stale `Visio.intunewin` from an earlier build remains in the Visio folder (`Install_MS_project.intunewin` and `Install_MS_Visio.intunewin` were removed). Regenerate packages with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) so they include the current config set.
 
 ---
 

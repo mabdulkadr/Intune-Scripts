@@ -6,12 +6,12 @@
     Silent installer for Office LTSC Professional Plus 2024 (volume) via the Office Deployment Tool.
 
 .DESCRIPTION
-    PowerShell wrapper for `setup.exe /configure Install-ProPlus2024-<arch>-<lang>.xml` designed to
+    PowerShell wrapper for `setup.exe /configure Install-ProPlus2024-<arch>.xml` designed to
     run under an Intune Win32 app assignment (SYSTEM context) or an elevated prompt.
     - Anchors every path to the script folder (dot-source safe, $PSScriptRoot fallback).
     - Detects the installed Office Click-to-Run architecture (x64/x86) and selects the matching
       configuration; overridable with -Architecture. Defaults to x64 when no Office is present.
-    - Selects language variant via -Language (Auto, English, Arabic); defaults to Auto (detects OS UI culture).
+    - Installs in the OS language (MatchOS) via Install-ProPlus2024-<arch>.xml; one config per architecture.
     - Refuses to run without elevation and fails fast when bundle files are missing.
     - Invokes ODT synchronously and forwards its real exit code to Intune (0 = success).
     - Writes a dedicated transcript to <SystemDrive>\IntuneLogs\OfficeLTSC2024\.
@@ -29,9 +29,12 @@
     Mohammad Abdelkader Omar | GitHub @mabdulkadr | momar.tech
 
 .VERSION
-    1.5.0
+    1.6.0
 
 .CHANGELOG
+    1.6.0 (2026-09-17) - Consolidated to one config per architecture
+                          (Install-ProPlus2024-x64.xml / -x86.xml) with MatchOS
+                          language; removed the -Language parameter.
     1.5.0 (2026-09-16) - Migrated from Standard2024Volume back to ProPlus2024Volume
                          (Office LTSC Professional Plus 2024); XML configs renamed to
                          Install-ProPlus2024-<arch>-<lang>.xml.
@@ -47,29 +50,25 @@
     1.0.0 (2026-09-16) - Initial release; replaces install.cmd.
 
 .LASTUPDATE
-    2026-09-16
+    2026-09-17
 
 .PARAMETER Architecture
     Override the detected architecture: x64 or x86. Defaults to '' (auto-detect from the installed
     Office Click-to-Run Platform; falls back to x64 when no Office product is present).
 
-.PARAMETER Language
-    Language variant: Auto (default) detects the OS UI culture via InstalledUICulture
-    and selects English or Arabic. Pass English or Arabic to override.
-
 .PARAMETER ConfigurationPath
-    Path to Install-ProPlus2024-<arch>-<lang>.xml. Defaults to the file beside this script.
+    Path to Install-ProPlus2024-<arch>.xml. Defaults to the file beside this script.
 
 .PARAMETER SetupPath
     Path to setup.exe (Office Deployment Tool). Defaults to the file beside this script.
 
 .EXAMPLE
     powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-OfficeLTSC2024.ps1
-    Auto-detects architecture and installs Office LTSC Professional Plus 2024 in the OS UI language (Auto).
+    Auto-detects architecture and installs Office LTSC Professional Plus 2024 in the OS language (MatchOS).
 
 .EXAMPLE
-    powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-OfficeLTSC2024.ps1 -Architecture x86 -Language Arabic
-    Forces the 32-bit Arabic config (overrides Auto detection).
+    powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-OfficeLTSC2024.ps1 -Architecture x86
+    Forces the 32-bit config.
 
 .NOTES
     - Intune Win32 app install command; runs as System.
@@ -84,8 +83,6 @@
 param(
     [ValidateSet('', 'x64', 'x86')]
     [string]$Architecture = '',
-    [ValidateSet('Auto', 'English', 'Arabic')]
-    [string]$Language = 'Auto',
     [string]$ConfigurationPath = '',
     [string]$SetupPath = ''
 )
@@ -230,17 +227,11 @@ if ($Architecture) {
     Write-Log -Message 'No Office Click-to-Run detected - defaulting to x64.' -Level 'INFO'
 }
 
-# Resolve language: Auto (default) picks the OS UI culture; explicit English/Arabic overrides.
-if ($Language -eq 'Auto') {
-    $uiCulture = [System.Globalization.CultureInfo]::InstalledUICulture
-    $Language = if ($uiCulture.Name -match '^ar') { 'Arabic' } else { 'English' }
-    Write-Log -Message "Language auto-detected from OS UI culture: $Language ($($uiCulture.Name))" -Level 'INFO'
-} else {
-    Write-Log -Message "Language override: $Language" -Level 'INFO'
-}
+# Language is MatchOS inside the XML itself: one config per architecture.
+Write-Log -Message 'Language: MatchOS (resolved by ODT from the OS language).' -Level 'INFO'
 
 if (-not $ConfigurationPath) {
-    $ConfigurationPath = Join-Path $scriptBase "Install-ProPlus2024-$arch-$Language.xml"
+    $ConfigurationPath = Join-Path $scriptBase "Install-ProPlus2024-$arch.xml"
     Write-Log -Message "Configuration file resolved: $ConfigurationPath" -Level 'DEBUG'
 }
 
@@ -249,11 +240,11 @@ if (-not (Test-Path -LiteralPath $SetupPath)) {
     exit 1
 }
 if (-not (Test-Path -LiteralPath $ConfigurationPath)) {
-    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-ProPlus2024-$arch-$Language.xml is packaged beside this script)" -Level 'ERROR'
+    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-ProPlus2024-$arch.xml is packaged beside this script)" -Level 'ERROR'
     exit 1
 }
 
-Write-Log -Message "Installing Office LTSC Professional Plus 2024 ($arch, $Language) with: $ConfigurationPath" -Level 'INFO'
+Write-Log -Message "Installing Office LTSC Professional Plus 2024 ($arch, MatchOS) with: $ConfigurationPath" -Level 'INFO'
 
 $exitCode = 1
 try {

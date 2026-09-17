@@ -10,7 +10,7 @@ Packages the Office Deployment Tool with a silent 64-bit/32-bit Visio volume con
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0F172A?style=for-the-badge)](#%EF%B8%8F-requirements)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
-[![Version](https://img.shields.io/badge/Version-1.4.0-334155?style=for-the-badge)](#-overview)
+[![Version](https://img.shields.io/badge/Version-1.6.0-334155?style=for-the-badge)](#-overview)
 
 [Overview](#-overview) • [Structure](#-project-structure) • [Scripts](#-scripts-included) • [Deployment](#%EF%B8%8F-intune-deployment) • [Workflow](#-typical-workflow) • [Requirements](#%EF%B8%8F-requirements)</div>
 
@@ -22,8 +22,8 @@ Packages the Office Deployment Tool with a silent 64-bit/32-bit Visio volume con
 
 The bundle contains three layers:
 
-- **Configuration**: four XML variants covering every combination of architecture (`x64`/`x86`) and language (`English` en-us, `Arabic` ar-sa) — `Install-VisioPro2024-<arch>-<lang>.xml`. `Uninstall-VisioPro2024.xml` describes what to remove.
-- **PowerShell scripts**: `Install-VisioPro2024.ps1` / `Uninstall-VisioPro2024.ps1` auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, accept a `-Language` variant (`Auto` default / `English`/`Arabic`), anchor every path to their own folder (dot-source safe), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\VisioPro2024\`, and forward the true ODT exit code.
+- **Configuration**: two XML variants — `Install-VisioPro2024-x64.xml` and `Install-VisioPro2024-x86.xml`, both in the OS language (`MatchOS`, Visio + ProofingTools). `Uninstall-VisioPro2024.xml` describes what to remove.
+- **PowerShell scripts**: `Install-VisioPro2024.ps1` / `Uninstall-VisioPro2024.ps1` auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, install in the OS language (`MatchOS` resolved by ODT), anchor every path to their own folder (dot-source safe), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\VisioPro2024\`, and forward the true ODT exit code.
 - **Detection**: `Detect-VisioPro2024.ps1` is the Intune Win32 custom detection rule that marks the app *Installed* only when the Click-to-Run configuration truly reports `VisioPro2024Volume` with a version, and `VISIO.EXE` exists on disk.
 
 A Win32 app uploaded from this folder installs completely silently (no UI, EULA auto-accepted) under the local SYSTEM account.
@@ -37,10 +37,10 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 * `Channel="PerpetualVL2024"` — the correct channel for Office 2024 volume licenses.
 * KMS GVLK activation via `PIDKEY` + `AUTOACTIVATE=1`. Replace the placeholder key with your organization's KMS GVLK — see [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
 
-### 🔹 Auto-Detect Architecture + Language
-* `Install-VisioPro2024.ps1` reads the installed Office Click-to-Run `Platform` registry value to select `Install-VisioPro2024-x64-*.xml` or `Install-VisioPro2024-x86-*.xml` automatically.
+### 🔹 Auto-Detect Architecture, OS Language
+* `Install-VisioPro2024.ps1` reads the installed Office Click-to-Run `Platform` registry value to select `Install-VisioPro2024-x64.xml` or `Install-VisioPro2024-x86.xml` automatically.
 * `-Architecture x64|x86` override for fresh machines with no prior Office install (defaults to x64).
-* `-Language Auto|English|Arabic` selects the language variant (default Auto — installs in the OS UI language via `InstalledUICulture`).
+* Language is `MatchOS` inside the XML — ODT installs Visio + ProofingTools in the OS language, no parameter needed.
 
 ### 🔹 PowerShell Install / Uninstall Scripts
 * Every reference is absolute (`$PSScriptRoot` fallback), independent of the caller's working directory and dot-source safe.
@@ -61,10 +61,8 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 microsoft-visio-2024-intune-deploy
 │
 ├── setup.exe                           Office Deployment Tool (16.0.17830.20162)
-├── Install-VisioPro2024-x64-English.xml    Silent install - VisioPro2024Volume / en-us / x64
-├── Install-VisioPro2024-x64-Arabic.xml     Silent install - VisioPro2024Volume / ar-sa / x64
-├── Install-VisioPro2024-x86-English.xml    Silent install - VisioPro2024Volume / en-us / x86
-├── Install-VisioPro2024-x86-Arabic.xml     Silent install - VisioPro2024Volume / ar-sa / x86
+├── Install-VisioPro2024-x64.xml          Silent install - VisioPro2024Volume / MatchOS / x64
+├── Install-VisioPro2024-x86.xml          Silent install - VisioPro2024Volume / MatchOS / x86
 ├── Uninstall-VisioPro2024.xml     Product removal config
 ├── Install-VisioPro2024.ps1       PowerShell installer - logging + auto-arch + lang + ODT /configure
 ├── Uninstall-VisioPro2024.ps1     PowerShell uninstaller - logging + ODT /configure
@@ -116,7 +114,7 @@ This is a Win32 **installation** package, not a Proactive Remediation pair, so n
 
 **Files**
 ```powershell
-Install-VisioPro2024.ps1      →  & setup.exe /configure Install-VisioPro2024-<arch>-<lang>.xml
+Install-VisioPro2024.ps1      →  & setup.exe /configure Install-VisioPro2024-<arch>.xml
 Uninstall-VisioPro2024.ps1    →  & setup.exe /configure Uninstall-VisioPro2024.xml
 ```
 
@@ -124,17 +122,17 @@ Uninstall-VisioPro2024.ps1    →  & setup.exe /configure Uninstall-VisioPro2024
 1. Fails fast if `setup.exe` or the matching `.xml` is missing next to the script.
 2. Enforces elevation (`Test-IsElevated`) — passes automatically under the Intune SYSTEM context.
 3. Reads the installed Office architecture from the ClickToRun registry (x64/x86); defaults to x64 for fresh installs or when `-Architecture` is specified.
-4. Selects the language variant via `-Language` (default `Auto` — OS UI culture; Arabic if it starts with `ar`, else English).
+4. Installs in the OS language — `MatchOS` is resolved by ODT itself, no language parameter.
 5. Invokes ODT synchronously and exits with ODT's real return code (`0` = success).
 6. Logs the full run (banner + every step + result) to `C:\IntuneLogs\VisioPro2024\`.
 
-### Install-VisioPro2024-x64-English.xml Highlights
+### Install-VisioPro2024-x64.xml Highlights
 | Setting | Value | Purpose |
 | --- | --- | --- |
 | Channel | `PerpetualVL2024` | Volume channel for Office 2024 |
 | Product / PIDKEY | `VisioPro2024Volume` + placeholder GVLK | Volume activation, `AUTOACTIVATE=1` |
 | Architecture | 64-bit | Office Client Edition |
-| Language | `en-us` | English installation |
+| Language | `MatchOS` | OS language for Visio + ProofingTools |
 | Display | `Level="None" AcceptEULA="TRUE"` | Silent install, no interaction |
 | AppSettings | default save formats | Excel `.xlsx`, PowerPoint `.pptx`, Word default |
 
@@ -223,7 +221,7 @@ Upload `Detect-VisioPro2024.ps1` as a **custom detection script**:
 
 | Symptom | Likely Cause / Action |
 | --- | --- |
-| Install returns `0x80070002` | ODT cannot find the config/source — confirm the folder was packaged whole (`setup.exe` + the four `Install-VisioPro2024-<arch>-<lang>.xml` files beside `Install-VisioPro2024.ps1`) |
+| Install returns `0x80070002` | ODT cannot find the config/source — confirm the folder was packaged whole (`setup.exe` + the two `Install-VisioPro2024-*.xml` files beside `Install-VisioPro2024.ps1`) |
 | Script fails before ODT runs | Check `C:\IntuneLogs\VisioPro2024\` — the transcript records elevation, missing-file, and invocation errors with exit codes |
 | Detection marks *Not installed* right after a successful run | Check `ProductReleaseIds` and `VersionToReport` in the ClickToRun hive; exit `2` means the script itself failed (see `%temp%`) |
 | Wrong product installed or activation fails | Verify the correct GVLK is in the XML — this package ships a placeholder `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` that must be replaced before deployment |
@@ -247,7 +245,7 @@ Office products on a device must share one architecture (32-bit or 64-bit). The 
 # 🛡 Operational Notes
 * **GVLK placeholder:** the XML files ship with a placeholder PIDKEY (`XXXXX-XXXXX-XXXXX-XXXXX-XXXXX`). Replace it with your organization's KMS GVLK before deployment. Refer to [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys) for the correct key for Visio Professional 2024.
 * **Uninstall XML fix:** the uninstall XML previously targeted `VisioProRetail` (a Microsoft 365 product ID) and included `<Language>` elements. It now correctly targets `VisioPro2024Volume` and is language-agnostic.
-* **Offline first-install:** the packaged folder contains only `setup.exe` — the first `/configure` streams the payload from the Office CDN. For a self-contained package, run `setup.exe /download Install-VisioPro2024-x64-English.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
+* **Offline first-install:** the packaged folder contains only `setup.exe` — the first `/configure` streams the payload from the Office CDN. For a self-contained package, run `setup.exe /download Install-VisioPro2024-x64.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
 * **Channel is a hard contract:** `PerpetualVL2024` is the only correct channel for Office 2024 volume licenses. Using `MonthlyEnterprise` or `Current` installs Microsoft 365 Apps instead.
 * **Legacy `.intunewin` file:** `Visio.intunewin` in this folder is a stale package from a prior build (`Install_MS_Visio.intunewin` was removed). It must be re-packaged using `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) before any production deployment.
 * **Architecture selection:** if no prior Office Click-to-Run product is installed, the script defaults to `x64`. Override with `-Architecture x86` in the Intune install command if needed.

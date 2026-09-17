@@ -12,7 +12,7 @@
     - Detects the installed Office Click-to-Run architecture and selects the matching Visio
       configuration (x64 / x86); overridable with -Architecture. Defaults to x64 when no Office
       is present.
-    - Selects language variant via -Language (Auto, English, Arabic); defaults to Auto (detects OS UI culture).
+    - Installs in the OS language (MatchOS) via Install-VisioPro2024-<arch>.xml; one config per architecture.
     - Refuses to run without elevation and fails fast when bundle files are missing.
     - Invokes ODT synchronously and forwards its real exit code to Intune (0 = success).
     - Writes a dedicated transcript to <SystemDrive>\IntuneLogs\VisioPro2024\.
@@ -30,9 +30,15 @@
     Mohammad Abdelkader Omar | GitHub @mabdulkadr | momar.tech
 
 .VERSION
-    1.4.0
+    1.6.0
 
 .CHANGELOG
+    1.6.0 (2026-09-17) - Consolidated to one config per architecture
+                          (Install-VisioPro2024-x64.xml / -x86.xml) with MatchOS
+                          language; removed the -Language parameter.
+    1.5.0 (2026-09-17) - Added -Language Bilingual (x64 en-us + ar-sa in one install);
+                          hardened all XML configs (MigrateArch on x64, pinned Updates
+                          channel, ODT Logging, AllowCdnFallback).
     1.4.0 (2026-09-16) - Added -Language Auto (default) that detects the OS UI culture
                          via InstalledUICulture and selects English or Arabic accordingly.
                          Explicit -Language English|Arabic overrides still available.
@@ -48,29 +54,25 @@
     1.0.0 (2023)        - Original architecture-detection package.
 
 .LASTUPDATE
-    2026-09-16
+    2026-09-17
 
 .PARAMETER Architecture
     Override the detected architecture: x64 or x86. Defaults to '' (auto-detect from the installed
     Office Click-to-Run Platform; falls back to x64 when no Office product is present).
 
-.PARAMETER Language
-    Language variant: Auto (default) detects the OS UI culture via InstalledUICulture
-    and selects English or Arabic. Pass English or Arabic to override.
-
 .PARAMETER ConfigurationPath
-    Path to Install-VisioPro2024-<arch>-<lang>.xml. Defaults to the file beside this script.
+    Path to Install-VisioPro2024-<arch>.xml. Defaults to the file beside this script.
 
 .PARAMETER SetupPath
     Path to setup.exe (Office Deployment Tool). Defaults to the file beside this script.
 
 .EXAMPLE
     powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-VisioPro2024.ps1
-    Auto-detects architecture and installs Visio Professional 2024 in the OS UI language (Auto).
+    Auto-detects architecture and installs Visio Professional 2024 in the OS language (MatchOS).
 
 .EXAMPLE
-    powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-VisioPro2024.ps1 -Architecture x86 -Language Arabic
-    Forces the 32-bit Arabic config (overrides Auto detection).
+    powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-VisioPro2024.ps1 -Architecture x86
+    Forces the 32-bit config.
 
 .NOTES
     - Intune Win32 app install command; runs as System.
@@ -87,8 +89,6 @@
 param(
     [ValidateSet('', 'x64', 'x86')]
     [string]$Architecture = '',
-    [ValidateSet('Auto', 'English', 'Arabic')]
-    [string]$Language = 'Auto',
     [string]$ConfigurationPath = '',
     [string]$SetupPath = ''
 )
@@ -241,17 +241,11 @@ if ($Architecture) {
     Write-Log -Message 'No Office Click-to-Run detected - defaulting to x64.' -Level 'INFO'
 }
 
-# Resolve language: Auto (default) picks the OS UI culture; explicit English/Arabic overrides.
-if ($Language -eq 'Auto') {
-    $uiCulture = [System.Globalization.CultureInfo]::InstalledUICulture
-    $Language = if ($uiCulture.Name -match '^ar') { 'Arabic' } else { 'English' }
-    Write-Log -Message "Language auto-detected from OS UI culture: $Language ($($uiCulture.Name))" -Level 'INFO'
-} else {
-    Write-Log -Message "Language override: $Language" -Level 'INFO'
-}
+# Language is MatchOS inside the XML itself: one config per architecture.
+Write-Log -Message 'Language: MatchOS (resolved by ODT from the OS language).' -Level 'INFO'
 
 if (-not $ConfigurationPath) {
-    $ConfigurationPath = Join-Path $scriptBase "Install-VisioPro2024-$arch-$Language.xml"
+    $ConfigurationPath = Join-Path $scriptBase "Install-VisioPro2024-$arch.xml"
     Write-Log -Message "Configuration file resolved: $ConfigurationPath" -Level 'DEBUG'
 }
 
@@ -260,11 +254,11 @@ if (-not (Test-Path -LiteralPath $SetupPath)) {
     exit 1
 }
 if (-not (Test-Path -LiteralPath $ConfigurationPath)) {
-    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-VisioPro2024-$arch-$Language.xml is packaged beside this script)" -Level 'ERROR'
+    Write-Log -Message "Configuration file not found: $ConfigurationPath (verify Install-VisioPro2024-$arch.xml is packaged beside this script)" -Level 'ERROR'
     exit 1
 }
 
-Write-Log -Message "Installing Visio Professional 2024 ($arch, $Language) with: $ConfigurationPath" -Level 'INFO'
+Write-Log -Message "Installing Visio Professional 2024 ($arch, MatchOS) with: $ConfigurationPath" -Level 'INFO'
 
 $exitCode = 1
 try {
