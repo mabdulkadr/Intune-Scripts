@@ -14,9 +14,10 @@
     Emits a single-line JSON property bag ({"Trend Micro Apex One Security Agent":true|false})
     that the Intune custom compliance engine evaluates against its rule file.
 
-    Exit contract:
-    Exit 0 = compliant (JSON emitted successfully)
-    Exit 2 = script error (Intune must NOT treat a crash as valid output)
+    Exit contract (Custom Compliance discovery):
+    Exit 0 always + single-line JSON to stdout. Intune evaluates the JSON boolean,
+    not the exit code. Never exit non-zero and never write plain text to stdout
+    (both surface as Error 65009 - Invalid json for the discovered setting).
 
     This script NEVER modifies the system — it is read-only by design.
 
@@ -36,9 +37,14 @@
     Mohammad Abdelkader Omar
 
 .VERSION
-    2.1.0
+    2.1.1
 
 .CHANGELOG
+    2.1.1 (2026-09-22)
+    - Fix Error 65009 (Invalid json for the discovered setting): Write-Log and
+      Write-Banner now log to FILE ONLY, stdout carries only the single-line JSON.
+      catch block now emits valid {"...":false} JSON instead of plain text and
+      exits 0 so a crash reports non-compliant instead of discovery-error.
     2.1.0 (2026-09-07)
     - Rename files/folder to follow Intune-Custom-Compliance convention
       (TrendMicro-Agent-Compliance, Get-TrendMicroAgentCompliance.ps1).
@@ -52,7 +58,7 @@
     - Add Write-Log integration for fleet diagnostics.
 
 .LASTUPDATE
-    2026-09-07
+    2026-09-22
 
 .EXAMPLE
     .\Get-TrendMicroAgentCompliance.ps1
@@ -123,8 +129,8 @@ function Initialize-Log {
         return $true
     }
     catch {
-        Write-Host "Log initialization failed: $($_.Exception.Message)" -ForegroundColor Red
-        $script:LogReady = $false
+        # Intune captures STDOUT as the discovery payload — never write to host here.
+        # File logging only; host output would corrupt the JSON result (Error 65009).
         return $false
     }
 }
@@ -141,18 +147,11 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    # Console = clean, no timestamp/level prefix - color alone conveys severity.
-    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
+    # INTUNE CUSTOM COMPLIANCE CONTRACT: stdout must contain ONLY the single-line
+    # JSON property bag. Any Write-Host / Write-Output here corrupts discovery and
+    # surfaces as Error 65009 (Invalid json for the discovered setting).
+    # Therefore this function logs to FILE ONLY — never to host/stdout.
     $fileLine  = "[$timestamp] [$Level] $Message"
-
-    $color = switch ($Level) {
-        "DEBUG"   { "DarkGray" }
-        "INFO"    { "Cyan" }
-        "SUCCESS" { "Green" }
-        "WARNING" { "Yellow" }
-        "ERROR"   { "Red" }
-    }
-    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
         Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
@@ -165,12 +164,8 @@ function Write-Banner {
     $title      = '{0} | {1} | {2}' -f $SolutionName, $ScriptMode, (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
     $bannerLine = '=' * 78
     $lines      = @('', $bannerLine, $title, $bannerLine)
+    # File only — stdout must stay clean for the JSON payload (Error 65009).
     foreach ($line in $lines) {
-        if ($line -eq $title) {
-            Write-Host $line -ForegroundColor White
-        } else {
-            Write-Host $line -ForegroundColor DarkGray
-        }
         if ($script:LogReady -and $script:LogFile) {
             Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
         }
@@ -271,21 +266,27 @@ try {
 
     Write-Log -Message "Installed: $installed (folder=$folderHit process=$processHit)" -Level 'INFO'
 
-    # Emit the exact key the JSON compliance rule expects — single compact line
-    $output = @{ 'Trend Micro Apex One Security Agent' = $installed } | ConvertTo-Json -Compress
+    # Emit the exact key the JSON compliance rule expects — single compact line.
+    # This Write-Output MUST be the only stdout in the script (Error 65009).
+    $output = @{ 'Trend Micro Apex One Security Agent' = [bool]$installed } | ConvertTo-Json -Compress
     Write-Output $output
 
     if ($installed) {
-        Finish-Script -ExitCode 0 -Message "Trend Micro Apex One detected - compliant" -Level 'SUCCESS'
+        Write-Log -Message "Trend Micro Apex One detected - compliant" -Level 'SUCCESS'
     }
     else {
         # Exit 0 with false — Intune custom compliance evaluates the JSON value,
         # not the exit code. The rule file sets the compliance condition.
-        Finish-Script -ExitCode 0 -Message "Trend Micro Apex One not detected - JSON emitted" -Level 'INFO'
+        Write-Log -Message "Trend Micro Apex One not detected - JSON emitted" -Level 'INFO'
     }
+    exit 0
 }
 catch {
     $errorMsg = "Detection error: $($_.Exception.Message)"
-    Write-Output $errorMsg
-    Finish-Script -ExitCode 2 -Message $errorMsg -Level 'ERROR'
+    Write-Log -Message $errorMsg -Level 'ERROR'
+    # ALWAYS emit valid JSON even on failure — a plain-text error string is what
+    # triggers Error 65009 (Invalid json for the discovered setting).
+    # Emit false so the device reports non-compliant instead of discovery-error.
+    @{ 'Trend Micro Apex One Security Agent' = $false } | ConvertTo-Json -Compress | Write-Output
+    exit 0
 }

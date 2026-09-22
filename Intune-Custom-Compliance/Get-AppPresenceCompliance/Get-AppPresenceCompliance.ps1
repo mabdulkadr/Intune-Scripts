@@ -6,14 +6,22 @@
     Reports install presence or version for configured applications as custom compliance JSON.
 
 .DESCRIPTION
-    Custom compliance discovery script for Microsoft Intune. Reads the uninstall
-    registry views (HKLM machine-wide or HKCU per-user) and emits one JSON property
-    per configured application name: True/False when $IsAppInstallCheckOnly is set,
-    otherwise the installed display version ('0.0.0.0' when absent).
+    Custom compliance discovery script for Microsoft Intune. Checks the uninstall
+    registry views (HKLM machine-wide or HKCU per-user) plus known executable
+    file markers, and emits one JSON property per configured application name:
+    True/False when $IsAppInstallCheckOnly is set, otherwise the installed
+    display/file version ('0.0.0.0' when absent).
 
-    Contract for Intune custom compliance:
-    - Exit 0 = discovery succeeded (JSON output is evaluated against the policy rules)
-    - Exit 2 = script error (no JSON evaluation occurs)
+    A registry match wins; when the registry has no entry (e.g. Chrome installed
+    via Google Updater with no ARP entry), a present marker file counts as
+    installed — in version mode the file product version is reported.
+
+    Contract for Intune custom compliance (discovery):
+    - Exit 0 always + single-line JSON to stdout. Intune evaluates the JSON value,
+      not the exit code. Never exit non-zero and never write plain text to stdout
+      (both surface as Error 65009 - Invalid json for the discovered setting).
+    - On script error still emit valid JSON (absent/false) and exit 0 so the
+      device reports non-compliant instead of discovery-error.
 
 .TAGS
     Compliance,CustomCompliance,Inventory
@@ -25,15 +33,24 @@
     Intune Service Administrator
 
 .PERMISSIONS
-    None (local SYSTEM context) - reads uninstall registry keys only.
+    None (local SYSTEM context) - reads uninstall registry keys and tests
+    known executable paths only.
 
 .AUTHOR
     Mohammad Abdelkader Omar
 
 .VERSION
-    2.0.0
+    2.1.0
 
 .CHANGELOG
+    2.1.0 (2026-09-22)
+    - Add file-marker fallback: when the registry has no entry, a known
+      executable path ($AppFileMarkers) counts as installed; version mode
+      reports the file product version. Fixes Chrome reporting false/0.0.0.0
+      while chrome.exe is present with no ARP entry.
+    2.0.1 (2026-09-22)
+    - Fix Error 65009: file-only logging (no Write-Host), single stdout JSON line,
+      catch emits valid JSON + exit 0 instead of plain-text/exit 2.
     2.0.0 (2026-08-26)
     - Migrated to Enterprise Standards canonical structure (header, logging, exit contract)
     - Errors now exit 2 so Intune never misreads a crash as a valid discovery result
@@ -43,7 +60,7 @@
     - Initial release
 
 .LASTUPDATE
-    2026-08-26
+    2026-09-22
 
 .EXAMPLE
     .\Get-AppPresenceCompliance.ps1
@@ -56,7 +73,9 @@
 .NOTES
     - Runs in SYSTEM context via Intune custom compliance.
     - Enter application names EXACTLY as shown in Programs and Features.
-    - Keep discovery light: one registry sweep, no service/process enumeration.
+    - Keep discovery light: one registry sweep + marker file checks, no service/process enumeration.
+    - Per-user installs under another user's AppData are not visible to SYSTEM file
+      checks — use $UserProfileApp = $true (HKCU registry) for those.
     - Logs: C:\ProgramData\Get-AppPresenceCompliance\Logs
 #>
 
@@ -75,7 +94,7 @@ $SolutionName = 'Get-AppPresenceCompliance'
 
 # Enter the exact display name as shown in Programs and Features.
 [array]$ApplicationNames = @(
-    "Trend Micro Apex One Security Agent"
+    "Google Chrome"
 )
 
 # Set to $true to check user-based installs in HKCU instead of system-wide installs in HKLM.
@@ -83,6 +102,19 @@ $SolutionName = 'Get-AppPresenceCompliance'
 
 # Set to $true to return only True/False; $false returns the installed version instead.
 [bool]$IsAppInstallCheckOnly = $true
+
+# File-marker fallback per application display name. Used ONLY when the registry
+# has no entry — covers installs that write no ARP entry (e.g. Chrome via
+# Google Updater). %ProgramFiles% paths are visible to SYSTEM; per-user AppData
+# paths resolve to the SYSTEM profile under Intune, so prefer $UserProfileApp
+# (HKCU) for per-user installs.
+[hashtable]$AppFileMarkers = @{
+    "Google Chrome" = @(
+        "%ProgramFiles%\Google\Chrome\Application\chrome.exe",
+        "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe",
+        "%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
+    )
+}
 
 # ============================================================================
 # LOGGING BLOCK (embedded canonical scripts/Write-Log.ps1 - copy VERBATIM)
@@ -127,13 +159,12 @@ function Initialize-Log {
         return $true
     }
     catch {
-        Write-Host "Log initialization failed: $($_.Exception.Message)" -ForegroundColor Red
-        $script:LogReady = $false
+        # Custom Compliance: stdout must stay clean for JSON (Error 65009) — file log only.
         return $false
     }
 }
 
-# Writes the solution banner to console and log file.
+# Writes the solution banner to log file ONLY (Custom Compliance: stdout = JSON only, Error 65009).
 function Write-Banner {
     [CmdletBinding()]
     [Alias('Show-Banner')]
@@ -144,23 +175,18 @@ function Write-Banner {
     $lines      = @('', $bannerLine, $title, $bannerLine)
 
     foreach ($line in $lines) {
-        if ($line -eq $title) {
-            Write-Host $line -ForegroundColor White
-        } else {
-            Write-Host $line -ForegroundColor DarkGray
-        }
-
         if ($script:LogReady -and $script:LogFile) {
             Add-Content -LiteralPath $script:LogFile -Value $line -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
         }
     }
 }
 
-# Writes one timestamped, level-colored line to console and log file.
+# Writes one timestamped line to log file ONLY (Custom Compliance: no Write-Host, Error 65009).
 function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $false)]
+        [AllowEmptyString()]
         [string]$Message = "",
         [ValidateSet("INFO", "SUCCESS", "WARNING", "ERROR", "DEBUG")]
         [string]$Level = "INFO"
@@ -170,18 +196,7 @@ function Write-Log {
     if ([string]::IsNullOrEmpty($Message)) { return }
 
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    # Console = clean, no timestamp/level prefix - color alone conveys severity.
-    # File    = detailed - keeps [timestamp] [LEVEL] for fleet troubleshooting.
     $fileLine  = "[$timestamp] [$Level] $Message"
-
-    $color = switch ($Level) {
-        "DEBUG"   { "DarkGray" }
-        "INFO"    { "Cyan" }
-        "SUCCESS" { "Green" }
-        "WARNING" { "Yellow" }
-        "ERROR"   { "Red" }
-    }
-    Write-Host $Message -ForegroundColor $color
 
     if ($script:LogReady -and $script:LogFile) {
         Add-Content -LiteralPath $script:LogFile -Value $fileLine -Encoding UTF8 -ErrorAction SilentlyContinue -WhatIf:$false
@@ -209,7 +224,8 @@ function Finish-Script {
 
 # ============================================================================
 # DISCOVERY LOGIC
-# Read-only registry sweep; output feeds Intune custom compliance evaluation.
+# Read-only registry sweep + file-marker fallback; output feeds Intune custom
+# compliance evaluation.
 # ============================================================================
 
 # Returns DisplayName/DisplayVersion entries from the requested registry hive view.
@@ -243,6 +259,38 @@ function Get-AppRegistryEntries {
     return $entries
 }
 
+# Returns the first existing marker file for the application, or $null.
+function Get-AppMarkerFile {
+    [CmdletBinding()]
+    param (
+        [string]$Application
+    )
+    if (-not $AppFileMarkers.ContainsKey($Application)) { return $null }
+    foreach ($rawPath in $AppFileMarkers[$Application]) {
+        $expanded = [System.Environment]::ExpandEnvironmentVariables($rawPath)
+        if ([string]::IsNullOrWhiteSpace($expanded)) { continue }
+        if (Test-Path -LiteralPath $expanded) { return $expanded }
+    }
+    return $null
+}
+
+# Returns the file product version for a marker exe, or $null.
+function Get-MarkerFileVersion {
+    [CmdletBinding()]
+    param (
+        [string]$FilePath
+    )
+    try {
+        $info = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($FilePath)
+        if (-not [string]::IsNullOrWhiteSpace($info.ProductVersion)) { return $info.ProductVersion }
+        if (-not [string]::IsNullOrWhiteSpace($info.FileVersion)) { return $info.FileVersion }
+    }
+    catch {
+        Write-Log -Message "File version read failed for '$FilePath': $($_.Exception.Message)" -Level 'DEBUG'
+    }
+    return $null
+}
+
 # Builds the JSON property bag Intune evaluates against the compliance rules.
 function Get-ComplianceJson {
     $regEntries   = Get-AppRegistryEntries -CheckUserProfile $UserProfileApp
@@ -254,13 +302,27 @@ function Get-ComplianceJson {
             Select-Object -First 1
 
         if ($IsAppInstallCheckOnly) {
-            $customObject[$application] = [bool]($null -ne $matchedApp)
+            if ($null -ne $matchedApp) {
+                $customObject[$application] = $true
+            }
+            else {
+                $markerFile = Get-AppMarkerFile -Application $application
+                $customObject[$application] = [bool]($null -ne $markerFile)
+            }
         }
         elseif ($matchedApp) {
             $customObject[$application] = [string]$matchedApp.DisplayVersion
         }
         else {
-            $customObject[$application] = '0.0.0.0'
+            $markerFile = Get-AppMarkerFile -Application $application
+            if ($null -ne $markerFile) {
+                $fileVersion = Get-MarkerFileVersion -FilePath $markerFile
+                if ([string]::IsNullOrWhiteSpace($fileVersion)) { $fileVersion = '1.0.0.0' }
+                $customObject[$application] = [string]$fileVersion
+            }
+            else {
+                $customObject[$application] = '0.0.0.0'
+            }
         }
 
         Write-Log -Message "Discovered '$application' -> $($customObject[$application])" -Level 'DEBUG'
@@ -272,7 +334,8 @@ function Get-ComplianceJson {
 # ============================================================================
 # MAIN
 # ============================================================================
-# Flow: init -> banner -> discovery sweep -> emit JSON -> exit 0 / 2 on error.
+# Flow: init -> discovery sweep -> emit single JSON line -> exit 0.
+# stdout carries ONLY the JSON (Error 65009); all diagnostics go to the log file.
 
 try {
     $ScriptMode = 'run'
@@ -282,9 +345,23 @@ try {
 
     $json = Get-ComplianceJson
 
+    # This Write-Output MUST be the only stdout in the script.
     Write-Output $json
-    Finish-Script -ExitCode 0 -Message "Discovery completed successfully" -Level 'SUCCESS' -NoExit:$false
+    Write-Log -Message "Discovery completed successfully" -Level 'SUCCESS'
+    exit 0
 }
 catch {
-    Finish-Script -ExitCode 2 -Message "Discovery script error: $($_.Exception.Message)" -Level 'ERROR'
+    $errorMsg = "Discovery script error: $($_.Exception.Message)"
+    Write-Log -Message $errorMsg -Level 'ERROR'
+    # ALWAYS emit valid JSON even on failure — plain text triggers Error 65009.
+    # Best effort: one false/version-zero property per configured app so Intune
+    # evaluates non-compliant instead of discovery-error.
+    $fallback = @{}
+    foreach ($application in $ApplicationNames) {
+        if ($IsAppInstallCheckOnly) { $fallback[$application] = $false }
+        else { $fallback[$application] = '0.0.0.0' }
+    }
+    if ($fallback.Count -eq 0) { $fallback['Compliant'] = $false }
+    ($fallback | ConvertTo-Json -Compress) | Write-Output
+    exit 0
 }

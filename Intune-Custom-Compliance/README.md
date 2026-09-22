@@ -10,7 +10,7 @@ PowerShell discovery scripts emit JSON evaluated by Intune custom compliance pol
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0F172A?style=for-the-badge)](#%EF%B8%8F-requirements)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
-[![Version](https://img.shields.io/badge/Version-1.2-334155?style=for-the-badge)](#-overview)
+[![Version](https://img.shields.io/badge/Version-1.3-334155?style=for-the-badge)](#-overview)
 
 [Overview](#-overview) • [Features](#-core-features) • [Projects](#-📜-scripts) • [Requirements](#%EF%B8%8F-requirements) • [License](#-license)
 
@@ -36,6 +36,9 @@ Each subfolder is documented separately and usually contains:
 
 ### 🔹 Intune-Compatible JSON Output
 The scripts in this area are built around the output format expected by **Intune custom compliance policies**.
+
+### 🔹 Discovery stdout contract (Error 65009)
+Every discovery script emits **exactly one compressed JSON line to stdout and exits 0 always** — Intune evaluates the JSON value, not the exit code. Logging is **file-only** (no `Write-Host`, no banner to host); even the `catch` block emits valid fallback JSON (`false` / `0.0.0.0` / `Compliant=false`) so a crash reports non-compliant instead of discovery-error.
 
 ### 🔹 Registry and App State Reporting
 Most packages inspect installed software or device state through local Windows data sources such as uninstall registry entries.
@@ -121,6 +124,25 @@ Each package has its own `README.md` explaining the exact workflow and files inc
 * These projects are primarily **reporting/compliance** assets, not remediation packages.
 * Exact matching logic, JSON shape, and supported conditions vary by project.
 * Always test the returned JSON against the intended Intune compliance rule before production use.
+* The JSON property names emitted by each script must match its rule file 1:1 — renaming one requires updating the other.
+
+---
+
+# 🧰 Troubleshooting
+
+| Symptom | Cause | Fix |
+| ------- | ----- | --- |
+| `65009 (Invalid json for the discovered setting)` | Extra host output (`Write-Host`, banner, post-JSON message) or plain-text `catch` corrupted stdout | Re-download the fixed script (v2.0.1+/v2.1.1+), re-upload as discovery script, sync the device |
+| Setting shows Error but script runs locally | `catch` exited non-zero or emitted non-JSON | Fixed scripts always emit fallback JSON + `exit 0`; verify locally with `& script.ps1 *>&1` → expect 1 line, valid JSON |
+| Key mismatch | Script JSON key ≠ rule `SettingName` | Keep names identical, including spaces and casing |
+
+Verify locally before uploading:
+
+```powershell
+$r = & '.\Get-AppPresenceCompliance.ps1' *>&1
+($r | Out-String).Trim() | ConvertFrom-Json  # must succeed, 1 line
+$LASTEXITCODE  # must be 0
+```
 
 ---
 

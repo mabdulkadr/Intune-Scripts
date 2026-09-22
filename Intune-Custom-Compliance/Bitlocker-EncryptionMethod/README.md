@@ -50,36 +50,37 @@ Bitlocker-EncryptionMethod
 ## 🔎 Detection Script
 
 **File**
-`powershell
+```powershell
 Get-BitlockerEncryptionMethodCompliance.ps1
-`
+```
 
 ### Purpose
 Discovery script - returns JSON with BitLocker encryption method for Custom Compliance policies. Always exits 0 (compliance is evaluated by the JSON rules).
 
 ### Output
-`json
+```json
 {"BitLockerEncryptionMethod":"XTS-AES 256","Compliant":true,"Details":["Volume C:: XTS-AES 256 (Compliant=True)"]}
-`
+```
 
 ## 🛠 Remediation Script
 
 **File**
-`powershell
+```powershell
 # Custom Compliance discovery scripts do not require a paired remediation script.
 # Intune enforces compliance via Conditional Access policy - non-compliant devices are blocked.
 # Use a separate Intune Configuration Profile to push the desired encryption method, e.g.:
 #   ./Vendor/MSFT/BitLocker/GroupPolicy:"EncryptionMethodWithXtsAes256"
-`
+```
 
 ### Purpose
 Custom Compliance is a read-only evaluation surface. When a device is non-compliant, the operator must remediate via a separate Intune Configuration Profile (BitLocker policy) or a Win32 LOB app. No in-script remediation is performed.
 
-### Exit Codes
+### Exit Codes (compliance is carried by the JSON, not the exit code)
 | Code | Status |
 | ---- | ------ |
-| 0    | Discovery completed (compliance evaluated by Intune) |
-| 2    | Script error |
+| 0    | Discovery completed — JSON emitted (compliant or not, including fallback JSON on error) |
+
+The script never exits non-zero and never writes plain text to stdout — both surface as Error 65009.
 
 ---
 
@@ -102,15 +103,15 @@ Custom Compliance is a read-only evaluation surface. When a device is non-compli
 # 🛭 Intune Deployment
 
 ### Detection Script
-`powershell
+```powershell
 Get-BitlockerEncryptionMethodCompliance.ps1
-`
+```
 
 ### Remediation Script
-`powershell
+```powershell
 # Custom compliance discovery has no paired remediation.
 # Pair with a separate BitLocker Configuration Profile that sets XTS-AES 256.
-`
+```
 
 ### Recommended Settings
 | Setting | Value |

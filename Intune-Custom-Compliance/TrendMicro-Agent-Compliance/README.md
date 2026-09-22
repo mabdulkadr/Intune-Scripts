@@ -4,13 +4,13 @@
 
 **Intune Custom Compliance discovery script that reports whether the Trend Micro Apex One Security Agent is installed.**
 
-Checks four independent signals (registry ARP entries, services, program folders, and processes) and emits a single JSON property (`true`/`false`) that the Intune custom compliance policy evaluates against its rules.
+Checks two independent executable-presence signals (program-folder markers and running processes) and emits a single JSON property (`true`/`false`) that the Intune custom compliance policy evaluates against its rules.
 
 [![Intune](https://img.shields.io/badge/Intune-Custom%20Compliance-10B981?style=for-the-badge)](#-intune-custom-compliance-setup)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-0F172A?style=for-the-badge)](#-requirements)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](#-license)
-[![Version](https://img.shields.io/badge/Version-2.0.0-334155?style=for-the-badge)](#-overview)
+[![Version](https://img.shields.io/badge/Version-2.1.1-334155?style=for-the-badge)](#-overview)
 
 [Overview](#-overview) • [Usage](#-usage) • [Requirements](#-requirements) • [License](#-license)
 
@@ -43,9 +43,9 @@ Any single positive signal marks the agent as installed. The script emits a comp
 * Runs to completion in seconds, well under the compliance script timeout
 
 ### 🔹 Enterprise Standards
-* Structured logging, typed error handling — read-only executable-presence checks
+* Structured logging (file-only), typed error handling — read-only executable-presence checks
 * Read-only: never modifies the filesystem, registry, services, or processes
-* Errors exit `2` so Intune never evaluates a crashed discovery as valid output
+* stdout carries **only** the single-line JSON (Error 65009); even failures emit valid JSON + `exit 0`
 
 ---
 
@@ -124,6 +124,7 @@ The discovery script takes **no parameters**. Intune Custom Compliance invokes `
 * The rule file `SettingName` (`Trend Micro Apex One Security Agent`) and the JSON key emitted by the script must match 1:1 — renaming one requires updating the other.
 * Detection signals are markers only and are tuned to avoid false positives from unrelated Trend products.
 * The script is read-only: it discovers, it never remediates. Use a separate remediation plan or app deployment to install the agent when `false` is reported.
+* `65009 (Invalid json)` means stdout was polluted — verify locally with `& .\Get-TrendMicroAgentCompliance.ps1 *>&1` (expect 1 line, valid JSON, exit 0) and re-upload the fixed script.
 
 ---
 
