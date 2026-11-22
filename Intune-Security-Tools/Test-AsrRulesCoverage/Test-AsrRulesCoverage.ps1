@@ -81,7 +81,7 @@ $ErrorActionPreference = 'Stop'
 # ============================================================================
 
 $_scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } elseif ($PSCommandPath) { Split-Path -Parent $PSCommandPath } elseif ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { (Get-Location).Path }
-$_canonicalLogging = "C:\Users\admin\.config\opencode\skills\powershell-enterprise-admin\scripts\Write-Log.ps1"
+$_canonicalLogging = "C:\Users\<user>\.config\opencode\skills\powershell-enterprise-admin\scripts\Write-Log.ps1"
 if (Test-Path -LiteralPath $_canonicalLogging) { . (Get-Item -LiteralPath $_canonicalLogging).FullName }
 else {
     $script:SystemDrive = if ($env:SystemDrive) { $env:SystemDrive.TrimEnd('\') } else { [System.IO.Path]::GetPathRoot($env:SystemRoot).TrimEnd('\') }

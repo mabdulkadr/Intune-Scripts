@@ -79,7 +79,7 @@ $_scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } elseif ($PSCommandPath) { Sp
 $_canonicalLogging = Join-Path (Split-Path -Parent $_scriptRoot) '..\..\scripts\Write-Log.ps1'
 # Fallback: search in skill path if relative fails
 if (-not (Test-Path -LiteralPath $_canonicalLogging)) {
-    $_canonicalLogging = "C:\Users\admin\.config\opencode\skills\powershell-enterprise-admin\scripts\Write-Log.ps1"
+    $_canonicalLogging = "C:\Users\<user>\.config\opencode\skills\powershell-enterprise-admin\scripts\Write-Log.ps1"
 }
 if (Test-Path -LiteralPath $_canonicalLogging) { . (Get-Item -LiteralPath $_canonicalLogging).FullName }
 else {
