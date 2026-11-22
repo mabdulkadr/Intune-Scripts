@@ -61,6 +61,7 @@ Intune-Proactive-Remediations
 ├── Clear-TeamsCache\                   # NEW 2026 — Teams classic + new
 ├── Get-BatteryHealth\                  # NEW 2026 — battery degradation
 ├── Test-WindowsLapsDrift\              # NEW 2026 — legacy vs Windows LAPS
+├── Uninstall-AnyDesk\                   # NEW 2026 — silent AnyDesk removal
 ├── ...one folder per remediation scenario (68+ total)...
 │   ├── detect-<SolutionName>.ps1
 │   ├── remediate-<SolutionName>.ps1
