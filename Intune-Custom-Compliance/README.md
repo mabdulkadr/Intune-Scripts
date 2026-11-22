@@ -63,9 +63,9 @@ Intune-Custom-Compliance
 │   ├── App-Version-Compliance.json
 │   └── README.md
 │
-├── Bitlocker-EncryptionMethod
-│   ├── Get-BitlockerEncryptionMethodCompliance.ps1
-│   ├── Bitlocker-EncryptionMethod.json
+├── BitLocker-EncryptionMethod
+│   ├── Get-BitLockerEncryptionMethodCompliance.ps1
+│   ├── BitLocker-EncryptionMethod.json
 │   └── README.md
 │
 ├── TrendMicro-Agent-Compliance
@@ -86,7 +86,7 @@ This folder currently contains:
 
 * `Get-AppPresenceCompliance`: reports whether configured applications are installed (`true`/`false` per app)
 * `Get-AppVersionCompliance`: reports installed application versions for minimum-version evaluation
-* `Bitlocker-EncryptionMethod`: reports the BitLocker encryption method (XTS-AES 128/256) for disk-encryption compliance
+* `BitLocker-EncryptionMethod`: reports the BitLocker encryption method (XTS-AES 128/256) for disk-encryption compliance
 * `TrendMicro-Agent-Compliance`: reports Trend Micro Apex One agent presence for security-agent compliance
 
 Each package has its own `README.md` explaining the exact workflow and files included.

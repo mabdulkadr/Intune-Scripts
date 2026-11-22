@@ -42,7 +42,7 @@ Every Graph script supports dual authentication: interactive delegated (MgGraphC
 ### 🔹 Stale Detection
 * `Get-StaleDevices.ps1`: flags devices not checked in for *N* days (all platforms, optional platform filter, `IncludeNeverCheckedIn`) with CSV/HTML-friendly output.
 * `Get-DevicesByScopeTag.ps1`: Scope Tag-filtered inventory with HTML report, compliance/platform filters, and cached scope-tag resolution.
-* `Get-OutdatedIosDevices.ps1`: iOS devices below the two latest major releases (default 26/18), major-version parsing with unrecognized-version warnings.
+* `Get-OutdatediOSDevices.ps1`: iOS devices below the two latest major releases (default 26/18), major-version parsing with unrecognized-version warnings.
 * `Get-Windows11Readiness.ps1`: Endpoint Analytics work-from-anywhere hardware signals (TPM, Secure Boot, RAM, storage, CPU family/speed/cores, 64-bit) with tenant summary and per-device failed-check breakdown.
 
 ### 🔹 Wipe / Restart / Sync
@@ -70,7 +70,7 @@ Intune-Device-Operations
 │
 ├── Add-DevicesToGroupsFromCsv.ps1
 ├── Get-DevicesByScopeTag.ps1
-├── Get-OutdatedIosDevices.ps1
+├── Get-OutdatediOSDevices.ps1
 ├── Get-StaleDevices.ps1
 ├── Get-Windows11Readiness.ps1
 ├── Invoke-DeviceWipe.ps1
@@ -99,7 +99,7 @@ Intune-Device-Operations
 |--------|---------|-----------------|-------------|--------|
 | `Add-DevicesToGroupsFromCsv.ps1` | Bulk-add Intune devices to Entra ID groups from CSV (DeviceId/Serial/DeviceName priority, idempotent, optional group creation) | `Group.ReadWrite.All`, `DeviceManagementManagedDevices.Read.All`, `Directory.Read.All` | Graph — delegated or app-only | — |
 | `Get-DevicesByScopeTag.ps1` | Scope Tag-filtered device inventory with CSV + interactive HTML report | `DeviceManagementManagedDevices.Read.All`, `DeviceManagementRBAC.Read.All` | Graph — delegated or app-only | — |
-| `Get-OutdatedIosDevices.ps1` | Reports iOS devices below the two latest major releases (parse-safe, timestamped CSV) | `DeviceManagementManagedDevices.Read.All` | Graph — delegated or app-only | — |
+| `Get-OutdatediOSDevices.ps1` | Reports iOS devices below the two latest major releases (parse-safe, timestamped CSV) | `DeviceManagementManagedDevices.Read.All` | Graph — delegated or app-only | — |
 | `Get-StaleDevices.ps1` | Finds devices stale for N days (platform filter, include never-checked-in) | `DeviceManagementManagedDevices.Read.All` | Graph — delegated or app-only | — |
 | `Get-Windows11Readiness.ps1` | Windows 11 upgrade readiness via Endpoint Analytics hardware signals | `DeviceManagementManagedDevices.Read.All`, `DeviceManagementConfiguration.Read.All` | Graph — delegated or app-only | — |
 | `Invoke-DeviceWipe.ps1` | Remote wipe (Selective retire / Full factory reset) by names, IDs, or Entra group | `DeviceManagementManagedDevices.PrivilegedOperations.All`, `DeviceManagementManagedDevices.Read.All`, `GroupMember.Read.All` | Graph — delegated or app-only | 🔴 **DANGER — Irreversible** |

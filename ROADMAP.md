@@ -33,7 +33,7 @@ This roadmap tracks what shipped in **v2.1 (2026-08-31)** and what is planned fo
 | Diagnostics | `Get-ImeDiagnostics` (CLI) | IME log timeline → Carbon Dark HTML (Win32App/ESP/Remediation categories) |
 | Security | `Test-AsrRulesCoverage` (CLI) | 18 ASR rules vs 25H2 baseline GAP analysis (Block/Audit/Not Configured) |
 | Reporting | `Get-HotpatchReadiness` (CLI) | Hotpatch Default-ON May 2026: VBS + SKU + Build 26100 |
-| Custom Compliance | `Bitlocker-EncryptionMethod` (discovery + JSON) | XTS-AES 128/256 enforcement for Conditional Access |
+| Custom Compliance | `BitLocker-EncryptionMethod` (discovery + JSON) | XTS-AES 128/256 enforcement for Conditional Access |
 | macOS | `check-platform-sso-status` (sh) | Platform SSO GA May 2026 — successor to Enterprise SSO plug-in |
 
 **Housekeeping in v2.1:**

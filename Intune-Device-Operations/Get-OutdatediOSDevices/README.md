@@ -40,9 +40,9 @@ Connects to Microsoft Graph and retrieves Intune-managed iOS devices, including 
 # 📂 Project Structure
 
 ```text
-Get-OutdatedIosDevices
+Get-OutdatediOSDevices
 │
-├── Get-OutdatedIosDevices.ps1
+├── Get-OutdatediOSDevices.ps1
 └── README.md
 ```
 

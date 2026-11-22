@@ -43,12 +43,12 @@
     2026-08-31
 
 .EXAMPLE
-    .\Get-BitlockerEncryptionMethodCompliance.ps1
+    .\Get-BitLockerEncryptionMethodCompliance.ps1
     Outputs JSON for Custom Compliance.
 
 .NOTES
     - Runs in SYSTEM context as discovery script.
-    - JSON file: Bitlocker-EncryptionMethod.json defines compliance rule (Compliant must be true).
+    - JSON file: BitLocker-EncryptionMethod.json defines compliance rule (Compliant must be true).
 #>
 
 #Requires -Version 5.1

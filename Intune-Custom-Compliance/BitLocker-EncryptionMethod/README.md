@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔐 Bitlocker-EncryptionMethod
+# 🔐 BitLocker-EncryptionMethod
 
 **Custom Compliance discovery script for BitLocker encryption method**
 
@@ -20,7 +20,7 @@ Returns JSON with BitLocker encryption method for Custom Compliance policies. Ch
 
 # 🔐 Overview
 
-**Bitlocker-EncryptionMethod** is an Intune Custom Compliance discovery script that flags devices using non-XTS (AES-CBC) encryption methods, enabling Conditional Access gating. Custom compliance scripts are always detection-only. The companion JSON file holds the rules, the discovery script reports the state, and the tenant decides.
+**BitLocker-EncryptionMethod** is an Intune Custom Compliance discovery script that flags devices using non-XTS (AES-CBC) encryption methods, enabling Conditional Access gating. Custom compliance scripts are always detection-only. The companion JSON file holds the rules, the discovery script reports the state, and the tenant decides.
 
 ---
 
@@ -36,10 +36,10 @@ Returns JSON with BitLocker encryption method for Custom Compliance policies. Ch
 # 📂 Project Structure
 
 ```text
-Bitlocker-EncryptionMethod
+BitLocker-EncryptionMethod
 │
-├── Get-BitlockerEncryptionMethodCompliance.ps1
-├── Bitlocker-EncryptionMethod.json
+├── Get-BitLockerEncryptionMethodCompliance.ps1
+├── BitLocker-EncryptionMethod.json
 └── README.md
 ```
 
@@ -51,7 +51,7 @@ Bitlocker-EncryptionMethod
 
 **File**
 ```powershell
-Get-BitlockerEncryptionMethodCompliance.ps1
+Get-BitLockerEncryptionMethodCompliance.ps1
 ```
 
 ### Purpose
@@ -104,7 +104,7 @@ The script never exits non-zero and never writes plain text to stdout; both surf
 
 ### Detection Script
 ```powershell
-Get-BitlockerEncryptionMethodCompliance.ps1
+Get-BitLockerEncryptionMethodCompliance.ps1
 ```
 
 ### Remediation Script
@@ -123,15 +123,15 @@ Get-BitlockerEncryptionMethodCompliance.ps1
 ---
 
 # 🔧 Typical Workflow
-1. Upload Get-BitlockerEncryptionMethodCompliance.ps1 to **Devices > Compliance > Scripts**
+1. Upload Get-BitLockerEncryptionMethodCompliance.ps1 to **Devices > Compliance > Scripts**
 2. Create compliance policy > **Custom Compliance** > Require > Select script
-3. Upload Bitlocker-EncryptionMethod.json as the rules file
+3. Upload BitLocker-EncryptionMethod.json as the rules file
 4. Assign to device group; non-compliant devices are blocked by Conditional Access
 
 ---
 
 # 🛡 Operational Notes
-* Pair with the companion Bitlocker-EncryptionMethod.json rules file
+* Pair with the companion BitLocker-EncryptionMethod.json rules file
 * Non-compliant devices are blocked by Conditional Access if configured
 
 ---

@@ -60,10 +60,10 @@ Intune-Scripts-main/
 │   └── <Solution>/  detect-<Solution>.ps1 · remediate-<Solution>.ps1 · README.md
 │       NEW: SecureBoot-CA2023-Update · Enable-SecureBoot-Lenovo · Disable-LLMNR-NetBIOS · Clear-TeamsCache · Get-BatteryHealth · Test-WindowsLapsDrift · Enable-MultiSession · Repair-KB5124008SecureChannel
 │
-├── Intune-Custom-Compliance/           4 compliance packages · 13 files  # +2 NEW (Bitlocker-EncryptionMethod, TrendMicro)
+├── Intune-Custom-Compliance/           4 compliance packages · 13 files  # +2 NEW (BitLocker-EncryptionMethod, TrendMicro)
 │   ├── Get-AppPresenceCompliance/
 │   ├── Get-AppVersionCompliance/
-│   ├── Bitlocker-EncryptionMethod/     # NEW — XTS-AES 128/256 enforcement
+│   ├── BitLocker-EncryptionMethod/     # NEW — XTS-AES 128/256 enforcement
 │   ├── TrendMicro-Agent-Compliance/     # NEW — TrendMicro Apex One agent check
 │
 ├── Intune-Security-Tools/              8 tools · 8 .ps1  # +1 NEW (Test-AsrRulesCoverage)
