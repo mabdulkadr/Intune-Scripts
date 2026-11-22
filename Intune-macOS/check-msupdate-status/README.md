@@ -28,9 +28,9 @@ Designed as an **Intune custom attribute** (single-line stdout) and as an **Intu
 
 # ✨ Features
 
-* **Config parsing** — extracts `AutoUpdateVersion`, `ChannelName`, `LastCheckForUpdates` from `msupdate --config` output.
-* **Graceful degradation** — reports `Unknown`/`Never` when fields are absent and `Error: Unable to retrieve MAU configuration` on failure.
-* **Intune-ready** — `output_result` + `trap ERR` guarantees a single line and exit 0 for custom attribute ingestion.
+* Extracts `AutoUpdateVersion`, `ChannelName`, `LastCheckForUpdates` from `msupdate --config` output.
+* Reports `Unknown`/`Never` when fields are absent and `Error: Unable to retrieve MAU configuration` on failure.
+* Uses `output_result` + `trap ERR` to guarantee a single line and exit 0 for custom attribute ingestion.
 
 Additional details:
 
@@ -99,7 +99,7 @@ for s in ./*.sh; do echo "== $s =="; chmod +x "$s"; "$s"; echo; done
 
 # ⚙️ Parameters
 
-This script has **no parameters** — it is a read-only check with no configuration flags.
+This script has no parameters. It is a read-only check with no configuration flags.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -122,7 +122,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Shell
 
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities
 
 ### Intune
 
@@ -135,11 +135,11 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Dependencies
 
-* No external modules — uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted
+* Uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted. No external modules.
 
 ### Logging
 
-* Not applicable — read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty
+* Not applicable. This is a read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty.
 
 ---
 

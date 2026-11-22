@@ -22,7 +22,7 @@ This script connects to Microsoft Graph, retrieves managed devices and their com
 
 **Get Device Compliance Report** is a PowerShell reporting script that This script connects to Microsoft Graph, retrieves managed devices and their compliance status, and generates a detailed report in both CSV and HTML formats. The report includes device details, compliance status, and summary statistics. Supports interactive sign-in and unattended app-only via -TenantId/-ClientId.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -111,8 +111,8 @@ Generates reports and forces module installation without prompting
 ---
 
 # 🛡 Operational Notes
-* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as” — uncovered platforms may silently pass Conditional Access when set to Compliant.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as”. Uncovered platforms may silently pass Conditional Access when set to Compliant.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

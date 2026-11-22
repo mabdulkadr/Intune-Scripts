@@ -37,7 +37,7 @@ The detection script inspects `DmWapPushService` and `IntuneManagementExtension`
 * Ensures `DmWapPushService` is running, then restarts or starts `IntuneManagementExtension`
 * Triggers each discovered EnterpriseMgmt task via `Start-ScheduledTask` with an automatic `schtasks.exe /Run` fallback
 * Verifies at least one sync task triggered; emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -115,7 +115,7 @@ Recovers stalled Intune sync by repairing services and triggering EnterpriseMgmt
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Repair-IntuneSyncService\`
@@ -152,7 +152,7 @@ remediate-Repair-IntuneSyncService.ps1
 ---
 
 # 🛡 Operational Notes
-* Former command-line parameters are now fixed configuration values (`ThresholdHours = 24`, `RequireIME = True`, `StrictStartMode = False`, `TailLines = 300`) — edit the CONFIGURATION block to change them.
+* Former command-line parameters are now fixed configuration values (`ThresholdHours = 24`, `RequireIME = True`, `StrictStartMode = False`, `TailLines = 300`); edit the CONFIGURATION block to change them.
 * Non-Auto start modes only cause non-compliance when `StrictStartMode` is enabled.
 * Devices without the IME installed report `IME not installed` and will not benefit from the remediation.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

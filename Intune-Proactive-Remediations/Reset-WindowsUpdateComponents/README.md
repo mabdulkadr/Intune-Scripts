@@ -29,14 +29,14 @@ The detection script intentionally does not evaluate device state: it reports no
 # ✨ Core Features
 
 ### 🔹 Always-Trigger Detection
-* Preserved legacy intent — never evaluates device state
+* Preserved legacy intent: never evaluates device state
 * Exits `1` on every run so the paired remediation always executes
 
 ### 🔹 Verified Remediation
 * Stops running `cryptsvc` dependents plus `wuauserv` / `cryptsvc` / `bits`, restoring them afterwards
 * Renames `SoftwareDistribution` and `catroot2` to `.bak` with abort-on-failure sequencing
 * Triggers `wuauclt /updatenow`; emits structured JSON result output for Intune diagnostics
-* Idempotent — an existing `.bak` folder is cleared before each reset
+* Idempotent: an existing `.bak` folder is cleared before each reset
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Resets the Windows Update cache folders and triggers a new scan, using a pre-che
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Reset-WindowsUpdateComponents\`
@@ -150,7 +150,7 @@ remediate-Reset-WindowsUpdateComponents.ps1
 ---
 
 # 🛡 Operational Notes
-* The always-trigger detection is deliberate legacy behavior — the reset runs on every remediation cycle.
+* The always-trigger detection is deliberate legacy behavior: the reset runs on every remediation cycle.
 * Destructive maintenance: renaming `SoftwareDistribution` and `catroot2` wipes the local update cache and download history.
 * A failed step aborts the remaining destructive steps, mirroring the original single try/catch behavior.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

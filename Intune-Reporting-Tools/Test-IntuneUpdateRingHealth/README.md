@@ -22,7 +22,7 @@ Checks every update ring against Microsoft's Autopatch-recommended values and co
 
 **Test Intune Update Ring Health** is a PowerShell reporting script that checks every update ring against Microsoft's Autopatch-recommended values and common misconfiguration patterns. Flags: excessive quality deferrals (>14 days), missing deadlines, zero grace periods, paused rings, feature deferral conflicts, drivers excluded conflicts, delivery optimization misconfigurations, active hours not configured, devices in multiple rings, rings with no assignments, and inconsistent deadline/grace ratios across rings.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -94,7 +94,7 @@ Audits Windows Update ring configurations against Microsoft best practices.
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

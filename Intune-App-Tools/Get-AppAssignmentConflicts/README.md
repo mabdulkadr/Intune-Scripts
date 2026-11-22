@@ -4,7 +4,7 @@
 
 **Detects conflicting Intune app assignments: required versus uninstall, and groups that are both included and excluded.**
 
-Analyzes every Intune app's assignments and reports hard-to-spot conflicts — required and uninstall on the same app, the same group both included and excluded, and the same group with mixed intents — resolving group display names so the report is directly actionable for Intune administrators.
+Analyzes every Intune app's assignments and reports hard-to-spot conflicts: required and uninstall on the same app, the same group both included and excluded, and the same group with mixed intents. Group display names are resolved so the report is directly actionable for Intune administrators.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Analyzes every Intune app's assignments and reports hard-to-spot conflicts — r
 
 **Get-AppAssignmentConflicts** is a PowerShell script that detects assignment conflicts across the Intune app catalog.
 
-It pages every mobile app with expanded assignments via the Microsoft Graph beta endpoint, builds per-target include and exclude views, and surfaces three conflict types: an app deployed as both required and uninstall, the same group both included and excluded on one app, and the same group receiving the same app with multiple different intents. Group IDs are resolved to display names with caching so the output is actionable without portal cross-referencing. Supports interactive sign-in (WAM-free via MgGraphCommunity when available) and app-only authentication.
+It pages every mobile app with expanded assignments via the Microsoft Graph beta endpoint, builds per-target include and exclude views, and surfaces three conflict types: an app deployed as both required and uninstall, the same group both included and excluded on one app, and the same group receiving the same app with multiple different intents. Group IDs are resolved to display names with caching so the output is actionable without portal cross-referencing. The script supports interactive sign-in (WAM-free via MgGraphCommunity when available) and app-only authentication.
 
 ---
 
@@ -110,7 +110,7 @@ Writes the CSV report to a specific directory.
 
 # 🛡 Operational Notes
 
-* Read-only reporting — creates no tenant objects and makes no assignments.
+* Read-only reporting that creates no tenant objects and makes no assignments.
 * Required + available for the same group is reported as informational, not a conflict (required wins by design).
 * Nested group membership is not evaluated; only direct assignment targets are compared.
 * Uses beta Graph endpoints for the app assignment surface; honors HTTP 429 with 60-second backoff.

@@ -20,9 +20,9 @@ PowerShell discovery scripts emit JSON evaluated by Intune custom compliance pol
 
 # 📖 Overview
 
-**Intune-Custom-Compliance** contains PowerShell-based **Microsoft Intune custom compliance** content.
+Intune-Custom-Compliance contains PowerShell-based Microsoft Intune custom compliance content.
 
-Unlike proactive remediations, the projects in this area are designed to **report state** back to Intune rather than change it. Most packages return JSON that matches a companion compliance rule file so Intune can evaluate application presence, application version, or other device conditions.
+Unlike proactive remediations, the projects in this area report state back to Intune rather than change it. Most packages return JSON that matches a companion compliance rule file so Intune can evaluate application presence, application version, or other device conditions.
 
 Each subfolder is documented separately and usually contains:
 
@@ -38,7 +38,7 @@ Each subfolder is documented separately and usually contains:
 The scripts in this area are built around the output format expected by **Intune custom compliance policies**.
 
 ### 🔹 Discovery stdout contract (Error 65009)
-Every discovery script emits **exactly one compressed JSON line to stdout and exits 0 always** — Intune evaluates the JSON value, not the exit code. Logging is **file-only** (no `Write-Host`, no banner to host); even the `catch` block emits valid fallback JSON (`false` / `0.0.0.0` / `Compliant=false`) so a crash reports non-compliant instead of discovery-error.
+Every discovery script emits exactly one compressed JSON line to stdout and always exits 0. Intune evaluates the JSON value, not the exit code. Logging is file-only (no `Write-Host`, no banner to host); even the `catch` block emits valid fallback JSON (`false` / `0.0.0.0` / `Compliant=false`) so a crash reports non-compliant instead of a discovery error.
 
 ### 🔹 Registry and App State Reporting
 Most packages inspect installed software or device state through local Windows data sources such as uninstall registry entries.
@@ -84,10 +84,10 @@ Intune-Custom-Compliance
 
 This folder currently contains:
 
-* `Get-AppPresenceCompliance` — reports whether configured applications are installed (`true`/`false` per app)
-* `Get-AppVersionCompliance` — reports installed application versions for minimum-version evaluation
-* `Bitlocker-EncryptionMethod` — reports the BitLocker encryption method (XTS-AES 128/256) for disk-encryption compliance
-* `TrendMicro-Agent-Compliance` — reports Trend Micro Apex One agent presence for security-agent compliance
+* `Get-AppPresenceCompliance`: reports whether configured applications are installed (`true`/`false` per app)
+* `Get-AppVersionCompliance`: reports installed application versions for minimum-version evaluation
+* `Bitlocker-EncryptionMethod`: reports the BitLocker encryption method (XTS-AES 128/256) for disk-encryption compliance
+* `TrendMicro-Agent-Compliance`: reports Trend Micro Apex One agent presence for security-agent compliance
 
 Each package has its own `README.md` explaining the exact workflow and files included.
 
@@ -124,7 +124,7 @@ Each package has its own `README.md` explaining the exact workflow and files inc
 * These projects are primarily **reporting/compliance** assets, not remediation packages.
 * Exact matching logic, JSON shape, and supported conditions vary by project.
 * Always test the returned JSON against the intended Intune compliance rule before production use.
-* The JSON property names emitted by each script must match its rule file 1:1 — renaming one requires updating the other.
+* The JSON property names emitted by each script must match its rule file 1:1. Renaming one requires updating the other.
 
 ---
 

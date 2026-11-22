@@ -4,7 +4,7 @@
 
 **Exports Intune configuration to versionable JSON with manifest-tracked backups.**
 
-Exports device configuration profiles, settings catalog policies, compliance policies, ADMX templates, and platform scripts as per-object JSON with assignments for source-controlled tenant backups — built for Intune administrators.
+Exports device configuration profiles, settings catalog policies, compliance policies, ADMX templates, and platform scripts as per-object JSON with assignments for source-controlled tenant backups.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,7 +20,7 @@ Exports device configuration profiles, settings catalog policies, compliance pol
 
 # 📖 Overview
 
-**Backup Intune Configuration** is a PowerShell script that exports the core Intune configuration surfaces to a timestamped backup folder — device configuration profiles, settings catalog policies (including their full setting bodies), compliance policies, administrative template (ADMX) policies with definition values, and platform scripts — each object as one JSON file including assignments plus a manifest for change tracking and restore.
+**Backup Intune Configuration** is a PowerShell script that exports the core Intune configuration surfaces to a timestamped backup folder: device configuration profiles, settings catalog policies (including their full setting bodies), compliance policies, administrative template (ADMX) policies with definition values, and platform scripts. Each object is one JSON file including assignments, plus a manifest for change tracking and restore.
 
 ---
 
@@ -57,7 +57,7 @@ Exports all supported configuration areas to a timestamped folder beside the scr
 ```powershell
 .\Backup-IntuneConfiguration.ps1 -OutputPath "C:\IntuneBackups" -Areas DeviceConfigurations,CompliancePolicies -SkipScriptContent "true"
 ```
-Exports only classic configuration profiles and compliance policies to `C:\IntuneBackups` while skipping base64 script bodies — app-only example: add `-TenantId <id> -ClientId <id> -ClientSecret <secret>`.
+Exports only classic configuration profiles and compliance policies to `C:\IntuneBackups` while skipping base64 script bodies. For app-only, add `-TenantId <id> -ClientId <id> -ClientSecret <secret>`.
 
 ---
 
@@ -100,10 +100,10 @@ Exports only classic configuration profiles and compliance policies to `C:\Intun
 
 # 🛡 Operational Notes
 
-* **Backup JSON depth 25:** each object is written with `ConvertTo-Json -Depth 25` (manifest uses depth 5) so nested settings catalog and ADMX presentation values survive round-tripping; Graph never returns secret values (encrypted OMA-URI, passwords, certificates) — those appear as secret references and must be re-entered manually after restore.
+* **Backup JSON depth 25:** each object is written with `ConvertTo-Json -Depth 25` (manifest uses depth 5) so nested settings catalog and ADMX presentation values survive round-tripping; Graph never returns secret values (encrypted OMA-URI, passwords, certificates); those appear as secret references and must be re-entered manually after restore.
 * Beta Graph endpoints are used intentionally because the full Intune configuration surface is not exposed on `v1.0`; all calls page with `Get-MgGraphAllPages` and retry on 429/503.
 * Relative `-OutputPath` values resolve beside the script (`$PSScriptRoot`), not the caller working directory; logs are timestamped and level-colored.
-* **RBAC sensitivity:** backup contains tenant configuration metadata — treat exported JSON and manifest as sensitive; restrict access to the backup folder.
+* **RBAC sensitivity:** backup contains tenant configuration metadata; treat exported JSON and manifest as sensitive and restrict access to the backup folder.
 * Test restore in a staging tenant before production; do not run against production without a verified backup.
 
 ---

@@ -36,7 +36,7 @@ The detection script checks two registry locations read-only: the built-in Termi
 ### 🔹 Verified Remediation
 * Pre-check → per-target fix → post-verify flow with structured JSON result output for Intune diagnostics
 * Creates the Terminal Server value when missing; skips the acNam provider cleanly when it is not installed
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -69,8 +69,8 @@ detect-Enable-MultiSession.ps1
 Verifies that no single-session restriction is active. Strictly read-only.
 
 ### Logic
-1. Read `fSingleSessionPerUser` via `Get-ItemProperty` — compliant when `0` or absent
-2. Read `EnforceSingleLogon` only when the acNam provider path exists — compliant when `0` or absent
+1. Read `fSingleSessionPerUser` via `Get-ItemProperty`; compliant when `0` or absent
+2. Read `EnforceSingleLogon` only when the acNam provider path exists; compliant when `0` or absent
 3. Non-compliant when either value is `1`; missing Terminal Server path is reported; unexpected query failures exit `2`
 
 ### Exit Codes
@@ -113,7 +113,7 @@ Sets `fSingleSessionPerUser` and (when present) `EnforceSingleLogon` to `0`, usi
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Enable-MultiSession\`
@@ -150,9 +150,9 @@ remediate-Enable-MultiSession.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Edition limit:** not all Windows editions fully support concurrent interactive sessions; validate on the target SKU.
-* **Security impact:** enabling multi-session may conflict with security baselines and third-party credential providers on shared devices.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Edition limit: not all Windows editions fully support concurrent interactive sessions; validate on the target SKU.
+* Security impact: enabling multi-session may conflict with security baselines and third-party credential providers on shared devices.
 * A sign-out, restart, or policy refresh may be required before the change is fully effective.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

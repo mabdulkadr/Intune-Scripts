@@ -22,14 +22,14 @@ Detection is an always-trigger detector that reports non-compliant on every run 
 
 **Invoke Logoff Current User** is an Intune remediation package for controlled, user-friendly session sign-outs.
 
-This package intentionally has no real compliance condition: the detection script is an always-trigger detector (preserved by design from the legacy pair) that exits `1` on every run. The paired remediation displays a WPF warning dialog telling the user to save their work, waits the configured 60 seconds, and then logs off via `shutdown.exe /l` — a graceful sign-out that closes applications cleanly rather than forcing them.
+This package intentionally has no real compliance condition: the detection script is an always-trigger detector (preserved by design from the legacy pair) that exits `1` on every run. The paired remediation displays a WPF warning dialog telling the user to save their work, waits the configured 60 seconds, and then logs off via `shutdown.exe /l`, a graceful sign-out that closes applications cleanly rather than forcing them.
 
 ---
 
 # ✨ Core Features
 
 ### 🔹 Always-Trigger Detection
-* Deliberately evaluates nothing — exits `1` on every run by design
+* Deliberately evaluates nothing: it exits `1` on every run by design
 * Documents its always-run intent in output and logs for operators
 * Keeps the pair predictable: every detection cycle ends in a logoff flow
 
@@ -67,7 +67,7 @@ detect-Invoke-LogoffCurrentUser.ps1
 ```
 
 ### Purpose
-Always triggers the paired remediation. Strictly read-only — it performs no system evaluation.
+Always triggers the paired remediation. Strictly read-only: it performs no system evaluation.
 
 ### Logic
 1. Report one fixed condition: "a current-user logoff is requested"
@@ -113,7 +113,7 @@ Warns the current user, waits through the countdown, and initiates the sign-out,
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Intended for an interactive user session via Intune — no Graph permissions required.
+* Intended for an interactive user session via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Invoke-LogoffCurrentUser\`
@@ -152,7 +152,7 @@ remediate-Invoke-LogoffCurrentUser.ps1
 ---
 
 # 🛡 Operational Notes
-* **Forced logoff disrupts the signed-in user** — unsaved work is at risk once the warning appears; tune `$TimeoutSeconds` and assignment scope deliberately.
+* Forced logoff disrupts the signed-in user: unsaved work is at risk once the warning appears. Tune `$TimeoutSeconds` and assignment scope deliberately.
 * Run this pair in the logged-on user context so the WPF warning dialog is visible; in SYSTEM context the flow still works but no dialog is shown.
 * `shutdown.exe /l` performs a graceful sign-out (no `/f` force switch), so applications can still prompt to save.
 * An accepted shutdown.exe request is the guaranteed outcome; session teardown completes asynchronously afterwards.

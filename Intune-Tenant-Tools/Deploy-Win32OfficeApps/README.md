@@ -38,7 +38,7 @@ Silent install of Office LTSC Professional Plus 2024 on `PerpetualVL2024` in the
 - **Files**: `Install-ProPlus2024-<arch>.xml` ×2, `Uninstall-ProPlus2024.xml`, `Install-OfficeLTSC2024.ps1` (v1.6.0), `Uninstall-OfficeLTSC2024.ps1` (v1.2.0), `Detect-OfficeLTSC2024.ps1` (v1.2.0)
 
 ## 2. Microsoft Project Professional 2024
-Silent install of Project Pro 2024 on `PerpetualVL2024` (project/portfolio features only — no Word/Excel) in the OS language (`MatchOS`), two XML configs.
+Silent install of Project Pro 2024 on `PerpetualVL2024` (project and portfolio features only, no Word/Excel) in the OS language (`MatchOS`), two XML configs.
 
 - **Readme**: [microsoft-project-2024-intune-deploy/README.md](./microsoft-project-2024-intune-deploy/README.md)
 - **Files**: `Install-ProjectPro2024-<arch>.xml` ×2, `Uninstall-ProjectPro2024.xml`, `Install-ProjectPro2024.ps1` (v1.5.0), `Uninstall-ProjectPro2024.ps1` (v1.2.0), `Detect-ProjectPro2024.ps1` (v1.2.0)
@@ -65,14 +65,14 @@ Each install script resolves `Install-<Product>-<arch>.xml` automatically (ODT r
 
 Each package is deployed the same way:
 
-1. **Package**: `IntuneWinAppUtil.exe -c "<package-folder>" -s setup.exe -o "<output>"` — or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility)
+1. **Package**: `IntuneWinAppUtil.exe -c "<package-folder>" -s setup.exe -o "<output>"`; or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility)
 2. **Install command**: `powershell.exe -ExecutionPolicy Bypass -NoProfile -File "Install-<Product>.ps1"`
 3. **Uninstall command**: `powershell.exe -ExecutionPolicy Bypass -NoProfile -File "Uninstall-<Product>.ps1"`
 4. **Install behavior**: System · **Restart**: Intune will restart
-5. **Detection**: upload the matching `Detect-<Product>.ps1` as a custom detection script (run as 64-bit) — or a registry rule on `ProductReleaseIds` contains the product ID
+5. **Detection**: upload the matching `Detect-<Product>.ps1` as a custom detection script (run as 64-bit), or use a registry rule where `ProductReleaseIds` contains the product ID
 6. **Logs**: `C:\IntuneLogs\<SolutionName>\` (`OfficeLTSC2024`, `ProjectPro2024`, `VisioPro2024`)
 
-> ⚠ **GVLK placeholder**: XML files ship with `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` as PIDKEY. Replace with your organization's KMS GVLK — see [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys) — before packaging.
+> ⚠ **GVLK placeholder**: XML files ship with `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` as PIDKEY. Replace with your organization's KMS GVLK before packaging. See [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
 
 > ⚠ **Legacy `.intunewin`**: a stale `Visio.intunewin` from an earlier build remains in the Visio folder (`Install_MS_project.intunewin` and `Install_MS_Visio.intunewin` were removed). Regenerate packages with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) so they include the current config set.
 

@@ -22,7 +22,7 @@ Detection queries `Win32_UserProfile` via CIM for profiles older than the thresh
 
 **Clear Stale User Profiles** is an Intune remediation package that reclaims disk space on shared devices by removing abandoned local user profiles.
 
-The detection script enumerates `Win32_UserProfile` and flags local, non-special, not-loaded profiles whose `LastUseTime` is older than 30 days, excluding Default/Public profile folders. When stale profiles are found, Intune runs the paired remediation that deletes each profile through the CIM profile provider — removing both the folder tree and its registry hive in a supported way.
+The detection script enumerates `Win32_UserProfile` and flags local, non-special, not-loaded profiles whose `LastUseTime` is older than 30 days, excluding Default/Public profile folders. When stale profiles are found, Intune runs the paired remediation that deletes each profile through the CIM profile provider, removing both the folder tree and its registry hive in a supported way.
 
 ---
 
@@ -114,7 +114,7 @@ Removes stale local user profiles with the same filters as detection, using a pr
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Clear-StaleUserProfiles\`
@@ -151,7 +151,7 @@ remediate-Clear-StaleUserProfiles.ps1
 ---
 
 # 🛡 Operational Notes
-* **DESTRUCTIVE AND IRREVERSIBLE:** removed profiles lose their documents, desktop items, and user data permanently — validate assignment scope carefully.
+* DESTRUCTIVE AND IRREVERSIBLE: removed profiles lose their documents, desktop items, and user data permanently. Validate assignment scope carefully.
 * Currently loaded and special/system profiles are never touched; only truly idle profiles qualify.
 * Adjust `$StaleAfterDays` in both scripts together if a different threshold is required.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

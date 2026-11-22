@@ -36,7 +36,7 @@ Fast Startup saves kernel and session state to disk on shutdown, which can produ
 ### 🔹 Verified Remediation
 * Sets `HiberbootEnabled` to `0` (DWORD) with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Disables Fast Startup by setting `HiberbootEnabled` to `0`, using a pre-check �
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Disable-FastStartup\`
@@ -150,7 +150,7 @@ remediate-Disable-FastStartup.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * Takes effect on the next full shutdown/startup cycle; no reboot is forced.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

@@ -22,7 +22,7 @@ This script lists all certificate profiles (SCEP, PKCS, trusted root) and their 
 
 **Get Intune Certificate Report** is a PowerShell reporting script that Lists all certificate profiles (SCEP, PKCS, trusted root) and their deployment status. Identifies profiles with failures and shows overall certificate health. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -91,7 +91,7 @@ Get-IntuneCertificateReport
 # 🛡 Operational Notes
 * Certificate profiles include SCEP, PKCS, and trusted root types; Settings Catalog policies are checked as fallback.
 * Health percentages are based on succeeded vs total targeted devices per profile.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

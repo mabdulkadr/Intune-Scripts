@@ -22,7 +22,7 @@ This script inventories the tenant's Windows Update configuration and its deploy
 
 **Get Windows Update Compliance Report** is a PowerShell reporting script that This script inventories the tenant's Windows Update configuration and its deployment health: update rings (Windows Update for Business configurations) with per-device success and error status, feature update profiles with their target version and end-of-support date, expedited quality update profiles, and driver upd...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -106,9 +106,9 @@ Flags feature update targets within 120 days of end of support and exports to CS
 ---
 
 # 🛡 Operational Notes
-* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as” — uncovered platforms may silently pass Conditional Access when set to Compliant.
+* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as”. Uncovered platforms may silently pass Conditional Access when set to Compliant.
 * Windows Update report reflects Intune deployment state (rings, feature/quality/driver profiles); per-device patch detail lives in Windows Update for Business reports (Log Analytics). Default end-of-support warning is 180 days via `-EndOfSupportWarningDays`.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

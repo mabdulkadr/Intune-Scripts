@@ -34,7 +34,7 @@ Installs the Microsoft Graph Authentication module when missing, authenticates t
 * Full pagination via `Get-MgGraphAllPages` with retry-aware 429/503 handling
 * Interactive MFA and app-only (TenantID/AppID/AppSecret) authentication variants
 * Per-device sync confirmation logged with timestamped, level-colored lines
-* Strips legacy raw token echo for secret hygiene — tokens converted to SecureString
+* Strips legacy raw token echo for secret hygiene; tokens are converted to SecureString
 
 ---
 
@@ -94,7 +94,7 @@ Same run with verbose preference; per-request details are also captured in the l
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `Interactive sign-in requests these user scopes: CloudPC.ReadWrite.All, Domain.Read.All, Directory.Read.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All, openid, profile, email, offline_access, DeviceManagementManagedDevices.PrivilegedOperations.All.` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `Interactive sign-in requests these user scopes: CloudPC.ReadWrite.All, Domain.Read.All, Directory.Read.All, DeviceManagementConfiguration.ReadWrite.All, DeviceManagementManagedDevices.ReadWrite.All, openid, profile, email, offline_access, DeviceManagementManagedDevices.PrivilegedOperations.All.`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\Sync-AllIntuneDevices\Logs`
@@ -104,7 +104,7 @@ Same run with verbose preference; per-request details are also captured in the l
 # 🛡️ Operational Notes
 
 * Endpoints stay on the Graph **beta** service (`deviceManagement/managedDevices` + `syncDevice`), matching legacy behavior.
-* Syncing every device at once creates a burst of check-ins — schedule off-hours.
+* Syncing every device at once creates a burst of check-ins, so schedule off-hours.
 * Legacy raw access-token console echo was removed for secret hygiene; tokens are converted to SecureString.
 * Never hardcode client secrets; retrieve them at runtime from Azure Key Vault or SecretManagement.
 * The session is disconnected from Microsoft Graph when the run completes.

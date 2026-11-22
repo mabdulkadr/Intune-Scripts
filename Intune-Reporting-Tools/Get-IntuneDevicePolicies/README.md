@@ -22,7 +22,7 @@ This script finds every policy assigned to a device via transitive group members
 
 **Get Intune Device Policies** is a PowerShell reporting script that Queries Microsoft Graph to find every policy assigned to a device via group memberships, All Devices, or All Users. Covers device configuration, settings catalog, compliance, group policy, scripts, remediation, app configuration, Autopilot, endpoint security intents, update rings, feature/driver/quality updates, and app assignments with structured CSV/JSON output. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -100,7 +100,7 @@ Lookup by managed device ID
 # 🛡 Operational Notes
 * Transitive membership resolution requires Directory.Read.All and GroupMember.Read.All; large groups may take time.
 * All Devices and All Licensed Users targets match unconditionally; verify exclusion groups if expecting no policy.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

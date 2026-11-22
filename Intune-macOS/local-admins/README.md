@@ -28,9 +28,9 @@ Designed as an **Intune custom attribute** (single-line stdout) and as an **Intu
 
 # ✨ Features
 
-* **DSCL query** — `dscl . -read /Groups/admin GroupMembership` is the authoritative source for admin membership.
-* **Error-aware** — distinguishes `eDSPermissionError` vs empty/invalid output with distinct `output_result` messages.
-* **Count + list** — `wc -w` count plus space-delimited user list for quick fleet assessment.
+* `dscl . -read /Groups/admin GroupMembership` is the source for admin membership.
+* Distinguishes `eDSPermissionError` from empty or invalid output with separate `output_result` messages.
+* Reports a `wc -w` count plus a space-delimited user list for quick fleet assessment.
 
 Additional details:
 
@@ -99,7 +99,7 @@ for s in ./*.sh; do echo "== $s =="; chmod +x "$s"; "$s"; echo; done
 
 # ⚙️ Parameters
 
-This script has **no parameters** — it is a read-only check with no configuration flags.
+This script has no parameters. It is a read-only check with no configuration flags.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -122,7 +122,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Shell
 
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities
 
 ### Intune
 
@@ -135,11 +135,11 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Dependencies
 
-* No external modules — uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted
+* Uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted. No external modules.
 
 ### Logging
 
-* Not applicable — read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty
+* Not applicable. This is a read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty.
 
 ---
 

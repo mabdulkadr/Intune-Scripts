@@ -22,7 +22,7 @@ This script shows which app protection policies exist, their configuration, and 
 
 **Get Intune App Protection Status** is a PowerShell reporting script that Shows which app protection policies exist, their configuration, and user check-in status. Identifies users with flagged apps and overall MAM enrollment health. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -90,7 +90,7 @@ Get-IntuneAppProtectionStatus
 
 # 🛡 Operational Notes
 * MAM reporting is tenant-specific; verify app protection policies are assigned before interpreting low registration counts.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

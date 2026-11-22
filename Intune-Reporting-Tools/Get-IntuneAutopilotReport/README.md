@@ -22,7 +22,7 @@ This script lists all Autopilot registered devices with profile assignment state
 
 **Get Intune Autopilot Report** is a PowerShell reporting script that Lists all Autopilot registered devices with their profile assignment state, group tag, deployment profile, purchase order, serial number, and enrollment status. Identifies devices registered but not enrolled, devices with no profile assigned, and deployment errors. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -91,7 +91,7 @@ Get-IntuneAutopilotReport
 # 🛡 Operational Notes
 * Autopilot registration does not guarantee enrollment; compare ProfileStatus and IsEnrolled to find provisioning gaps.
 * Group tag distribution reflects deployment grouping; empty tags indicate ungrouped devices.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

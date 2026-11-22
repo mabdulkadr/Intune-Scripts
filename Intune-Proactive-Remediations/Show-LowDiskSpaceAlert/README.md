@@ -29,7 +29,7 @@ The detection script reads `Win32_LogicalDisk` for drive `C:` and compares free 
 # ✨ Core Features
 
 ### 🔹 Read-Only Detection
-* Reads `Win32_LogicalDisk` for `C:` via WMI/CIM — never modifies the system during detection
+* Reads `Win32_LogicalDisk` for `C:` via WMI/CIM; never modifies the system during detection
 * Compares free-space percentage against `$Percent_Alert`
 * Unreadable or invalid disk data exits `2` instead of triggering remediation
 
@@ -93,7 +93,7 @@ Analyzes disk usage, writes an HTML user report with pie charts, and dispatches 
 ### Logic
 1. Pre-check: confirm `C:` returns valid WMI disk data
 2. Fix: run the original analysis (profile/OneDrive/temp scans, charts, `%TEMP%\DiskSize_Report.html`), register the notification app in HKCU, then show the toast via `ToastNotificationManager`
-3. Post-verify: confirm the toast dispatch call completed — user acknowledgment cannot be verified programmatically
+3. Post-verify: confirm the toast dispatch call completed; user acknowledgment cannot be verified programmatically
 
 ### Exit Codes
 | Code | Status |
@@ -113,10 +113,10 @@ Analyzes disk usage, writes an HTML user report with pie charts, and dispatches 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logged-On User
-* Required — the toast, HKCU notification registration, and user-profile scans only work in an interactive session; deploy with "Run this script using logged-on credentials: Yes".
+* Required: the toast, HKCU notification registration, and user-profile scans only work in an interactive session; deploy with "Run this script using logged-on credentials: Yes".
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Show-LowDiskSpaceAlert\`

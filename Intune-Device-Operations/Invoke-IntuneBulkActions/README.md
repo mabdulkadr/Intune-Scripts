@@ -22,7 +22,7 @@ Executes a specified remote action against multiple Intune managed devices. Devi
 
 **Invoke Intune Bulk Actions** is a PowerShell reporting script that executes a specified remote action against multiple Intune managed devices. Devices can be targeted by group membership, OS type, compliance state, or a CSV file of device names. Includes safety confirmations, throttling to avoid Graph API rate limits, and detailed progress/result tracking. Supported actions: Sync, Restart, BitLockerRotate, DefenderScan, DefenderSignatures, CollectDiagnostics.
 
-It is part of the **Intune Device Operations** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Device Operations** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -118,7 +118,7 @@ Invoke-IntuneBulkActions
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

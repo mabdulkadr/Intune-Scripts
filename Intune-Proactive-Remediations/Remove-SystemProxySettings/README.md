@@ -114,7 +114,7 @@ Clears the current user's proxy settings, using a pre-check → fix → post-ver
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Remove-SystemProxySettings\`
@@ -153,7 +153,7 @@ remediate-Remove-SystemProxySettings.ps1
 ---
 
 # 🛡 Operational Notes
-* **Removing proxy settings impacts networks that require an explicit proxy** — devices behind forced-proxy gateways lose connectivity if they depended on these values.
+* Removing proxy settings impacts networks that require an explicit proxy: devices behind forced-proxy gateways lose connectivity if they depended on these values.
 * Registry changes apply to new WinINET sessions; running applications may keep using cached proxy state until restarted.
 * The remediation writes values (enable flag off, server emptied) rather than deleting the key, matching the legacy behavior exactly.
 * Per-user HKCU scope means each user on a shared device is handled by their own Intune user-context run.

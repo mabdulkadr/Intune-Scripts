@@ -22,7 +22,7 @@ Detection applies the original loose rule (the service merely existing counts as
 
 **Restart System Service** is an Intune remediation package template for keeping one configured Windows service healthy.
 
-The detection script queries the configured `$servicename`, increments an internal counter when it exists and again when it is running, and treats any non-zero counter as compliant — a deliberately loose rule preserved from the original template. Only a service that cannot be found triggers remediation. The remediation then runs `Restart-Service -Force` on the configured name and verifies afterwards that the service reached the `Running` state.
+The detection script queries the configured `$servicename`, increments an internal counter when it exists and again when it is running, and treats any non-zero counter as compliant, a deliberately loose rule preserved from the original template. Only a service that cannot be found triggers remediation. The remediation then runs `Restart-Service -Force` on the configured name and verifies afterwards that the service reached the `Running` state.
 
 > **Template note:** replace the `ServiceName` placeholder in both scripts before production use.
 
@@ -39,7 +39,7 @@ The detection script queries the configured `$servicename`, increments an intern
 * Runs `Restart-Service -Force` on the configured service with pre-check → fix → post-verify flow
 * Verifies the service reaches the `Running` state after restart
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -116,7 +116,7 @@ Restarts the configured service with `Restart-Service -Force`, using a pre-check
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Restart-SystemService\`
@@ -153,7 +153,7 @@ remediate-Restart-SystemService.ps1
 ---
 
 # 🛡 Operational Notes
-* Template pair: the detection intentionally treats a stopped-but-existing service as compliant — tighten the logic if you need strict state enforcement.
+* Template pair: the detection intentionally treats a stopped-but-existing service as compliant. Tighten the logic if you need strict state enforcement.
 * An unreplaced placeholder fails the remediation with exit `1` so it can never touch a real service.
 * Use the service name (not the display name) in `$servicename`.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

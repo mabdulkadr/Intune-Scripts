@@ -22,7 +22,7 @@ Cross-references Intune managed devices and Entra ID device records to find: dev
 
 **Get Intune Stale Devices** is a PowerShell reporting script that cross-references Intune managed devices and Entra ID device records to find: devices that haven't synced with Intune in X days (default 90), devices that haven't signed in to Entra ID in X days, orphaned Intune devices with no matching Entra ID record, orphaned Entra ID devices with no matching Intune record, devices with no primary user assigned, and disabled Entra ID accounts still owning managed devices. Exports a comprehensive CSV with recommended actions.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -112,7 +112,7 @@ Get-IntuneStaleDevices
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

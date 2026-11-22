@@ -4,7 +4,7 @@
 
 **macOS endpoint checks for FileVault, updates, and hygiene**
 
-Lightweight bash checks for Intune-managed Macs — deployed as shell script profiles or custom attributes to surface FileVault, update, and security posture without agents.
+Lightweight bash checks for Intune-managed Macs, deployed as shell script profiles or custom attributes to surface FileVault, update, and security posture without agents.
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-5391FE?style=for-the-badge&logo=gnu-bash&logoColor=white)](#-overview)
 [![Intune](https://img.shields.io/badge/Microsoft-Intune-0078D4?style=for-the-badge)](#-overview)
@@ -20,9 +20,9 @@ Lightweight bash checks for Intune-managed Macs — deployed as shell script pro
 
 # 📖 Overview
 
-**Intune macOS Tools** is a set of **7 bash/zsh shell scripts for Intune macOS remediations and compliance** focused on endpoint hygiene.
+Intune macOS Tools is a set of 7 bash/zsh shell scripts for Intune macOS remediations and compliance, focused on endpoint hygiene.
 
-Each script is single-file, dependency-light, and designed to run as an **Intune macOS shell script profile** or **custom attribute** — emitting a single line suitable for Intune reporting. They cover warranty lifecycle, Microsoft AutoUpdate health, network prerequisites, platform security, uptime, and privileged access.
+Each script is a single file with few dependencies, designed to run as an Intune macOS shell script profile or custom attribute and emit a single line suitable for Intune reporting. They cover warranty lifecycle, Microsoft AutoUpdate health, network prerequisites, platform security, uptime, and privileged access.
 
 ---
 
@@ -41,7 +41,7 @@ Each script is single-file, dependency-light, and designed to run as an **Intune
 ### 🔹 Production Ready
 * Tested on macOS 10.15+ (Catalina and later)
 * Runs as root or logged-in user where appropriate
-* Safe read-only checks — no system modification
+* Safe read-only checks that leave the system unchanged
 
 ---
 
@@ -121,7 +121,7 @@ bash -n ./check-network-requirements.sh && echo "syntax OK"
 * macOS **10.15 (Catalina) or later**
 
 ### Shell
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities (bash 3.2+/zsh)
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities (bash 3.2+/zsh)
 
 ### Intune
 * Microsoft Intune tenant with **macOS shell script profile** or **Custom Attributes for macOS** support
@@ -135,12 +135,12 @@ bash -n ./check-network-requirements.sh && echo "syntax OK"
 
 # 🛡 Operational Notes
 
-* **Apple Silicon vs Intel:** All scripts use universal macOS tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on Apple Silicon and Intel. No architecture-specific branches.
-* **Rosetta:** Not required. Scripts are pure shell — no x86-only binaries are invoked. `msupdate`-based checks call the native Microsoft AutoUpdate binary installed for the host architecture.
-* **Idempotent & read-only:** Every script is a read-only check; rerunning never modifies system state.
-* **Output contract:** Single-line stdout for Intune custom attributes; non-zero handling is left to the caller/remediation wrapper.
-* **Network checks:** `check-network-requirements.sh` uses `nc` with a 2-second timeout per endpoint on TCP 443 — allow `*.apple.com` and `*.cdn-apple.com` families through firewalls/proxies for meaningful results.
-* **Test in staging:** Validate on both Intel and Apple Silicon devices in a pilot group before tenant-wide assignment.
+* Apple Silicon vs Intel: All scripts use universal macOS tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on Apple Silicon and Intel. There are no architecture-specific branches.
+* Rosetta: Not required. Scripts are pure shell with no x86-only binaries. `msupdate`-based checks call the native Microsoft AutoUpdate binary installed for the host architecture.
+* Idempotent and read-only: Every script is a read-only check; rerunning never modifies system state.
+* Output contract: Single-line stdout for Intune custom attributes. Non-zero handling is left to the caller or remediation wrapper.
+* Network checks: `check-network-requirements.sh` uses `nc` with a 2-second timeout per endpoint on TCP 443. Allow `*.apple.com` and `*.cdn-apple.com` families through firewalls or proxies for meaningful results.
+* Test in staging: Validate on both Intel and Apple Silicon devices in a pilot group before tenant-wide assignment.
 
 ---
 

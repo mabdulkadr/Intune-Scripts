@@ -113,7 +113,7 @@ Disables remaining IPv6 bindings and writes the system-wide registry setting, us
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Disable-IPv6Protocol\`
@@ -151,7 +151,7 @@ remediate-Disable-IPv6Protocol.ps1
 
 # 🛡 Operational Notes
 * A **restart is required** before the full system-level effect of `DisabledComponents = 255`.
-* Disabling IPv6 entirely can break features that rely on it (DirectAccess, some homegrown tooling, DHCPv6 environments) — validate your network baseline first.
+* Disabling IPv6 entirely can break features that rely on it (DirectAccess, some homegrown tooling, DHCPv6 environments); validate your network baseline first.
 * Idempotent: already-disabled bindings are skipped and the registry write is force-overwritten.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

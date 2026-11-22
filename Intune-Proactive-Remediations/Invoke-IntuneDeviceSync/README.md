@@ -115,7 +115,7 @@ Triggers an immediate IME sync and ensures the hourly recurring task, using a pr
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 * Remediation requires elevation to register the SYSTEM-run task.
 
 ### Logging
@@ -153,9 +153,9 @@ remediate-Invoke-IntuneDeviceSync.ps1
 ---
 
 # 🛡 Operational Notes
-* The registered hourly task persists independently of Intune — remove the assignment and the task manually if you retire this package.
+* The registered hourly task persists independently of Intune; remove the assignment and the task manually if you retire this package.
 * An accepted sync request is fire-and-forget: actual policy arrival is asynchronous and re-checked by the detector via Event ID 208.
-* The fallback task keeps detection compliant even during quiet hours — disable the task if strict event evidence is required.
+* The fallback task keeps detection compliant even during quiet hours; disable the task if strict event evidence is required.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

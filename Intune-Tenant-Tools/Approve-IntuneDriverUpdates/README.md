@@ -4,7 +4,7 @@
 
 **Intune Driver Approve Bulk**
 
-Approves every pending Windows driver update across all Intune driver update profiles via Microsoft Graph — interactive and app-only variants included.
+Approves every pending Windows driver update across all Intune driver update profiles via Microsoft Graph. Interactive and app-only variants are included.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -32,7 +32,7 @@ For every Windows driver update profile it pulls the full paginated driver inven
 * Full pagination of driver inventories via `Get-MgGraphAllPages`
 * Retry-aware Graph calls (`Invoke-MgGraphRequestWithRetry`: HTTP 429/503 honoring `Retry-After`, max 5 attempts)
 * Two authentication variants: interactive MFA (`Approve-IntuneDriverUpdates.ps1`) and app-only client-credentials (via `-AppId` / `-AppSecret` parameters on the same script)
-* `-WhatIf` / `-Confirm` / `-Force` gates — per-profile pending-count preview printed before any approval is sent
+* `-WhatIf` / `-Confirm` / `-Force` gates; per-profile pending-count preview printed before any approval is sent
 * Per-driver approval results logged with timestamped, level-colored lines
 * Automatic per-user installation of the required Microsoft Graph modules
 
@@ -103,7 +103,7 @@ The interactive variant takes no parameters.
 # 🛡 Operational Notes
 * Endpoints stay on the Graph **beta** service (`windowsDriverUpdateProfiles`, `driverInventories`, `microsoft.graph.executeAction`), matching legacy behavior.
 * The profile list is read from its first page only (legacy behavior); driver inventories are fully paginated.
-* Approvals apply immediately — every driver currently awaiting review gets a deployment date of "now".
+* Approvals apply immediately: every driver currently awaiting review gets a deployment date of "now".
 * Never hardcode client secrets; retrieve them at runtime from Azure Key Vault or SecretManagement.
 * Requires the `Microsoft.Graph.Authentication` and `Microsoft.Graph.Beta.DeviceManagement.Actions` modules (auto-installed per user).
 

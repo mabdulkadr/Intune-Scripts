@@ -30,7 +30,7 @@ This is an always-run maintenance package by design: detection never reports com
 
 ### 🔹 Always-Run Detection
 * Intentionally reports non-compliant so cleanup executes on every schedule cycle
-* Read-only — never modifies the system during detection
+* Read-only; it never modifies the system during detection
 * Detection errors exit `2` so Intune never treats a crash as non-compliance
 
 ### 🔹 Verified Remediation
@@ -66,7 +66,7 @@ detect-Clear-RecycleBin.ps1
 ```
 
 ### Purpose
-Scheduled-maintenance trigger — intentionally always non-compliant. Strictly read-only.
+Scheduled-maintenance trigger: intentionally always non-compliant. Strictly read-only.
 
 ### Logic
 1. Adds an unconditional "scheduled maintenance cleanup is due" reason on every evaluation
@@ -113,7 +113,7 @@ Empties the Recycle Bin on all volumes, using a pre-check → fix → post-verif
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Clear-RecycleBin\`
@@ -150,8 +150,8 @@ remediate-Clear-RecycleBin.ps1
 ---
 
 # 🛡 Operational Notes
-* **DESTRUCTIVE:** emptied Recycle Bin content is permanently deleted for all users on the device.
-* Always-run design — detection deliberately never exits `0`, so expect remediation to execute on every cycle.
+* DESTRUCTIVE: emptied Recycle Bin content is permanently deleted for all users on the device.
+* Always-run design: detection deliberately never exits `0`, so expect remediation to execute on every cycle.
 * An already-empty bin exits `0` without changes; the direct-deletion fallback only triggers when the cmdlet leaves items behind.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

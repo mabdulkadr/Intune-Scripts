@@ -38,7 +38,7 @@ Detection is strictly read-only.
 ### 🔹 Verified Remediation
 * `Update-MpSignature` with pre-check → fix → post-verify
 * Emits structured JSON result for Intune diagnostics
-* Idempotent — current definitions exit `0` without changes
+* Idempotent: current definitions exit `0` without changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines
@@ -115,7 +115,7 @@ Forces a Defender signature update when detection flagged outdated definitions.
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required. `Get-MpComputerStatus`/`Update-MpSignature` require the Defender platform.
+* Runs in local SYSTEM context via Intune with no Graph permissions required. `Get-MpComputerStatus`/`Update-MpSignature` require the Defender platform.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Update-DefenderSignatures\`
@@ -153,7 +153,7 @@ remediate-Update-DefenderSignatures.ps1
 ---
 
 # 🛡 Operational Notes
-* Threshold is `48` hours (`$MaxDefinitionAgeHours`) — keep it in sync between both scripts.
+* Threshold is `48` hours (`$MaxDefinitionAgeHours`); keep it in sync between both scripts.
 * Devices with Defender disabled or `Get-MpComputerStatus` missing will exit `2` (error, not non-compliance).
 * Remediation requires network access to the definition update source.
 * Detection errors exit `2` so a crash is never treated as non-compliance.

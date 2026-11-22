@@ -32,7 +32,7 @@ Connects to Microsoft Graph and retrieves Intune-managed iOS devices, including 
 * Reports iOS devices below the two latest major releases (default 26/18, configurable)
 * Major-version parsing with unrecognized-version warnings
 * Timestamped CSV export and console summary for patch planning
-* Read-only reporting — never modifies device state
+* Read-only reporting that never modifies device state
 * Paginated Graph enumeration with retry handling
 
 ---
@@ -95,7 +95,7 @@ Exports the timestamped CSV report to C:\Reports.
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\get-outdated-ios-devices-report\Logs`
@@ -104,7 +104,7 @@ Exports the timestamped CSV report to C:\Reports.
 
 # 🛡️ Operational Notes
 
-* Remote bulk operations support `-DryRun` / `-WhatIf` previews — use them before any write or destructive action.
+* Remote bulk operations support `-DryRun` / `-WhatIf` previews. Use them before any write or destructive action.
 * Graph scripts honor HTTP 429 throttling with 60-second back-off and support pagination via `Get-MgGraphAllPages`.
 * CSV bulk operations are idempotent; re-running the same CSV without changes is a no-op.
 * Test in a staging tenant or on a pilot Entra group before production; export reports for change control.

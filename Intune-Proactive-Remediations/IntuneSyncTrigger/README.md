@@ -116,7 +116,7 @@ Restores IME activity by restarting or starting the service, using a pre-check �
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\IntuneSyncTrigger\`
@@ -153,9 +153,9 @@ remediate-IntuneSyncTrigger.ps1
 ---
 
 # 🛡 Operational Notes
-* A verified log write proves activity was triggered — it does not prove any specific policy or app finished processing.
+* A verified log write proves activity was triggered but does not prove any specific policy or app finished processing.
 * Restarting the IME service interrupts in-flight sidecar operations; schedule assignments accordingly.
-* Devices without the IME agent installed always report non-compliant — scope the assignment to eligible devices only.
+* Devices without the IME agent installed always report non-compliant; scope the assignment to eligible devices only.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

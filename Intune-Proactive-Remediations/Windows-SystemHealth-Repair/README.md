@@ -30,7 +30,7 @@ The detection script combines two signals: common pending-reboot indicators (CBS
 
 ### 🔹 Read-Only Detection
 * Checks CBS, Windows Update, and PendingFileRenameOperations reboot indicators
-* Runs DISM `CheckHealth` (status query only — never repairs during detection)
+* Runs DISM `CheckHealth` (status query only; never repairs during detection)
 * Reports every unmet condition before triggering remediation
 
 ### 🔹 Verified Remediation
@@ -114,7 +114,7 @@ Repairs component store and system file integrity issues, using a pre-check → 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * DISM and SFC operations require elevated (SYSTEM/Administrator) context.
 
 ### Logging
@@ -153,7 +153,7 @@ remediate-Windows-SystemHealth-Repair.ps1
 
 # 🛡 Operational Notes
 * DISM RestoreHealth can run for an extended period (often 10–30 minutes on unhealthy devices); allow generous timeouts in the Intune assignment.
-* Exit `3010` is intentional legacy behavior — configure follow-up automation to reboot devices that report it.
+* Exit `3010` is intentional legacy behavior; configure follow-up automation to reboot devices that report it.
 * When SFC reports unrepaired files, inspect `%WinDir%\Logs\CBS\CBS.log`; the script deliberately fails the run rather than masking the issue.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

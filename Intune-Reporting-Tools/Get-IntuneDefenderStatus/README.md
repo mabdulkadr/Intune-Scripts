@@ -22,7 +22,7 @@ This script pulls Windows protection state from managed devices and reports sign
 
 **Get Intune Defender Status** is a PowerShell reporting script that Pulls Windows protection state from all managed devices and reports signature age, real-time protection status, last scan dates, devices with active threats, devices with outdated signatures, and devices where Defender is disabled or unhealthy. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -97,8 +97,8 @@ Flags devices with signatures older than 7 days
 
 # 🛡 Operational Notes
 * Protection state is fetched per device (one request each); large tenants take a few minutes.
-* Devices with no protection state are reported as No Data — check enrollment and Defender prerequisites.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Devices with no protection state are reported as No Data. Check enrollment and Defender prerequisites.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

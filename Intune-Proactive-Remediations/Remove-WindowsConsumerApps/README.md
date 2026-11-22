@@ -22,7 +22,7 @@ Detection matches installed packages against a fixed consumer app list (Xbox App
 
 **Remove Windows Consumer Apps** is an Intune remediation package that enforces a consumer-app-free baseline on managed devices.
 
-The detection script enumerates `Get-AppxPackage -AllUsers` and reports every installed package found in the configured `$ConsumerApps` name list, giving operators one reason line per unwanted app. The paired remediation removes each installed copy with `Remove-AppxPackage -AllUsers`, strips provisioned copies via `Remove-AppxProvisionedPackage`, and verifies by recounting — exit `1` when anything survives.
+The detection script enumerates `Get-AppxPackage -AllUsers` and reports every installed package found in the configured `$ConsumerApps` name list, giving operators one reason line per unwanted app. The paired remediation removes each installed copy with `Remove-AppxPackage -AllUsers`, strips provisioned copies via `Remove-AppxProvisionedPackage`, and verifies by recounting, exiting `1` when anything survives.
 
 ---
 
@@ -115,7 +115,7 @@ Removes the targeted packages from all users and their provisioned copies, using
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 * Removal for all users and de-provisioning require elevation (SYSTEM context).
 
 ### Logging
@@ -153,10 +153,10 @@ remediate-Remove-WindowsConsumerApps.ps1
 ---
 
 # 🛡 Operational Notes
-* **Removal affects all users and all future provisioning** — provisioned packages are stripped device-wide, so new profiles will not receive these apps either.
+* Removal affects all users and all future provisioning: provisioned packages are stripped device-wide, so new profiles will not receive these apps either.
 * The Cortana entry (`Microsoft.549981C3F5F10`) no longer exists on current Windows 11 builds; it is retained for fleet compatibility.
 * Individual stubborn removals do not abort the run: the final recount decides success, and survivors are logged as warnings.
-* Extend coverage by adding entries to `$ConsumerApps` in both scripts — keep both lists identical.
+* Extend coverage by adding entries to `$ConsumerApps` in both scripts; keep both lists identical.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

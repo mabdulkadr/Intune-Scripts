@@ -22,7 +22,7 @@ This script queries Microsoft Graph to retrieve managed devices and their compli
 
 **Get Intune Compliance Report** is a PowerShell reporting script that Queries Microsoft Graph to retrieve all managed devices (or a filtered subset) and their compliance policy states. For each non-compliant or in-grace-period device, drills into the specific settings that triggered the failure. Exports a flat CSV with one row per non-compliant setting per device. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -104,9 +104,9 @@ Compliance report for devices in a specific group
 ---
 
 # 🛡 Operational Notes
-* Compliance evaluation is tenant-specific; verify tenant setting “Mark devices with no compliance policy assigned as” — uncovered platforms may silently pass.
+* Compliance evaluation is tenant-specific; verify tenant setting “Mark devices with no compliance policy assigned as”. Uncovered platforms may silently pass.
 * GroupName resolution supports device groups and user groups; user groups enumerate member devices.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

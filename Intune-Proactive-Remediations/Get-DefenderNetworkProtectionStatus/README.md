@@ -36,7 +36,7 @@ Network Protection blocks outbound connections to low-reputation domains, phishi
 ### 🔹 Verified Remediation
 * Runs `Set-MpPreference -EnableNetworkProtection Enabled` with a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables Network Protection by setting `EnableNetworkProtection` to `Enabled`, us
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DefenderNetworkProtectionStatus\`
@@ -150,8 +150,8 @@ remediate-Get-DefenderNetworkProtectionStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Impact warning:** in block mode Network Protection prevents access to flagged malicious/phishing destinations; pilot first and monitor Microsoft Defender event logs (`Event ID 5007`) plus end-user feedback for false positives.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Impact warning: in block mode Network Protection prevents access to flagged malicious/phishing destinations; pilot first and monitor Microsoft Defender event logs (`Event ID 5007`) plus end-user feedback for false positives.
 * Third-party antivirus products can make `Get-MpPreference` unavailable; such environments will report detection errors as exit `2`.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

@@ -36,7 +36,7 @@ Windows can only update the time zone on its own when two conditions hold: locat
 ### 🔹 Verified Remediation
 * Writes location consent = `Allow` (String) and `tzautoupdate Start = 3` (DWORD) with a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -69,8 +69,8 @@ detect-Set-AutomaticTimeZone.ps1
 Verifies that both automatic time zone prerequisites are configured. Strictly read-only.
 
 ### Logic
-1. Read the location consent value — must equal `Allow`
-2. Read the `tzautoupdate` service `Start` value — must equal `3`
+1. Read the location consent value; it must equal `Allow`
+2. Read the `tzautoupdate` service `Start` value; it must equal `3`
 3. Non-compliant when either value is missing or set to anything else
 
 ### Exit Codes
@@ -113,7 +113,7 @@ Enables automatic time zone updates by writing both registry values, using a pre
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Set-AutomaticTimeZone\`
@@ -150,7 +150,7 @@ remediate-Set-AutomaticTimeZone.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * Location consent is a device-wide HKLM setting; per-app consent entries are not touched.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 * Time zone changes take effect after the next location refresh; no reboot is forced.

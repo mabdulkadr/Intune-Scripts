@@ -36,7 +36,7 @@ Devices that stay up for long periods accumulate stale kernel state, pending pat
 ### 🔹 User-Facing Notification Remediation
 * Registers a temporary AppID (`PowerShell.DeviceUptimeReminder`) under `HKCU:\SOFTWARE\Classes\AppUserModelId`
 * Shows a Windows toast with a **Restart now** action (`shutdown.exe /r /t 0`) plus **Dismiss**
-* Exits `0` without action when uptime is below threshold — idempotent by design
+* Exits `0` without action when uptime is below threshold, which is idempotent by design
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -71,7 +71,7 @@ Checks whether device uptime has reached the configured threshold. Strictly read
 ### Logic
 1. Read `OSUptime` via `Get-ComputerInfo`
 2. Compliant while uptime is below `7` days
-3. Non-compliant (by design) once uptime reaches `7` days — this triggers the reminder remediation; unexpected query failures exit with code `2`
+3. Non-compliant (by design) once uptime reaches `7` days, which triggers the reminder remediation; unexpected query failures exit with code `2`
 
 ### Exit Codes
 | Code | Status |
@@ -113,7 +113,7 @@ Shows a restart reminder toast when the threshold is reached, using a pre-check 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DeviceUptimeStatus\`
@@ -152,7 +152,7 @@ remediate-Get-DeviceUptimeStatus.ps1
 # 🛡 Operational Notes
 * Scheduled-action package: "non-compliant" here means *the user should be reminded*, not that the device was changed.
 * The toast AppID is registered under HKCU. When the pair runs in SYSTEM context on devices with active console sessions, verify toast visibility in your environment; assigning the remediation in user context maximizes visibility.
-* The **Restart now** button launches `shutdown.exe /r /t 0` in the user's session — the device is never restarted automatically.
+* The Restart now button launches `shutdown.exe /r /t 0` in the user's session; the device is never restarted automatically.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

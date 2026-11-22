@@ -20,7 +20,7 @@ Standalone detection/remediation projects for cleanup, repair, hardening, notifi
 
 # 📖 Overview
 
-**Intune-Proactive-Remediations** contains the repository's **Microsoft Intune proactive remediation** content.
+Intune-Proactive-Remediations contains the repository's Microsoft Intune proactive remediation content.
 
 The packages here are organized as standalone remediation projects, each with its own detection script, remediation script, logging pattern, and project-specific `README.md`. The structure and writing standard in this area are also used as the baseline for the rest of the repository.
 

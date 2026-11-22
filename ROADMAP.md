@@ -20,7 +20,7 @@ This roadmap tracks what shipped in **v2.1 (2026-08-31)** and what is planned fo
 
 # ✅ v2.1 — Shipped (2026-08-31)
 
-**10 new scripts across 6 categories — the June 2026 Secure Boot deadline gap is now closed.**
+**10 new scripts across 6 categories. The June 2026 Secure Boot deadline gap is now closed.**
 
 | Category | New Script | Why |
 | -------- | ---------- | --- |
@@ -48,15 +48,15 @@ This roadmap tracks what shipped in **v2.1 (2026-08-31)** and what is planned fo
 **Prioritized by operator impact and GitHub star demand.**
 
 ### P1 — Tenant Hygiene & Reporting
-- [ ] `Get-AssignmentFilterHygiene.ps1` — unused filters + empty Entra groups (from JayRHa ManagementImprovements)
-- [ ] `Get-PolicyConflictMatrix.ps1` — expand `Find-IntunePolicyConflict` to Settings Catalog vs Administrative Templates cross-conflict
-- [ ] `Get-EntraPimAssignmentReport.ps1` — PIM eligible vs active + drift
-- [ ] `Get-Windows365-CloudPC-Usage.ps1` — standalone W365 unused Cloud PC report (currently buried in DailyTenantReport)
+- [ ] `Get-AssignmentFilterHygiene.ps1`: unused filters + empty Entra groups (from JayRHa ManagementImprovements)
+- [ ] `Get-PolicyConflictMatrix.ps1`: expand `Find-IntunePolicyConflict` to Settings Catalog vs Administrative Templates cross-conflict
+- [ ] `Get-EntraPimAssignmentReport.ps1`: PIM eligible vs active + drift
+- [ ] `Get-Windows365-CloudPC-Usage.ps1`: standalone W365 unused Cloud PC report (currently buried in DailyTenantReport)
 
 ### P1 — Device Lifecycle
-- [ ] `Invoke-DeviceOffboarding.ps1` — 2026 Offboarding Agent flow: unenroll + wipe + Autopilot delete + Entra delete
-- [ ] `Test-AutopilotPrerequisites.ps1` — network + TPM + NTP + profile (from JayRHa Check-AutopilotPrerequisites)
-- [ ] `Get-Windows11-25H2-BaselineDrift.ps1` — compare tenant vs Microsoft 25H2 baseline (9 changes)
+- [ ] `Invoke-DeviceOffboarding.ps1`: 2026 Offboarding Agent flow: unenroll + wipe + Autopilot delete + Entra delete
+- [ ] `Test-AutopilotPrerequisites.ps1`: network + TPM + NTP + profile (from JayRHa Check-AutopilotPrerequisites)
+- [ ] `Get-Windows11-25H2-BaselineDrift.ps1`: compare tenant vs Microsoft 25H2 baseline (9 changes)
 
 ### P1 — Compliance & Security
 - [ ] `Defender-Antivirus-Exclusions` custom compliance (from alexverboon)
@@ -65,8 +65,8 @@ This roadmap tracks what shipped in **v2.1 (2026-08-31)** and what is planned fo
 
 ### P2 — Suite & UX
 - [ ] Unified dashboard: merge `Export-IntuneDashboard` + `Get-DailyTenantReport` into one Carbon Dark HTML with KPI + charts (`templates/EnterpriseHtmlReport.template.ps1`)
-- [ ] WPF Toolbox GUI (`Intune-Toolbox-GUI.ps1`) — Tailwind Slate, 6 most-used reports in one window
-- [ ] `Intune-Linux/` folder — 3 shell checks for RHEL 9/10 LTS (Intune Linux SSO GA April 2026)
+- [ ] WPF Toolbox GUI (`Intune-Toolbox-GUI.ps1`): Tailwind Slate, 6 most-used reports in one window
+- [ ] `Intune-Linux/` folder: 3 shell checks for RHEL 9/10 LTS (Intune Linux SSO GA April 2026)
 - [ ] GitHub Actions: `PSScriptAnalyzer` + `Test-ToolCompliance.ps1` on every PR
 
 ---
@@ -74,8 +74,8 @@ This roadmap tracks what shipped in **v2.1 (2026-08-31)** and what is planned fo
 # 🧭 How to Contribute
 
 1. Pick an unchecked item above and open an Issue: `Roadmap v3.0 — <script name>`
-2. Copy the matching `templates/*.template.ps1` scaffold — keep header + logging + exit codes canonical
-3. Run `scripts/Test-ToolCompliance.ps1 -ToolPath <file>` — zero FAIL before PR
+2. Copy the matching `templates/*.template.ps1` scaffold and keep the header, logging, and exit codes canonical
+3. Run `scripts/Test-ToolCompliance.ps1 -ToolPath <file>` and resolve every FAIL before opening a PR
 4. PR must include `README.md` from `templates/readme-*.template.md`
 
 ---

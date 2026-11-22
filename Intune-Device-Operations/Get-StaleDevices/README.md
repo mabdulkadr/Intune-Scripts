@@ -32,7 +32,7 @@ This script connects to Microsoft Graph and retrieves all managed devices from I
 * Flags devices not checked in for N days (configurable `-DaysStale`)
 * Optional platform filter and `IncludeNeverCheckedIn` for never-synced devices
 * Exports CSV/HTML-friendly output with compliance-friendly timestamps
-* Read-only inventory — safe for large tenants off-hours
+* Read-only inventory, safe for large tenants off-hours
 * Paginated Graph with throttling back-off
 
 ---
@@ -95,7 +95,7 @@ Gets Windows devices that haven't checked in for 60 days and exports to CSV
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\get-stale-devices\Logs`
@@ -104,7 +104,7 @@ Gets Windows devices that haven't checked in for 60 days and exports to CSV
 
 # 🛡️ Operational Notes
 
-* Remote bulk operations support `-DryRun` / `-WhatIf` previews — use them before any write or destructive action.
+* Remote bulk operations support `-DryRun` / `-WhatIf` previews. Use them before any write or destructive action.
 * Graph scripts honor HTTP 429 throttling with 60-second back-off and support pagination via `Get-MgGraphAllPages`.
 * CSV bulk operations are idempotent; re-running the same CSV without changes is a no-op.
 * Test in a staging tenant or on a pilot Entra group before production; export reports for change control.

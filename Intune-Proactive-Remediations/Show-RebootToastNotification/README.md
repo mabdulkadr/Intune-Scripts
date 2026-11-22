@@ -22,21 +22,21 @@ Detection applies the package's 7-day threshold and remediation shows a native W
 
 **Show Reboot Toast Notification** is an Intune remediation package that nudges users toward regular reboots.
 
-This migration preserves the original comparison exactly: detection measures the uptime of the current PowerShell process (not the OS boot time) against a 7-day threshold. Because Intune launches a fresh process on every run, the process is always younger than the threshold, so the reminder toast intentionally fires on every scheduled cycle — that is the package's always-trigger design and it is kept unchanged.
+This migration preserves the original comparison exactly: detection measures the uptime of the current PowerShell process (not the OS boot time) against a 7-day threshold. Because Intune launches a fresh process on every run, the process is always younger than the threshold, so the reminder toast intentionally fires on every scheduled cycle. That is the package's always-trigger design and it is kept unchanged.
 
 ---
 
 # ✨ Core Features
 
 ### 🔹 Read-Only Detection
-* Measures current PowerShell process runtime with `Get-Process` — never modifies the system during detection
+* Measures current PowerShell process runtime with `Get-Process`; never modifies the system during detection
 * Preserves the legacy 7-day (`$ThresholdDays`) comparison semantics exactly
 * Always-trigger design documented: fresh Intune processes guarantee the toast fires on schedule
 
 ### 🔹 Verified Remediation
 * Original WinRT mechanism preserved: `ToastNotificationManager` with the built-in `ToastText02` template, `PowerShell` tag/group, and a 1-minute expiration
 * Pre-check → fix → post-verify flow with structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -93,7 +93,7 @@ Shows the reboot reminder toast using a pre-check → fix → post-verify flow w
 ### Logic
 1. Pre-check: confirm the WinRT `ToastNotificationManager` type loads
 2. Fix: build a `ToastText02` toast ("Please Restart your Machine") and show it via the `PowerShell` notifier
-3. Post-verify: confirm the dispatch call completed — user acknowledgment cannot be verified programmatically
+3. Post-verify: confirm the dispatch call completed; user acknowledgment cannot be verified programmatically
 
 ### Exit Codes
 | Code | Status |
@@ -113,10 +113,10 @@ Shows the reboot reminder toast using a pre-check → fix → post-verify flow w
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logged-On User
-* Required for visibility — toasts only render in an interactive session; deploy with "Run this script using logged-on credentials: Yes".
+* Required for visibility: toasts only render in an interactive session; deploy with "Run this script using logged-on credentials: Yes".
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Show-RebootToastNotification\`

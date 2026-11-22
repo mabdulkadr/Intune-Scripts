@@ -22,7 +22,7 @@ This script connects to Microsoft Graph to retrieve audit log entries from Intun
 
 **Export Intune Audit Logs** is a PowerShell reporting script that This script connects to Microsoft Graph to retrieve audit log entries from Intune, showing administrative actions, configuration changes, and other tracked activities. It provides detailed information about who performed actions, what was changed, when it occurred, and the result. Supports filtering by date range, u...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -127,7 +127,7 @@ Shows audit entries related to policy changes and opens HTML report
 
 # 🛡 Operational Notes
 * Intune audit events (`deviceManagement/auditEvents`) are retained for **30 days**; older changes must be archived externally.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

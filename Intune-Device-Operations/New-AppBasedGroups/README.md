@@ -33,7 +33,7 @@ This script queries Intune-managed devices to identify which applications are in
 * Wildcard app names with type/platform filters and version gating
 * Detects apps via detected apps + report-based install status
 * Supports custom GroupPrefix/GroupSuffix naming
-* Idempotent — re-running does not duplicate membership
+* Idempotent: re-running does not duplicate membership
 
 ---
 
@@ -94,7 +94,7 @@ Creates groups for all Microsoft apps with custom naming (e.g., "SW-Microsoft Te
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.Read.All,DeviceManagementApps.Read.All,Group.ReadWrite.All,Directory.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.Read.All,DeviceManagementApps.Read.All,Group.ReadWrite.All,Directory.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\create-app-based-groups\Logs`
@@ -103,7 +103,7 @@ Creates groups for all Microsoft apps with custom naming (e.g., "SW-Microsoft Te
 
 # 🛡️ Operational Notes
 
-* Remote bulk operations support `-DryRun` / `-WhatIf` previews — use them before any write or destructive action.
+* Remote bulk operations support `-DryRun` / `-WhatIf` previews. Use them before any write or destructive action.
 * Graph scripts honor HTTP 429 throttling with 60-second back-off and support pagination via `Get-MgGraphAllPages`.
 * CSV bulk operations are idempotent; re-running the same CSV without changes is a no-op.
 * Test in a staging tenant or on a pilot Entra group before production; export reports for change control.

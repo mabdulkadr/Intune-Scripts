@@ -22,7 +22,7 @@ Detection verifies that the `C:` volume exposes a recovery password, and the pai
 
 **Get BitLocker Recovery Key Info** is an Intune status/reporting package for BitLocker recoverability across managed devices.
 
-A BitLocker volume without an escrowed or at least locally visible recovery password is a supportability risk: one forgotten PIN or corrupted TPM state away from data loss. The detection script queries `Get-BitLockerVolume -MountPoint C:` read-only and treats the device as compliant when at least one `RecoveryPassword` key protector is populated; when none exist (or encryption is incomplete), Intune runs the paired remediation, which does **not** create or rotate keys — it re-queries the volume, logs the encryption percentage, and prints the current recovery key when the OS volume is fully encrypted.
+A BitLocker volume without an escrowed or at least locally visible recovery password is a supportability risk: one forgotten PIN or corrupted TPM state away from data loss. The detection script queries `Get-BitLockerVolume -MountPoint C:` read-only and treats the device as compliant when at least one `RecoveryPassword` key protector is populated; when none exist (or encryption is incomplete), Intune runs the paired remediation, which does **not** create or rotate keys; it re-queries the volume, logs the encryption percentage, and prints the current recovery key when the OS volume is fully encrypted.
 
 ---
 
@@ -34,7 +34,7 @@ A BitLocker volume without an escrowed or at least locally visible recovery pass
 * Reports every unmet condition before triggering remediation
 
 ### 🔹 Informational Remediation
-* Re-queries BitLocker and reports the first recovery password when encryption is complete — never creates or rotates key protectors
+* Re-queries BitLocker and reports the first recovery password when encryption is complete; it never creates or rotates key protectors
 * Emits structured JSON result output for Intune diagnostics
 * Verification reflects what reporting guarantees: a queryable volume with an exposed recovery password
 
@@ -113,7 +113,7 @@ Informational only: re-queries BitLocker and reports the current recovery passwo
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune; no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-BitLockerRecoveryKeyInfo\`
@@ -150,9 +150,9 @@ remediate-Get-BitLockerRecoveryKeyInfo.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices with an available recovery key exit `0` without changes.
+* Idempotent by design: devices with an available recovery key exit `0` without changes.
 * The remediation is informational and never creates or rotates BitLocker key protectors.
-* **Security warning:** the recovery key is sensitive material printed to stdout and captured by Intune reporting; restrict access to device diagnostic output and prefer proper key escrow to Entra ID/AD.
+* Security warning: the recovery key is sensitive material printed to stdout and captured by Intune reporting; restrict access to device diagnostic output and prefer proper key escrow to Entra ID/AD.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

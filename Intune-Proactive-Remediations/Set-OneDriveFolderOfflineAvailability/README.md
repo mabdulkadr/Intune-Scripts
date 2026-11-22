@@ -22,7 +22,7 @@ Detection reads the pinned-state attributes of the `OneDrive - <Company>\Desktop
 
 **Set OneDrive Folder Offline Availability** is an Intune remediation package that keeps the configured OneDrive for Microsoft 365 folder always available offline.
 
-Files synced by OneDrive are cloud-only by default, which breaks offline work and some legacy applications. The detection script builds the expected path (`OneDrive - scloud\Desktop` under the current user profile), reads its attributes via `attrib.exe`, and requires the normalized output to contain the `R/P` pinned pattern. When the pin state is missing — or the folder does not exist yet — Intune runs the paired remediation that pins the root tree and every child item.
+Files synced by OneDrive are cloud-only by default, which breaks offline work and some legacy applications. The detection script builds the expected path (`OneDrive - scloud\Desktop` under the current user profile), reads its attributes via `attrib.exe`, and requires the normalized output to contain the `R/P` pinned pattern. When the pin state is missing or the folder does not exist yet, Intune runs the paired remediation that pins the root tree and every child item.
 
 ---
 
@@ -30,13 +30,13 @@ Files synced by OneDrive are cloud-only by default, which breaks offline work an
 
 ### 🔹 Read-Only Detection
 * Builds the target path from the current user profile: `OneDrive - scloud\Desktop`
-* Reads attributes with a single `attrib.exe` call — never modifies the system during detection
+* Reads attributes with a single `attrib.exe` call; never modifies the system during detection
 * Reports a missing folder or missing pin state before triggering remediation
 
 ### 🔹 Verified Remediation
 * Pins the root tree with `attrib.exe -U +P /s /d`, then `-U +P` per child item (original mechanism preserved)
 * Pre-check → fix → post-verify flow with structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,10 +113,10 @@ Pins the OneDrive folder and all of its contents for offline availability, using
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logged-On User
-* Required — the target path is derived from `$env:USERPROFILE`, so both scripts must run under the signed-in user to inspect and pin the correct OneDrive folder.
+* Required: the target path is derived from `$env:USERPROFILE`, so both scripts must run under the signed-in user to inspect and pin the correct OneDrive folder.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Set-OneDriveFolderOfflineAvailability\`
@@ -153,7 +153,7 @@ remediate-Set-OneDriveFolderOfflineAvailability.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * Adjust `$CompanyName` and `$ODFolder` in both scripts if your tenant uses a different OneDrive folder layout.
 * Pinning large folder trees can trigger OneDrive downloads; schedule accordingly.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

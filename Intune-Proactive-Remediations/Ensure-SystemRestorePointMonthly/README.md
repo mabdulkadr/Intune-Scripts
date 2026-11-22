@@ -37,7 +37,7 @@ Recovery options are only useful when they exist before the incident. The detect
 * Enables System Protection when unavailable, clears the throttle temporarily, and creates the monthly checkpoint with pre-check → fix → post-verify flow
 * Restores or removes the `SystemRestorePointCreationFrequency` registry value after creation
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — skips creation when a valid monthly point already exists
+* Idempotent: skips creation when a valid monthly point already exists
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -114,7 +114,7 @@ Ensures a valid monthly restore point exists by enabling System Protection if ne
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Ensure-SystemRestorePointMonthly\`
@@ -151,10 +151,10 @@ remediate-Ensure-SystemRestorePointMonthly.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices with a valid current-month point exit `0` without changes.
+* Idempotent by design: devices with a valid current-month point exit `0` without changes.
 * The 24-hour restore-point throttle is bypassed only during creation and restored afterwards; the original `SystemRestorePointCreationFrequency` value is preserved.
-* **Storage impact:** each checkpoint consumes disk space under System Protection; monitor shadow-storage limits on small drives.
-* Creating restore points can take several minutes on low-spec devices — keep the Intune script timeout generous.
+* Storage impact: each checkpoint consumes disk space under System Protection; monitor shadow-storage limits on small drives.
+* Creating restore points can take several minutes on low-spec devices; keep the Intune script timeout generous.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

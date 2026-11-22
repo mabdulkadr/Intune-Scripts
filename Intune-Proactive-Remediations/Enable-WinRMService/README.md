@@ -36,7 +36,7 @@ Fleet management tools such as remote support runbooks and configuration collect
 ### 🔹 Verified Remediation
 * Sets WinRM to Automatic, starts it (with a 15-second status wait), and enables PowerShell Remoting using a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables and starts the WinRM service, turns on PowerShell Remoting, and validate
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Enable-WinRMService\`
@@ -150,8 +150,8 @@ remediate-Enable-WinRMService.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Exposure warning:** enabling WinRM opens a WS-Man listener. Review firewall profiles and listener settings; `SkipNetworkProfileCheck` allows remoting on public network profiles, so confirm your endpoint policy accepts that.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Exposure warning: enabling WinRM opens a WS-Man listener. Review firewall profiles and listener settings; `SkipNetworkProfileCheck` allows remoting on public network profiles, so confirm your endpoint policy accepts that.
 * The remediation aborts safely when the WinRM service does not exist rather than attempting an impossible fix.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

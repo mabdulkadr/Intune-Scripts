@@ -20,7 +20,7 @@
 
 **Intune Diagnostics** is a focused collection of workstation-run health and failure-analysis scripts for Microsoft Intune.
 
-The category surfaces devices that are drifting toward unmanaged state, collects remote diagnostic packages at scale, and explains enrollment and Autopilot failures without portal click-through. Every script runs **LocalOnly from an admin workstation** (or an Azure Automation runbook where noted) via Microsoft Graph — interactive delegated sign-in (WAM-free via `MgGraphCommunity`) or app-only patterns — and emits structured console output with optional CSV export.
+The category finds devices drifting toward an unmanaged state, collects remote diagnostic packages at scale, and explains enrollment and Autopilot failures without opening the portal. Every script runs LocalOnly from an admin workstation (or an Azure Automation runbook where noted) through Microsoft Graph, using interactive delegated sign-in (WAM-free via `MgGraphCommunity`) or app-only patterns, and emits structured console output with optional CSV export.
 
 ---
 
@@ -79,19 +79,19 @@ Intune-Diagnostics
 * Intune Administrator or equivalent
 
 ### Run Context
-* Workstation **LocalOnly** or Azure Automation runbook (Managed Identity) — scripts detect `$PSPrivateMetadata.JobId.Guid` and switch connection accordingly
+* Workstation **LocalOnly** or Azure Automation runbook (Managed Identity). Scripts detect `$PSPrivateMetadata.JobId.Guid` and switch connection accordingly
 
 ---
 
 # 🛡 Operational Notes
 
-* **Collect-DeviceDiagnostics — targeting:** Specify exactly one target: `-DeviceNames` **or** `-GroupName`. Group members are resolved via Entra group `members` → `deviceId` → Intune `azureADDeviceId`. Non-Windows devices are skipped with a warning — Collect diagnostics is a Windows 10/11-only action.
-* **Collect-DeviceDiagnostics — modes:** Without `-DownloadExisting` the script `POST`s `createDeviceLogCollectionRequest` per device (`templateType = predefined` nested object) and polls every 30s until `completed`/`failed` or `-TimeoutMinutes` (default 15, max 120). With `-DownloadExisting "true"` it lists `logCollectionRequests`, picks the newest `completed` (`receivedDateTimeUTC` / `requestedDateTimeUTC`), and calls `createDownloadUrl` — the returned URL is a pre-authenticated Azure Storage link fetched via `Invoke-WebRequest`, not `Invoke-MgGraphRequest`.
-* **Collect-DeviceDiagnostics — offline devices:** Devices that do not complete within the timeout remain in `pendingRequests` and are reported as `Failures/timeouts`. Re-run later with `-DownloadExisting` to fetch the package once the device comes online.
-* **Get-DeviceCheckinHealth — thresholds:** `-HealthyDays` (1–90, default 7) must be smaller than `-StaleDays` (2–365, default 30). Devices with no `lastSyncDateTime` are bucketed as **Never synced**. The **Drifting** bucket (7–30 days by default) is the actionable intervention window before stale. Export includes `DaysSinceSync`, `HealthBucket`, `OperatingSystem`, and `ComplianceState`.
-* **Get-EnrollmentFailureReport — retention:** Troubleshooting events are retained by Intune for a limited period — older failures may no longer be available. The script filters with `eventDateTime ge <cutoff>` where cutoff is `Now - DaysBack` (1–180, default 30). Enrollment events are selected by `@odata.type == enrollmentTroubleshootingEvent` or presence of `failureCategory`.
-* **Get-EnrollmentFailureReport — Autopilot:** Add `-IncludeAutopilotEvents "true"` to also list `autopilotEvents` within the same window, showing `deploymentState` / `enrollmentState` per serial number. Outputs are grouped by `failureCategory` with explanations (e.g., `enrollmentRestrictionsEnforced`, `authorization`, `authentication`).
-* **Common:** Beta Graph endpoints are used across the category; paging handles `429` with a 60s backoff. Logs are written to Intune or General locations via the canonical `Initialize-Log` / `Write-Banner` / `Write-Log` block. `-OutputPath` defaults to the script directory (Law 12). Test in a staging group before production.
+* Collect-DeviceDiagnostics targeting: Specify exactly one target, `-DeviceNames` or `-GroupName`. Group members are resolved via Entra group `members` → `deviceId` → Intune `azureADDeviceId`. Non-Windows devices are skipped with a warning. Collect diagnostics is a Windows 10/11-only action.
+* Collect-DeviceDiagnostics modes: Without `-DownloadExisting` the script `POST`s `createDeviceLogCollectionRequest` per device (`templateType = predefined` nested object) and polls every 30s until `completed`/`failed` or `-TimeoutMinutes` (default 15, max 120). With `-DownloadExisting "true"` it lists `logCollectionRequests`, picks the newest `completed` (`receivedDateTimeUTC` / `requestedDateTimeUTC`), and calls `createDownloadUrl`. The returned URL is a pre-authenticated Azure Storage link fetched via `Invoke-WebRequest`, not `Invoke-MgGraphRequest`.
+* Collect-DeviceDiagnostics offline devices: Devices that do not complete within the timeout remain in `pendingRequests` and are reported as `Failures/timeouts`. Re-run later with `-DownloadExisting` to fetch the package once the device comes online.
+* Get-DeviceCheckinHealth thresholds: `-HealthyDays` (1–90, default 7) must be smaller than `-StaleDays` (2–365, default 30). Devices with no `lastSyncDateTime` are bucketed as **Never synced**. The **Drifting** bucket (7–30 days by default) is the window to act before a device goes stale. Export includes `DaysSinceSync`, `HealthBucket`, `OperatingSystem`, and `ComplianceState`.
+* Get-EnrollmentFailureReport retention: Troubleshooting events are retained by Intune for a limited period, so older failures may no longer be available. The script filters with `eventDateTime ge <cutoff>` where cutoff is `Now - DaysBack` (1–180, default 30). Enrollment events are selected by `@odata.type == enrollmentTroubleshootingEvent` or presence of `failureCategory`.
+* Get-EnrollmentFailureReport Autopilot: Add `-IncludeAutopilotEvents "true"` to also list `autopilotEvents` within the same window, showing `deploymentState` / `enrollmentState` per serial number. Outputs are grouped by `failureCategory` with explanations (e.g., `enrollmentRestrictionsEnforced`, `authorization`, `authentication`).
+* Common: Beta Graph endpoints are used across the category; paging handles `429` with a 60s backoff. Logs are written to Intune or General locations via the canonical `Initialize-Log` / `Write-Banner` / `Write-Log` block. `-OutputPath` defaults to the script directory (Law 12). Test in a staging group before production.
 
 ---
 

@@ -36,7 +36,7 @@ Ghosted or corrupted PnP devices show up as `Status ERROR` in `Get-PnpDevice` an
 ### 🔹 Verified Remediation
 * Per-device fix flow: `pnputil.exe /remove-device <id>` followed by `/scan-devices` (original mechanism preserved)
 * Pre-check → fix → post-verify with structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -93,7 +93,7 @@ Removes each matching error-state device and asks Windows to re-detect hardware,
 ### Logic
 1. Pre-check: confirm `pnputil.exe` resolves before touching any device
 2. Fix: per device, run `pnputil.exe /remove-device <InstanceId>` then `pnputil.exe /scan-devices`, tracking failures per target
-3. Post-verify: re-run the detector query — compliant only when no matching error-state devices remain
+3. Post-verify: re-run the detector query; compliant only when no matching error-state devices remain
 
 ### Exit Codes
 | Code | Status |
@@ -113,7 +113,7 @@ Removes each matching error-state device and asks Windows to re-detect hardware,
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Test-PnPDeviceStatus\`
@@ -150,9 +150,9 @@ remediate-Test-PnPDeviceStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — clean devices exit `0` without changes.
+* Idempotent by design: clean devices exit `0` without changes.
 * Scope the filters (`$ClassFilterInclude/Exclude`, `$DeviceIDFilterInclude/Exclude`) when you only want specific device classes touched.
-* Devices whose drivers reinstall with the same fault will re-trigger the next cycle — that is expected behavior, not a loop defect.
+* Devices whose drivers reinstall with the same fault will re-trigger the next cycle, which is normal and does not indicate a loop defect.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

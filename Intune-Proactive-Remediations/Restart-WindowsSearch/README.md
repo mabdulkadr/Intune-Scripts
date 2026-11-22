@@ -22,7 +22,7 @@ Detection applies the original permissive rule (the `WSearch` service merely exi
 
 **Restart Windows Search** is an Intune remediation package that recovers a stuck Windows Search experience on managed devices.
 
-The detection script queries the `WSearch` service, increments an internal counter when it exists and again when it is running, and treats any non-zero counter as compliant — a deliberately permissive rule preserved from the original script. Only a missing service triggers remediation. The remediation confirms the service exists, runs `Restart-Service -Force`, reads the service again, and verifies it reached the `Running` state before reporting success.
+The detection script queries the `WSearch` service, increments an internal counter when it exists and again when it is running, and treats any non-zero counter as compliant, a deliberately permissive rule preserved from the original script. Only a missing service triggers remediation. The remediation confirms the service exists, runs `Restart-Service -Force`, reads the service again, and verifies it reached the `Running` state before reporting success.
 
 ---
 
@@ -37,7 +37,7 @@ The detection script queries the `WSearch` service, increments an internal count
 * Runs `Restart-Service -Force` on `WSearch` with a pre-check → fix → post-verify flow
 * Verifies the service reaches the `Running` state after restart
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -114,7 +114,7 @@ Restarts Windows Search with `Restart-Service -Force`, using a pre-check → fix
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Restart-WindowsSearch\`
@@ -151,7 +151,7 @@ remediate-Restart-WindowsSearch.ps1
 ---
 
 # 🛡 Operational Notes
-* The permissive detection is deliberate legacy behavior — a stopped-but-existing service stays compliant; tighten the logic if strict enforcement is required.
+* The permissive detection is deliberate legacy behavior: a stopped-but-existing service stays compliant. Tighten the logic if strict enforcement is required.
 * Restarting Windows Search briefly interrupts search indexing and Start Menu/Cortana search results.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

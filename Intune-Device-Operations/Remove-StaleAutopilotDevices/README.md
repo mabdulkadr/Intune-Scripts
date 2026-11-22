@@ -94,7 +94,7 @@ Removes orphaned devices and exports the list to CSV
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementServiceConfig.ReadWrite.All,DeviceManagementManagedDevices.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementServiceConfig.ReadWrite.All,DeviceManagementManagedDevices.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\cleanup-autopilot-devices\Logs`
@@ -103,10 +103,10 @@ Removes orphaned devices and exports the list to CSV
 
 # 🛡️ Operational Notes
 
-* **Autopilot cleanup — preview is mandatory.** Always run `Remove-StaleAutopilotDevices.ps1 -PreviewOnly "true"` first and export the orphan list (`-ExportPath`). Removal deletes the Autopilot registration itself; re-registration requires re-importing the hardware hash. Confirm expected serials before using `-RemoveOrphaned "true" -Force "true"`.
+* Preview is mandatory for Autopilot cleanup. Always run `Remove-StaleAutopilotDevices.ps1 -PreviewOnly "true"` first and export the orphan list (`-ExportPath`). Removal deletes the Autopilot registration itself; re-registration requires re-importing the hardware hash. Confirm expected serials before using `-RemoveOrphaned "true" -Force "true"`.
 * Orphan detection compares Autopilot `serialNumber` against Intune managed-device serials; sanitized `0001-01-01` dates are shown as **Never**.
 * Batch deletes are throttled; Graph 429 is retried once after 60s.
-* This is a **DANGER — Deletes Autopilot** operation — use staged pilots and change control.
+* This operation deletes Autopilot registrations. Use staged pilots and change control.
 
 ---
 

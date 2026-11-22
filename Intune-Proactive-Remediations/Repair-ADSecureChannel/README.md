@@ -36,7 +36,7 @@ The machine account password can fall out of sync after snapshot restores, long 
 ### 🔹 Verified Remediation
 * Repairs the secure channel via `Test-ComputerSecureChannel -Repair` with an automatic `nltest /sc_reset` fallback, using a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 * Optional post-repair reboot scheduling remains disabled by configuration (`$ForceRebootAfterRepair = $false`, unchanged from the legacy script)
 
 ### 🔹 Enterprise Logging
@@ -114,7 +114,7 @@ Repairs the machine secure channel with `Test-ComputerSecureChannel -Repair` and
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * Domain connectivity: repair requires line-of-sight to a writable domain controller.
 
 ### Logging
@@ -152,11 +152,11 @@ remediate-Repair-ADSecureChannel.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — healthy devices exit `0` without changes.
+* Idempotent by design: healthy devices exit `0` without changes.
 * Secure channel repair requires line-of-sight to a writable domain controller; without DC connectivity the verification fails and the script exits `1`.
 * Non-domain-joined devices always exit `0` in both scripts (not applicable).
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
-* **Access denied (0x80070005) during the password reset means the computer account lacks the AD 'Reset password' right.** Grant that right on the computer object, run `netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*` once from the console, or rejoin to a fresh machine account — then re-run remediation. The script logs exactly which method was denied (`Test-ComputerSecureChannel -Repair` vs `nltest /sc_reset`).
+* Access denied (0x80070005) during the password reset means the computer account lacks the AD 'Reset password' right. Grant that right on the computer object, run `netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*` once from the console, or rejoin to a fresh machine account. Then re-run remediation. The script logs exactly which method was denied (`Test-ComputerSecureChannel -Repair` vs `nltest /sc_reset`).
 
 ---
 

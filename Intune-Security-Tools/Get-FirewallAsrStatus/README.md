@@ -23,9 +23,9 @@ This script inventories all endpoint security policies (settings catalog policie
 
 # 📖 Overview
 
-**Get Firewall and ASR Status** is a PowerShell script that This script inventories all endpoint security policies (settings catalog policies with an endpoint security template plus legacy security intents) and reports the coverage per discipline: firewall, attack surface reduction, antivirus, disk encryption, EDR, and account protection. It flags disciplines with no assigned policy and lists unassigned endpoint security policies. Combined with the device count this shows whether the tenant's Windows fleet actually has firewall and ASR enforcement or just unassigned policy objects. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
+**Get Firewall and ASR Status** is a PowerShell script that inventories all endpoint security policies (settings catalog policies with an endpoint security template plus legacy security intents) and reports the coverage per discipline: firewall, attack surface reduction, antivirus, disk encryption, EDR, and account protection. It flags disciplines with no assigned policy and lists unassigned endpoint security policies. Combined with the device count this shows whether the tenant's Windows fleet actually has firewall and ASR enforcement or just unassigned policy objects. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
 
-This script inventories all endpoint security policies (settings catalog policies with an endpoint security template plus legacy security intents) and reports the coverage per discipline: firewall, attack surface reduction, antivirus, disk encryption, EDR, and account protection. It flags disciplines with no assigned policy and lists unassigned endpoint security policies. Combined with the device count this shows whether the tenant's Windows fleet actually has firewall and ASR enforcement or just unassigned policy objects. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency. It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
+It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
 
 ---
 
@@ -97,7 +97,7 @@ Exports the coverage report to a timestamped CSV file
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementConfiguration.Read.All,DeviceManagementManagedDevices.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementConfiguration.Read.All,DeviceManagementManagedDevices.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\get-firewall-and-asr-status\Logs`
@@ -106,7 +106,7 @@ Exports the coverage report to a timestamped CSV file
 
 # 🛡️ Operational Notes
 
-* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph — interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation dependency.
+* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph. Authentication is interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`). No Azure Automation dependency.
 * Per-script least-privilege Graph permissions; consent on first interactive sign-in or pre-consent via Entra Enterprise Applications.
 * Beta Graph endpoints where the surface requires it; paging with 429 throttling and one retry after 60s.
 * Test in a staging tenant/device group before production; all scripts disconnect (`Disconnect-MgGraph` / `Disconnect-MgGraphCommunity`) and write structured logs.

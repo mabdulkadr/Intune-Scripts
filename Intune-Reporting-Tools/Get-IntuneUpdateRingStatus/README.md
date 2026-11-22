@@ -22,7 +22,7 @@ Lists every Windows Update for Business ring with its deferral periods, deadline
 
 **Get Intune Update Ring Status** is a PowerShell reporting script that lists every Windows Update for Business ring with its deferral periods, deadlines, active hours, delivery optimization, and restart settings. Shows assignment counts and compares rings side by side so you can spot misconfigured or inconsistent rings.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -94,7 +94,7 @@ Compares all Windows Update ring configurations and their deployment status.
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

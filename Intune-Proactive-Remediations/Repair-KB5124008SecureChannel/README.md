@@ -22,7 +22,7 @@ Detection flags devices that are domain-joined, have KB5124008 installed, AND sh
 
 **Repair KB5124008 Secure Channel** is an Intune remediation package that targets the KB5124008 secure channel regression on shared, domain-joined endpoints.
 
-The detection script is deliberately narrow: it flags a device only when it is in scope — domain-joined **and** KB5124008 installed — and at least one regression indicator is present: a non-zero `MachineIdentityIsolation` value under the Lsa key (the workaround flag this package clears) **or** `Test-ComputerSecureChannel` reports a broken secure channel. Anything else (not domain-joined, or no KB5124008) is compliant by design, so remediation never fires for unrelated broken-trust cases. When in scope, the paired remediation first sets `MachineIdentityIsolation = 0` under the Lsa key, then repairs the secure channel through a fallback chain (`Test-ComputerSecureChannel -Repair`, and `nltest /sc_reset:<Domain>` when the native reset is denied), and finally re-verifies both the registry value and the secure channel before reporting success.
+The detection script is deliberately narrow: it flags a device only when it is in scope, meaning domain-joined and KB5124008 installed, and at least one regression indicator is present: a non-zero `MachineIdentityIsolation` value under the Lsa key (the workaround flag this package clears) or `Test-ComputerSecureChannel` reports a broken secure channel. Anything else (not domain-joined, or no KB5124008) is compliant by design, so remediation never fires for unrelated broken-trust cases. When in scope, the paired remediation first sets `MachineIdentityIsolation = 0` under the Lsa key, then repairs the secure channel through a fallback chain (`Test-ComputerSecureChannel -Repair`, and `nltest /sc_reset:<Domain>` when the native reset is denied), and finally re-verifies both the registry value and the secure channel before reporting success.
 
 ---
 
@@ -30,13 +30,13 @@ The detection script is deliberately narrow: it flags a device only when it is i
 
 ### 🔹 Narrow, Version-Specific Detection
 * Flags devices only when domain-joined AND KB5124008 installed AND at least one regression indicator (non-zero `MachineIdentityIsolation` or a broken secure channel)
-* Read-only — never modifies the system during detection
+* Read-only: never modifies the system during detection
 * Non-compliant scenarios are isolated from the generic `Repair-ADSecureChannel` package
 
 ### 🔹 Verified Remediation
 * Pre-check → per-target fix → post-verify flow with structured JSON result output for Intune diagnostics
 * Sets `MachineIdentityIsolation = 0` (DWORD, created when missing), then repairs the secure channel via `Test-ComputerSecureChannel -Repair` with an automatic `nltest /sc_reset` fallback
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -69,8 +69,8 @@ detect-Repair-KB5124008SecureChannel.ps1
 Detects devices affected by the KB5124008 secure channel regression. Strictly read-only.
 
 ### Logic
-1. Query `Win32_ComputerSystem` — if the device is **not** domain-joined, mark compliant (not applicable)
-2. Query the hotfix inventory — if **KB5124008 is not installed**, mark compliant (not applicable)
+1. Query `Win32_ComputerSystem`; if the device is not domain-joined, mark compliant (not applicable)
+2. Query the hotfix inventory; if KB5124008 is not installed, mark compliant (not applicable)
 3. Non-compliant only when at least one regression indicator is present:
    - `MachineIdentityIsolation` exists under the Lsa key and is **not 0**, and/or
    - `Test-ComputerSecureChannel` reports a **broken** secure channel
@@ -116,7 +116,7 @@ Applies the KB5124008 workaround and repairs the secure channel, using a pre-che
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Repair-KB5124008SecureChannel\`
@@ -153,15 +153,15 @@ remediate-Repair-KB5124008SecureChannel.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Scope discipline:** this package targets the KB5124008 regression only. Generic broken-trust cases belong to the `Repair-ADSecureChannel` package.
-* **Lifecycle:** retire this package from Intune once Microsoft ships an official fix for the KB5124008 regression.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Scope discipline: this package targets the KB5124008 regression only. Generic broken-trust cases belong to the `Repair-ADSecureChannel` package.
+* Lifecycle: retire this package from Intune once Microsoft ships an official fix for the KB5124008 regression.
 * Requires line-of-sight to a writable domain controller while the secure channel is repaired.
 * A sign-out, restart, or policy refresh may be required before the change is fully effective.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
-* **Intune "Failed" status is expected while non-compliant.** In Proactive Remediations, detection exit `1` is shown as *Failed (non-compliant)* — that is the designed trigger for the paired remediation. The device clears to *Succeeded* once a remediation run verifies the fix on a subsequent detection cycle.
-* **A device that stays *Failed* after remediation means the secure channel re-tests unhealthy.** Check the remediation log's `PostCheckStatus` entries: a persistent broken channel usually means no writable DC line-of-sight during the PR run, a pending restart, or a machine-account password that needs `netdom resetpwd` / `nltest /sc_reset` and possibly a domain rejoin.
-* **Access denied (0x80070005) during the password reset means the computer account lacks the AD 'Reset password' right.** Grant that right on the computer object, run `netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*` once from the console, or rejoin to a fresh machine account — then re-run remediation. The script logs exactly which method was denied (`Test-ComputerSecureChannel -Repair` vs `nltest /sc_reset`).
+* Intune "Failed" status is expected while non-compliant. In Proactive Remediations, detection exit `1` is shown as *Failed (non-compliant)*, which is the designed trigger for the paired remediation. The device clears to *Succeeded* once a remediation run verifies the fix on a subsequent detection cycle.
+* A device that stays *Failed* after remediation means the secure channel re-tests unhealthy. Check the remediation log's `PostCheckStatus` entries: a persistent broken channel usually means no writable DC line-of-sight during the PR run, a pending restart, or a machine-account password that needs `netdom resetpwd` / `nltest /sc_reset` and possibly a domain rejoin.
+* Access denied (0x80070005) during the password reset means the computer account lacks the AD 'Reset password' right. Grant that right on the computer object, run `netdom resetpwd /server:<DC> /userd:<admin> /passwordd:*` once from the console, or rejoin to a fresh machine account. Then re-run remediation. The script logs exactly which method was denied (`Test-ComputerSecureChannel -Repair` vs `nltest /sc_reset`).
 
 ---
 

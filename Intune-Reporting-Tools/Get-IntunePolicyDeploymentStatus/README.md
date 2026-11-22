@@ -22,7 +22,7 @@ Shows per-policy deployment health: how many devices succeeded, failed, are pend
 
 **Get Intune Policy Deployment Status** is a PowerShell reporting script that shows per-policy deployment health: how many devices succeeded, failed, are pending, have conflicts, or errors. Identifies the most-failing policies and the policies with the highest error rates.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -94,7 +94,7 @@ Reports deployment status for all configuration policies across devices.
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

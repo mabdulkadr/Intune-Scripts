@@ -22,7 +22,7 @@ This script connects to Microsoft Graph API (beta) and retrieves Endpoint Analyt
 
 **Get Endpoint Analytics Report** is a PowerShell reporting script that This script connects to Microsoft Graph API (beta) and retrieves Endpoint Analytics data from Intune. It collects metrics across multiple categories including device startup performance, application reliability, battery health, work from anywhere readiness, and overall device scores. Results are exported to CSV and ...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -118,7 +118,7 @@ Generates report with all metrics and exports to both CSV and JSON formats
 
 # 🛡 Operational Notes
 * Endpoint Analytics requires an Intune Advanced Analytics license and must be enabled in the tenant; some metrics require Windows 10/11.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

@@ -113,7 +113,7 @@ Configures the selected Disk Cleanup handlers and runs `CleanMgr.exe`, using a p
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DiskCleanupStatus\`
@@ -150,7 +150,7 @@ remediate-Get-DiskCleanupStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already above the threshold exit `0` without changes.
+* Idempotent by design: devices already above the threshold exit `0` without changes.
 * Handlers missing on a given image are skipped with a warning instead of failing the run.
 * Verification proves the handler configuration persisted and CleanMgr completed; actual gigabytes reclaimed vary per device.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

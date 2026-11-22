@@ -4,7 +4,7 @@
 
 **Tenant-wide compliance and health reports**
 
-A curated collection of 15 Graph-powered reporting tools that audit compliance, encryption escrow, Apple infrastructure, certificate delivery, connector health, policy hygiene, endpoint analytics, audit logs, and Windows Update — plus a daily tenant HTML executive report.
+A collection of 15 Graph-powered reporting tools that audit compliance, encryption escrow, Apple infrastructure, certificate delivery, connector health, policy hygiene, endpoint analytics, audit logs, and Windows Update. It also includes a daily tenant HTML executive report.
 
 [![Intune](https://img.shields.io/badge/Intune-Reporting-10B981?style=for-the-badge)](#-overview)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,20 +20,20 @@ A curated collection of 15 Graph-powered reporting tools that audit compliance, 
 
 # 📖 Overview
 
-**Intune Reporting Tools** is the reporting category of the Intune Scripts library. It inventories and scores the health of an entire Intune tenant from a workstation — no agent deployment required.
+**Intune Reporting Tools** is the reporting category of the Intune Scripts library. It inventories and scores the health of an entire Intune tenant from a workstation, with no agent deployment required.
 
 The category covers:
 
-* **Compliance** — device compliance summary and per-setting failure reasons (`Get-DeviceComplianceReport`, `Get-NonCompliantDevices`, `Get-CompliancePolicyCoverage`)
-* **Encryption escrow** — BitLocker keys in Entra ID and FileVault keys in Intune with compliance percentages (`Test-BitLockerKeys`, `Test-FileVaultKeys`)
-* **Apple infrastructure** — DEP token / APNs certificate validity, sync state, and full connector health for DEP/APNs/VPP, Google Play, NDES, certificate connectors and MTD (`Test-AppleTokenValidity`, `Test-ConnectorHealth`)
-* **Certificates** — SCEP/PKCS/trusted-root profile validity settings, deployment errors, and decoded root-certificate expiry (`Test-CertificateProfileExpiry`)
-* **Policy hygiene** — unassigned policies (Device Configuration, Settings Catalog, Administrative Templates) and recent policy changes via audit events (`Test-UnassignedPolicies`, `Test-PolicyChanges`)
-* **Endpoint analytics** — startup performance, app reliability, battery health, and Work From Anywhere scores (`Get-EndpointAnalyticsReport`)
-* **Audit logs** — filterable export of Intune audit events to CSV/HTML with 30-day retention awareness (`Export-IntuneAuditLogs`)
-* **Windows Update** — update rings with per-device status, feature/quality/driver update profiles, and end-of-support warnings (`Get-WindowsUpdateComplianceReport`)
-* **Multi-Admin Approval (MAA)** — MAA policy coverage, approver resolution, and request analytics (`Get-AppProtectionComplianceReport`)
-* **Daily tenant HTML** — `Export-IntuneDashboard (v2.0+) for the integrated tenant report` — designed to be scheduled.
+* Compliance: device compliance summary and per-setting failure reasons (`Get-DeviceComplianceReport`, `Get-NonCompliantDevices`, `Get-CompliancePolicyCoverage`)
+* Encryption escrow: BitLocker keys in Entra ID and FileVault keys in Intune with compliance percentages (`Test-BitLockerKeys`, `Test-FileVaultKeys`)
+* Apple infrastructure: DEP token / APNs certificate validity, sync state, and full connector health for DEP/APNs/VPP, Google Play, NDES, certificate connectors and MTD (`Test-AppleTokenValidity`, `Test-ConnectorHealth`)
+* Certificates: SCEP/PKCS/trusted-root profile validity settings, deployment errors, and decoded root-certificate expiry (`Test-CertificateProfileExpiry`)
+* Policy hygiene: unassigned policies (Device Configuration, Settings Catalog, Administrative Templates) and recent policy changes via audit events (`Test-UnassignedPolicies`, `Test-PolicyChanges`)
+* Endpoint analytics: startup performance, app reliability, battery health, and Work From Anywhere scores (`Get-EndpointAnalyticsReport`)
+* Audit logs: filterable export of Intune audit events to CSV/HTML with 30-day retention awareness (`Export-IntuneAuditLogs`)
+* Windows Update: update rings with per-device status, feature/quality/driver update profiles, and end-of-support warnings (`Get-WindowsUpdateComplianceReport`)
+* Multi-Admin Approval (MAA): MAA policy coverage, approver resolution, and request analytics (`Get-AppProtectionComplianceReport`)
+* Daily tenant HTML: `Export-IntuneDashboard (v2.0+) for the integrated tenant report`, designed to be scheduled.
 
 All workstation scripts support interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
@@ -50,12 +50,12 @@ All workstation scripts support interactive sign-in (via `MgGraphCommunity` for 
 * HTML template (`Report-Template.html`) with collapsible sections, Expand/Collapse All, and `id="t01"` table styling
 
 ### 🔹 Health Scoring with Context
-* Apple tokens, connectors, and certificates scored **Healthy / Warning / Critical / NotConfigured** — stale sync (>7 days) and expiry windows (30/90/180 days) surface silent failures before enrollment or app install breaks
+* Apple tokens, connectors, and certificates scored **Healthy / Warning / Critical / NotConfigured**. Stale sync (>7 days) and expiry windows (30/90/180 days) surface silent failures before enrollment or app install breaks
 * Certificate profiles decode embedded root certificates locally to read the real `NotAfter` date
 
 ### 🔹 Enterprise Logging & Resilience
 * Structured, timestamped logging to `C:\ProgramData\<SolutionName>\Logs\` with banner and level colors
-* Per-device / per-policy errors are isolated — one bad device never aborts the whole report
+* Per-device / per-policy errors are isolated, so one bad device never aborts the whole report
 
 ### 🔹 Automation-Ready
 * Portal-safe boolean parameters (`"true"/"false"/"1"/"0"`) for Azure Automation compatibility
@@ -122,26 +122,26 @@ Intune-Reporting-Tools
 
 ### Microsoft Graph
 * `Microsoft.Graph.Authentication` module (auto-installed if missing; `MgGraphCommunity` is used for WAM-free interactive sign-in)
-* Permissions are consented per script as shown in the table above — least-privilege is the default; `Mail.Send` is only requested when email alerts are enabled
-* Beta Graph endpoints are used — most Intune reporting surfaces are not exposed on `v1.0`
+* Permissions are consented per script as shown in the table above. Least privilege is the default; `Mail.Send` is only requested when email alerts are enabled
+* Beta Graph endpoints are used because most Intune reporting surfaces are not exposed on `v1.0`
 
 ### Authentication
 * **Interactive:** `Connect-MgGraph` / `Connect-MgGraphCommunity` with delegated scopes (browser sign-in)
-* **Unattended:** `TenantId` + `ClientId` + `ClientSecret` *or* `CertificateThumbprint` — suitable for Azure Automation Runbooks and scheduled tasks
+* **Unattended:** `TenantId` + `ClientId` + `ClientSecret` *or* `CertificateThumbprint`, for Azure Automation Runbooks and scheduled tasks
 
 ### Logging
-* **This category (workstation tools):** `C:\ProgramData\<SolutionName>\Logs\<SolutionName>_yyyyMMdd_HHmmss.log` — e.g. `C:\ProgramData\check-bitlocker-keys\Logs\`
-* **Proactive Remediations** in this repo use a different path: `<SystemDrive>\IntuneLogs\<SolutionName>\` (e.g. `C:\IntuneLogs\Disable-FastStartup\`) — do not confuse the two when collecting logs
+* **This category (workstation tools):** `C:\ProgramData\<SolutionName>\Logs\<SolutionName>_yyyyMMdd_HHmmss.log`, for example `C:\ProgramData\check-bitlocker-keys\Logs\`
+* **Proactive Remediations** in this repo use a different path: `<SystemDrive>\IntuneLogs\<SolutionName>\` (e.g. `C:\IntuneLogs\Disable-FastStartup\`). Do not confuse the two when collecting logs
 
 ---
 
 # 🛡 Operational Notes
 
-* **Certificate / Apple token lead time:** Trusted-root and Apple DEP/APNs/VPP artifacts expire after one year. Default warning windows are 30 days (`Test-AppleTokenValidity`, `Test-ConnectorHealth`) and 90 days (`Test-CertificateProfileExpiry`); Windows feature-update profiles default to 180 days end-of-support warning. Tune via `-ExpiryWarningDays` / `-EndOfSupportWarningDays` / `-ExpirationWarningDays` for renewal lead time.
-* **Audit log retention:** Intune audit events (`deviceManagement/auditEvents`) are retained for **30 days**. `Export-IntuneAuditLogs` caps `-DaysBack` at 30 and `-NumberOfEntries` at 1000; `Test-PolicyChanges` defaults to 30 days and pages `category eq 'DeviceConfiguration'` — older changes must be archived externally.
-* **MAA pending-request volume:** `Get-AppProtectionComplianceReport` pulls all `operationApprovalRequests` and filters by `-DaysToAnalyze` (default 30). Tenants with heavy MAA usage can see large pending queues; high pending counts and average approval time >72 h should trigger process review. The report tolerates partial resource inventory — coverage math degrades gracefully when a category cannot be enumerated.
-* **BitLocker / FileVault volume:** Per-device key checks are paced at 100 ms with 429 retry and 60 s backoff. Large estates (thousands of devices) will take several minutes; use `-ShowProgress` and `-OnlyShowMissing` to reduce noise.
-* **Daily tenant report scheduling:** `Get-DailyTenantReport.ps1` queries live tenant data and scrapes Microsoft release pages for supported Windows builds. Schedule it via Task Scheduler or a service account rather than running ad-hoc. Keep `Report-Template.html` beside the script — its `$SectionNHead`/`$SectionNBody` placeholders are replaced at runtime and transient files (`report*.txt`, `appreport.txt`, `fwreport.txt`, `featureupdates.txt`, `expeditedupdates.txt`, `driverupdates.txt`) are created and deleted beside the script.
+* Certificate / Apple token lead time: Trusted-root and Apple DEP/APNs/VPP artifacts expire after one year. Default warning windows are 30 days (`Test-AppleTokenValidity`, `Test-ConnectorHealth`) and 90 days (`Test-CertificateProfileExpiry`); Windows feature-update profiles default to 180 days end-of-support warning. Tune via `-ExpiryWarningDays` / `-EndOfSupportWarningDays` / `-ExpirationWarningDays` for renewal lead time.
+* Audit log retention: Intune audit events (`deviceManagement/auditEvents`) are retained for **30 days**. `Export-IntuneAuditLogs` caps `-DaysBack` at 30 and `-NumberOfEntries` at 1000; `Test-PolicyChanges` defaults to 30 days and pages `category eq 'DeviceConfiguration'`. Older changes must be archived externally.
+* MAA pending-request volume: `Get-AppProtectionComplianceReport` pulls all `operationApprovalRequests` and filters by `-DaysToAnalyze` (default 30). Tenants with heavy MAA usage can see large pending queues; high pending counts and average approval time >72 h should trigger process review. The report tolerates partial resource inventory; coverage math degrades gracefully when a category cannot be enumerated.
+* BitLocker / FileVault volume: Per-device key checks are paced at 100 ms with 429 retry and 60 s backoff. Large estates (thousands of devices) will take several minutes; use `-ShowProgress` and `-OnlyShowMissing` to reduce noise.
+* Daily tenant report scheduling: `Get-DailyTenantReport.ps1` queries live tenant data and scrapes Microsoft release pages for supported Windows builds. Schedule it via Task Scheduler or a service account rather than running ad-hoc. Keep `Report-Template.html` beside the script. Its `$SectionNHead`/`$SectionNBody` placeholders are replaced at runtime, and transient files (`report*.txt`, `appreport.txt`, `fwreport.txt`, `featureupdates.txt`, `expeditedupdates.txt`, `driverupdates.txt`) are created and deleted beside the script.
 
 ---
 

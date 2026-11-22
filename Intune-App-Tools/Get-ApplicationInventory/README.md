@@ -4,7 +4,7 @@
 
 **Generates a comprehensive application inventory report for all managed devices in Intune.**
 
-Scans every managed device and its detected applications, enriching publisher, platform, and size from the aggregate detectedApps endpoint, and produces CSV and HTML inventory reports with summary statistics — built for Intune administrators tracking fleet-wide software posture.
+Scans every managed device and its detected applications, enriching publisher, platform, and size from the aggregate detectedApps endpoint, and produces CSV and HTML inventory reports with summary statistics.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Scans every managed device and its detected applications, enriching publisher, p
 
 **Get-ApplicationInventory** is a PowerShell script that builds a fleet-wide application inventory from Microsoft Intune managed devices.
 
-It connects to Microsoft Graph, pages managed devices with a hard cap via `-MaxDevices`, builds a metadata lookup from the aggregate `deviceManagement/detectedApps` endpoint to enrich the per-device expand (which otherwise returns null publishers and zero sizes), and expands each device's `detectedApps` to produce per-device, per-app rows. Results are exported as timestamped CSV and HTML with top applications and publishers. Supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity when available) or app-only with tenant, client ID, and secret or certificate.
+It connects to Microsoft Graph, pages managed devices with a hard cap via `-MaxDevices`, builds a metadata lookup from the aggregate `deviceManagement/detectedApps` endpoint to enrich the per-device expand (which otherwise returns null publishers and zero sizes), and expands each device's `detectedApps` to produce per-device, per-app rows. Results are exported as timestamped CSV and HTML with top applications and publishers. The script supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity when available) or app-only with tenant, client ID, and secret or certificate.
 
 ---
 
@@ -120,7 +120,7 @@ Forces module installation without prompting and generates the report.
 
 # 🛡 Operational Notes
 
-* Read-only reporting — creates no tenant objects and installs nothing on devices.
+* Read-only reporting that creates no tenant objects and installs nothing on devices.
 * Large tenants may take considerable time due to API rate limits; the script pauses automatically on HTTP 429 and retries up to three times per device.
 * System applications are excluded by default to focus on business applications.
 * Uses the beta Graph endpoint for enhanced application data; per-device detectedApps are enriched from the aggregate endpoint.

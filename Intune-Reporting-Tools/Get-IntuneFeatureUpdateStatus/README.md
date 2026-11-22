@@ -22,7 +22,7 @@ This script shows per-device deployment state for each feature update profile: o
 
 **Get Intune Feature Update Status** is a PowerShell reporting script that For each feature update profile, shows deployment state per device: offered, pending download, downloading, installing, pending reboot, installed, cancelled, safeguard held, or error. Identifies devices blocked by safeguard holds and those stuck in pending states. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -97,8 +97,8 @@ Filters to a specific feature update profile
 
 # 🛡 Operational Notes
 * Feature update deviceUpdateStates may be delayed after profile creation; empty results indicate pending reporting.
-* Safeguard holds are Microsoft-applied compatibility blocks — check Windows release health for details.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Safeguard holds are Microsoft-applied compatibility blocks. Check Windows release health for details.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

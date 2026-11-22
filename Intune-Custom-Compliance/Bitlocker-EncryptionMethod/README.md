@@ -20,7 +20,7 @@ Returns JSON with BitLocker encryption method for Custom Compliance policies. Ch
 
 # 🔐 Overview
 
-**Bitlocker-EncryptionMethod** is an Intune Custom Compliance discovery script that flags devices using non-XTS (AES-CBC) encryption methods, enabling Conditional Access gating. Custom compliance scripts are always detection-only — the companion JSON file is the rulebook; the discovery script reports; the tenant decides.
+**Bitlocker-EncryptionMethod** is an Intune Custom Compliance discovery script that flags devices using non-XTS (AES-CBC) encryption methods, enabling Conditional Access gating. Custom compliance scripts are always detection-only. The companion JSON file holds the rules, the discovery script reports the state, and the tenant decides.
 
 ---
 
@@ -80,7 +80,7 @@ Custom Compliance is a read-only evaluation surface. When a device is non-compli
 | ---- | ------ |
 | 0    | Discovery completed — JSON emitted (compliant or not, including fallback JSON on error) |
 
-The script never exits non-zero and never writes plain text to stdout — both surface as Error 65009.
+The script never exits non-zero and never writes plain text to stdout; both surface as Error 65009.
 
 ---
 

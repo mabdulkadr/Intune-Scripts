@@ -113,7 +113,7 @@ Applies the local-network-access flag to both browsers, using a pre-check → fi
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in the assigned user context via Intune — no Graph permissions required.
+* Runs in the assigned user context via Intune with no Graph permissions required.
 * Assign in user context so `$env:LOCALAPPDATA` resolves to each target profile.
 
 ### Logging
@@ -151,7 +151,7 @@ remediate-Disable-LocalNetworkAccessRestrictions.ps1
 ---
 
 # 🛡 Operational Notes
-* The remediation force-closes running Chrome/Edge windows — schedule assignments to avoid disrupting active users.
+* The remediation force-closes running Chrome/Edge windows; schedule assignments to avoid disrupting active users.
 * A timestamped `.bak_<yyyyMMddHHmmss>` copy of each `Local State` is created before editing and restored automatically if the update fails.
 * Chromium may retire or rename labs flags between versions; adjust `$RequiredFlag`/`$PrimaryFlag` in both scripts together if Google changes the variant.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

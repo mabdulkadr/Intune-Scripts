@@ -4,7 +4,7 @@
 
 **Intune Win32 App AutoDeployer**
 
-Automated Winget-to-Win32 packaging and deployment CLI for Microsoft Intune — select applications from Winget and this tool builds the Entra groups, install/uninstall/detection scripts, IntuneWin package, auto-update Proactive Remediation, and group assignments end-to-end via Microsoft Graph.
+Automated Winget-to-Win32 packaging and deployment CLI for Microsoft Intune. Select applications from Winget and the tool builds the Entra groups, install/uninstall/detection scripts, IntuneWin package, auto-update Proactive Remediation, and group assignments end-to-end via Microsoft Graph.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Automated Winget-to-Win32 packaging and deployment CLI for Microsoft Intune — 
 
 **Intune Win32 App AutoDeployer** is a PowerShell script that bulk-deploys Winget applications as Win32 LOB apps into Microsoft Intune using the Microsoft Graph API.
 
-For every selected app the tool creates Install/Uninstall Entra security groups, generates the install, uninstall, and detection scripts, packages everything into IntuneWin format, uploads it to Intune, creates an hourly Proactive Remediation that keeps the app updated, and assigns the app to the target groups — optionally also publishing it as Available for users and/or devices. It runs interactively (Winget GridView picker) or fully unattended with app-only Graph authentication, which makes it suitable for Azure Automation webhooks with Git log backup. Based on the original Win32App-AutoDeployer by Andrew Taylor.
+For every selected app the tool creates Install/Uninstall Entra security groups, generates the install, uninstall, and detection scripts, packages everything into IntuneWin format, uploads it to Intune, creates an hourly Proactive Remediation that keeps the app updated, and assigns the app to the target groups, optionally also publishing it as Available for users and/or devices. It runs interactively (Winget GridView picker) or fully unattended with app-only Graph authentication, which makes it suitable for Azure Automation webhooks with Git log backup. Based on the original Win32App-AutoDeployer by Andrew Taylor.
 
 ---
 
@@ -95,7 +95,7 @@ Runs unattended with app-only Graph authentication and pre-defined group names.
 * Windows 10 / Windows 11
 
 ### PowerShell
-* PowerShell **5.1 or later** — under PowerShell 7 the script relaunches itself in 5.1 automatically
+* PowerShell **5.1 or later**. Under PowerShell 7 the script relaunches itself in 5.1 automatically
 
 ### Permissions
 * Microsoft Graph: `DeviceManagementApps.ReadWrite.All`, `DeviceManagementConfiguration.ReadWrite.All`, `Group.ReadWrite.All`, `GroupMember.ReadWrite.All`
@@ -107,9 +107,9 @@ Runs unattended with app-only Graph authentication and pre-defined group names.
 ---
 
 # 🛡 Operational Notes
-* **Mutates the Intune tenant**: groups, apps, assignments, and Proactive Remediations are created — always test against a staging tenant first.
+* Mutates the Intune tenant: groups, apps, assignments, and Proactive Remediations are created. Always test against a staging tenant first.
 * Working files are staged under `C:\Temp\<random>-<timestamp>\`; clean the folder periodically after large batch runs.
-* In webhook mode the shared secret is compared against `$webhooksecret` in the script body — set it before production use (empty string accepts any value).
+* In webhook mode the shared secret is compared against `$webhooksecret` in the script body. Set it before production use (an empty string accepts any value).
 * Azure DevOps log backup calls an `Add-DevopsFile` helper that must exist in the session.
 * Graph GET calls (pagination, file-processing polls, group lookups) retry up to 5 times on HTTP 429/503, honoring `Retry-After`.
 * Module installation targets `CurrentUser` scope; first run on a device downloads several Microsoft.Graph modules.

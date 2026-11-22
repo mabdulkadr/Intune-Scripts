@@ -23,9 +23,9 @@ This script reads the tenant-wide device protection overview and the per-device
 
 # 📖 Overview
 
-**Get Defender Status Report** is a PowerShell script that This script reads the tenant-wide device protection overview and the per-device Windows protection state to report Microsoft Defender health: real-time protection, tamper protection, malware protection, signature currency, overdue scans, pending reboots, and devices whose state is not clean. Use it to find the machines on which Defender is silently off or outdated before they become incident tickets. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
+**Get Defender Status Report** is a PowerShell script that reads the tenant-wide device protection overview and the per-device Windows protection state to report Microsoft Defender health: real-time protection, tamper protection, malware protection, signature currency, overdue scans, pending reboots, and devices whose state is not clean. Use it to find the machines on which Defender is silently off or outdated before they become incident tickets. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
 
-This script reads the tenant-wide device protection overview and the per-device Windows protection state to report Microsoft Defender health: real-time protection, tamper protection, malware protection, signature currency, overdue scans, pending reboots, and devices whose state is not clean. Use it to find the machines on which Defender is silently off or outdated before they become incident tickets. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency. It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
+It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
 
 ---
 
@@ -97,7 +97,7 @@ Lists only devices with at least one Defender health issue
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\get-defender-status-report\Logs`
@@ -106,7 +106,7 @@ Lists only devices with at least one Defender health issue
 
 # 🛡️ Operational Notes
 
-* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph — interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation dependency.
+* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph. Authentication is interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`). No Azure Automation dependency.
 * Per-script least-privilege Graph permissions; consent on first interactive sign-in or pre-consent via Entra Enterprise Applications.
 * Beta Graph endpoints where the surface requires it; paging with 429 throttling and one retry after 60s.
 * Test in a staging tenant/device group before production; all scripts disconnect (`Disconnect-MgGraph` / `Disconnect-MgGraphCommunity`) and write structured logs.

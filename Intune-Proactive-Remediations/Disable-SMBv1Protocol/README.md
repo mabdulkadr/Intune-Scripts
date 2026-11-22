@@ -36,7 +36,7 @@ SMBv1 is a decades-old protocol with no modern security protections; it is the e
 ### 🔹 Verified Remediation
 * Runs `Set-SmbServerConfiguration -EnableSMB1Protocol 0` with a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Disables SMBv1 by setting `EnableSMB1Protocol` to `0`, using a pre-check → fix
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Disable-SMBv1Protocol\`
@@ -150,8 +150,8 @@ remediate-Disable-SMBv1Protocol.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Security impact:** disabling SMBv1 breaks access to legacy file shares, older NAS devices, and pre-Windows Vista/Server 2008 clients that still depend on it.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Security impact: disabling SMBv1 breaks access to legacy file shares, older NAS devices, and pre-Windows Vista/Server 2008 clients that still depend on it.
 * Inventory legacy dependencies on pilot devices before broad deployment.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

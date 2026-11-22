@@ -22,7 +22,7 @@ Detection intentionally reports non-compliant on every run and remediation displ
 
 **Stop Computer Immediate** is an Intune remediation package that forces a scheduled restart on managed devices.
 
-This is an always-trigger package by design: detection evaluates nothing and exits `1` on every run, so Intune invokes the remediation each cycle. The remediation shows a brief WPF restart notice (best-effort — it renders only in interactive sessions), then launches `shutdown.exe` with the original flags `/r /t 60 /d p:0:0`, giving users a 60-second grace period before Windows performs the restart.
+This is an always-trigger package by design: detection evaluates nothing and exits `1` on every run, so Intune invokes the remediation each cycle. The remediation shows a brief WPF restart notice (best effort, since it renders only in interactive sessions), then launches `shutdown.exe` with the original flags `/r /t 60 /d p:0:0`, giving users a 60-second grace period before Windows performs the restart.
 
 ---
 
@@ -30,7 +30,7 @@ This is an always-trigger package by design: detection evaluates nothing and exi
 
 ### 🔹 Always-Trigger Detection
 * No device state is evaluated; non-compliant is returned by design every cycle
-* Read-only — the detector never touches the system
+* Read-only: the detector never touches the system
 
 ### 🔹 Verified Remediation
 * Original mechanism preserved: hidden `shutdown.exe /r /t 60 /d p:0:0` via `Start-Process`
@@ -92,7 +92,7 @@ Shows the restart notice and schedules a restart in 60 seconds, using a pre-chec
 ### Logic
 1. Pre-check: confirm `%SystemRoot%\System32\shutdown.exe` exists
 2. Fix: show the WPF notice (best-effort), then launch `shutdown.exe /r /t 60 /d p:0:0` hidden and require exit code `0`
-3. Post-verify: confirm shutdown accepted and scheduled the restart — actual completion cannot be verified because the machine reboots within the timeout
+3. Post-verify: confirm shutdown accepted and scheduled the restart; actual completion cannot be verified because the machine reboots within the timeout
 
 ### Exit Codes
 | Code | Status |
@@ -112,7 +112,7 @@ Shows the restart notice and schedules a restart in 60 seconds, using a pre-chec
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Stop-ComputerImmediate\`
@@ -149,7 +149,7 @@ remediate-Stop-ComputerImmediate.ps1
 ---
 
 # 🛡 Operational Notes
-* **Warning:** this package force-schedules a restart without saving work — assign it only to carefully scoped device groups and maintenance schedules.
+* Warning: this package force-schedules a restart without saving work; assign it only to carefully scoped device groups and maintenance schedules.
 * The 60-second timeout gives users a short grace window; unsaved work follows the normal Windows shutdown flow.
 * In SYSTEM context (session 0) the notice dialog cannot render; the package logs a warning and proceeds with the restart.
 * Users can abort a pending restart manually with `shutdown /a` before the timeout elapses.

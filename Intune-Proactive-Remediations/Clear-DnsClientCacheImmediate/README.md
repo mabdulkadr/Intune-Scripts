@@ -30,7 +30,7 @@ This is an always-run maintenance package by design: detection never reports com
 
 ### 🔹 Always-Run Detection
 * Intentionally reports non-compliant so cleanup executes on every schedule cycle
-* Read-only — never modifies the system during detection
+* Read-only; it never modifies the system during detection
 * Detection errors exit `2` so Intune never treats a crash as non-compliance
 
 ### 🔹 Verified Remediation
@@ -66,7 +66,7 @@ detect-Clear-DnsClientCacheImmediate.ps1
 ```
 
 ### Purpose
-Scheduled-maintenance trigger — intentionally always non-compliant. Strictly read-only.
+Scheduled-maintenance trigger: intentionally always non-compliant. Strictly read-only.
 
 ### Logic
 1. Adds an unconditional "scheduled maintenance cleanup is due" reason on every evaluation
@@ -113,7 +113,7 @@ Flushes the Windows DNS client cache with `Clear-DnsClientCache`, using a pre-ch
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Clear-DnsClientCacheImmediate\`
@@ -150,7 +150,7 @@ remediate-Clear-DnsClientCacheImmediate.ps1
 ---
 
 # 🛡 Operational Notes
-* Always-run design — detection deliberately never exits `0`, so expect remediation to execute on every cycle.
+* Always-run design: detection deliberately never exits `0`, so expect remediation to execute on every cycle.
 * Idempotent: flushing an already-empty cache is a no-op and safe to repeat.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 * Frequent flushes briefly clear cached name resolutions; clients re-resolve automatically.

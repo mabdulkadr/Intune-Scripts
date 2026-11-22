@@ -90,10 +90,10 @@ Run from an elevated prompt after Delivery Optimization download stalls to repai
 * PowerShell **5.1 or later** (`#Requires -Version 5.1`)
 
 ### Modules
-* No Graph modules required — local execution only.
+* No Graph modules required; the script runs locally.
 
 ### Permissions
-* Run from an **elevated** console — local administrator rights required. No Graph permissions required; inspects services, registry, and network state locally.
+* Run from an **elevated** console; local administrator rights are required. No Graph permissions required; the script inspects services, registry, and network state locally.
 
 ### Logging
 * `C:\ProgramData\DeliveryOptimization\Logs`
@@ -103,7 +103,7 @@ Run from an elevated prompt after Delivery Optimization download stalls to repai
 # 🛡️ Operational Notes
 
 * This tool modifies the system by design: it starts DoSvc and switches Teredo to `enterpriseclient` mode when they are unhealthy.
-* Purely local execution — no Microsoft Graph calls, no tenant data accessed.
+* Purely local execution with no Microsoft Graph calls and no tenant data accessed.
 * Port tests target `www.microsoft.com`; endpoint tests use a 10-second timeout per URL.
 * A missing bandwidth-policy registry key is reported as informational (defaults in use), not as an error.
 * Rerun after repairs to confirm Teredo reaches qualified state.

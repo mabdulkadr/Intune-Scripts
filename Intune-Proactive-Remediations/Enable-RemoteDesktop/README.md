@@ -36,7 +36,7 @@ Remote Desktop access is only supportable at fleet scale when it is configured u
 ### 🔹 Verified Remediation
 * Sets the three registry values (DWORD), updates or creates both inbound firewall rules with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables Remote Desktop, NLA, and RDP UDP support, then ensures both inbound port
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Enable-RemoteDesktop\`
@@ -150,8 +150,8 @@ remediate-Enable-RemoteDesktop.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Exposure warning:** enabling RDP opens inbound TCP/UDP port 3389. Restrict the `$RemoteAddress` scope in the script configuration instead of `Any` where your network design allows it.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Exposure warning: enabling RDP opens inbound TCP/UDP port 3389. Restrict the `$RemoteAddress` scope in the script configuration instead of `Any` where your network design allows it.
 * Network Level Authentication (`UserAuthentication = 1`) stays enforced to reduce pre-authentication attack surface.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

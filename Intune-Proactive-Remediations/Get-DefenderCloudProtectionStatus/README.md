@@ -36,7 +36,7 @@ Cloud-delivered protection (MAPS) blocks emerging threats in seconds by sharing 
 ### 🔹 Verified Remediation
 * Runs `Set-MpPreference -MAPSReporting Advanced` and `-SubmitSamplesConsent SendAllSamples` with a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables cloud-delivered protection by setting `MAPSReporting` to `Advanced` and 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DefenderCloudProtectionStatus\`
@@ -150,8 +150,8 @@ remediate-Get-DefenderCloudProtectionStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* `SubmitSamplesConsent = 3` sends all samples, potentially including personal data — confirm your privacy/compliance posture allows full sample submission before fleet-wide rollout.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* `SubmitSamplesConsent = 3` sends all samples, potentially including personal data; confirm your privacy/compliance posture allows full sample submission before fleet-wide rollout.
 * Third-party antivirus products can make `Get-MpPreference` unavailable; such environments will report detection errors as exit `2`.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

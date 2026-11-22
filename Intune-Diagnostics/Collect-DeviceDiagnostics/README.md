@@ -4,7 +4,7 @@
 
 **Triggers Intune remote diagnostics collection and downloads diagnostic ZIPs.**
 
-Starts `Collect diagnostics` on Windows devices by name or Entra group, polls to completion, and downloads ZIP packages — built for troubleshooting at scale.
+Starts `Collect diagnostics` on Windows devices by name or Entra group, polls to completion, and downloads ZIP packages.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -26,7 +26,7 @@ Starts `Collect diagnostics` on Windows devices by name or Entra group, polls to
 
 # ✨ Features
 
-* Targets Windows 10/11 devices only — non-Windows devices are skipped with a warning
+* Targets Windows 10/11 devices only; non-Windows devices are skipped with a warning
 * Two modes: trigger new collection (`createDeviceLogCollectionRequest` with `templateType = predefined`) and `DownloadExisting` mode (`createDownloadUrl` for pre-authenticated Azure Storage link)
 * Polls every 30s until `completed`/`failed` or `-TimeoutMinutes` (default 15, max 120); timed-out devices remain pending and can be fetched later with `-DownloadExisting`
 * Group targeting resolves Entra group `members` -> `deviceId` -> Intune `azureADDeviceId` with full pagination
@@ -89,7 +89,7 @@ Collects diagnostics from all Windows devices in the group and saves ZIPs to `C:
 * PowerShell **5.1 or later**
 
 ### Permissions
-* `DeviceManagementManagedDevices.ReadWrite.All` (listing and creating log collection requests requires ReadWrite — read-only scopes are rejected) + `GroupMember.Read.All` for group targeting.
+* `DeviceManagementManagedDevices.ReadWrite.All` (listing and creating log collection requests requires ReadWrite, so read-only scopes are rejected) + `GroupMember.Read.All` for group targeting.
 
 ### Logging
 * `C:\ProgramData\collect-device-diagnostics\Logs\`
@@ -98,9 +98,9 @@ Collects diagnostics from all Windows devices in the group and saves ZIPs to `C:
 
 # 🛡 Operational Notes
 
-* **Targeting:** specify exactly one target — `-DeviceNames` **or** `-GroupName`; group members are resolved via Entra `members` -> `deviceId` -> Intune `azureADDeviceId`; non-Windows devices are skipped.
-* **Modes:** without `-DownloadExisting` the script POSTs `createDeviceLogCollectionRequest` per device (`templateType = predefined`) and polls every 30s; with `-DownloadExisting` it lists `logCollectionRequests`, picks the newest `completed` (`receivedDateTimeUTC` / `requestedDateTimeUTC`), and calls `createDownloadUrl` — the URL is a pre-authenticated Azure Storage link fetched via `Invoke-WebRequest`, not `Invoke-MgGraphRequest`.
-* **Timeout / drift thresholds:** `-TimeoutMinutes` defaults to 15 (max 120); devices that do not complete within the timeout remain in `pendingRequests` and are reported as failures/timeouts — re-run later with `-DownloadExisting` to fetch the package once the device comes online.
+* Targeting: specify exactly one target, `-DeviceNames` or `-GroupName`. Group members are resolved via Entra `members` -> `deviceId` -> Intune `azureADDeviceId`; non-Windows devices are skipped.
+* Modes: without `-DownloadExisting` the script POSTs `createDeviceLogCollectionRequest` per device (`templateType = predefined`) and polls every 30s. With `-DownloadExisting` it lists `logCollectionRequests`, picks the newest `completed` (`receivedDateTimeUTC` / `requestedDateTimeUTC`), and calls `createDownloadUrl`. The URL is a pre-authenticated Azure Storage link fetched via `Invoke-WebRequest`, not `Invoke-MgGraphRequest`.
+* Timeout / drift thresholds: `-TimeoutMinutes` defaults to 15 (max 120); devices that do not complete within the timeout remain in `pendingRequests` and are reported as failures/timeouts. Re-run later with `-DownloadExisting` to fetch the package once the device comes online.
 * Beta Graph endpoints are used for the log collection surface; paging handles `429` with 60s backoff; logs are written via `Initialize-Log` / `Write-Banner` / `Write-Log`.
 * `-OutputPath` defaults to the script directory (Law 12); test in a staging group before production.
 

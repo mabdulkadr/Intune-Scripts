@@ -29,8 +29,8 @@ The script sweeps the uninstall registry keys (HKLM machine-wide by default, HKC
 # ✨ Features
 
 ### 🔹 Two Discovery Modes
-* Install check only — `true` / `false` per application
-* Version mode — returns the installed display version, `0.0.0.0` when absent
+* Install check only: `true` / `false` per application
+* Version mode: returns the installed display version, `0.0.0.0` when absent
 
 ### 🔹 Flexible Hive Targeting
 * `$UserProfileApp = $false` → HKLM (64-bit + WOW6432Node views)
@@ -81,7 +81,7 @@ Exit Codes (compliance is carried by the JSON, not the exit code)
 | ---- | ------ |
 | 0    | Discovery completed — JSON emitted (true/false, or fallback JSON on error) |
 
-The script never exits non-zero and never writes plain text to stdout — both surface as Error 65009.
+The script never exits non-zero and never writes plain text to stdout; both surface as Error 65009.
 
 The companion `App-Presence-Compliance.json` defines the validation rules Intune applies to those properties: expected value, operator, more-info URL, and the non-compliance message.
 
@@ -109,7 +109,7 @@ Configuration lives at the top of the script (Intune runs discovery scripts para
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `C:\ProgramData\Get-AppPresenceCompliance\Logs`
@@ -133,9 +133,9 @@ Configuration lives at the top of the script (Intune runs discovery scripts para
 
 # 🛡 Operational Notes
 * Application names are matched case-sensitively and must match Programs and Features exactly.
-* Keep the application list short — every entry adds registry-matching work on each sync.
+* Keep the application list short: every entry adds registry-matching work on each sync.
 * The JSON property names here must align 1:1 with the rule file; renaming an app requires updating both files.
-* `65009 (Invalid json)` means stdout was polluted — verify locally with `& .\Get-AppPresenceCompliance.ps1 *>&1` (expect 1 line, valid JSON, exit 0) and re-upload the fixed script.
+* `65009 (Invalid json)` means stdout was polluted. Verify locally with `& .\Get-AppPresenceCompliance.ps1 *>&1` (expect 1 line, valid JSON, exit 0) and re-upload the fixed script.
 
 ---
 

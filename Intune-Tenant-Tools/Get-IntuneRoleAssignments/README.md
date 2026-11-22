@@ -4,7 +4,7 @@
 
 **Audits Intune RBAC — who has which roles, scopes, and members.**
 
-Enumerates role definitions and assignments with resolved users and groups for access reviews — built for RBAC hygiene.
+Enumerates role definitions and assignments with resolved users and groups for access reviews.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -51,7 +51,7 @@ Get-IntuneRoleAssignments
 ```powershell
 .\Get-IntuneRoleAssignments.ps1
 ```
-Shows all Intune role assignments — built-in and custom — with resolved members.
+Shows all Intune role assignments, built-in and custom, with resolved members.
 
 ### With Parameters
 ```powershell
@@ -100,7 +100,7 @@ Shows all roles including empty ones and exports the flattened report to CSV bes
 
 # 🛡 Operational Notes
 
-* **RBAC export sensitivity:** output resolves and exports Intune role membership (users, groups, scopes) — treat the CSV as sensitive and restrict distribution; use `-ShowEmptyRoles` only for completeness reviews.
+* **RBAC export sensitivity:** output resolves and exports Intune role membership (users, groups, scopes); treat the CSV as sensitive and restrict distribution. Use `-ShowEmptyRoles` only for completeness reviews.
 * Per-assignment `$expand=roleDefinition` is fetched individually because the list endpoint does not link assignments to roles; throttled principal lookups retry once after 60s.
 * Assignment dates may not be available for older assignments.
 * **Backup depth 25 and Restore ShouldProcess (tenant governance):** RBAC data is not part of configuration backup; companion backup uses `ConvertTo-Json -Depth 25` and restore is gated by `SupportsShouldProcess` / `-WhatIf`.

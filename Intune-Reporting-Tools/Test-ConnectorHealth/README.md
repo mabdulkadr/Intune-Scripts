@@ -22,7 +22,7 @@ This script checks the health of all tenant-level Intune connectors in a single 
 
 **Check Connector Health** is a PowerShell reporting script that This script checks the health of all tenant-level Intune connectors in a single run: Apple push notification certificate and DEP token expiry and sync state, VPP tokens, the Managed Google Play binding and app sync status, NDES and certificate connectors, and Mobile Threat Defense partner connectors with their heart...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -106,9 +106,9 @@ Uses a 60-day warning window and exports the report to CSV
 ---
 
 # 🛡 Operational Notes
-* Graph beta endpoints are used — most Intune reporting surfaces are not exposed on `v1.0`; ensure permissions are consented before scheduling.
+* Graph beta endpoints are used because most Intune reporting surfaces are not exposed on `v1.0`; ensure permissions are consented before scheduling.
 * Use `-OutputPath` anchored beside the script to locate reports reliably regardless of caller working directory.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

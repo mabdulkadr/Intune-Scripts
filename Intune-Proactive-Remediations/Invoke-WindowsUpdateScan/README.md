@@ -22,7 +22,7 @@ Detection queries the update services through the PSWindowsUpdate module and fla
 
 **Invoke Windows Update Scan** is an Intune remediation package that closes Windows Update gaps on managed devices.
 
-Both scripts share the same configuration block: an update source (`MicrosoftUpdate`), selectable update types, categories, severities, and include/exclude KB article ID lists — empty selections target everything available. The detection script scans read-only (installing PSWindowsUpdate first when missing, as in the legacy pair); when matching updates are pending, the paired remediation installs them via `Install-WindowsUpdate` without forcing a reboot, then checks the standard registry indicators for a pending restart.
+Both scripts share the same configuration block: an update source (`MicrosoftUpdate`), selectable update types, categories, severities, and include/exclude KB article ID lists; empty selections target everything available. The detection script scans read-only (installing PSWindowsUpdate first when missing, as in the legacy pair); when matching updates are pending, the paired remediation installs them via `Install-WindowsUpdate` without forcing a reboot, then checks the standard registry indicators for a pending restart.
 
 ---
 
@@ -116,7 +116,7 @@ Installs matching Windows updates and reports reboot state, using a pre-check �
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 * Access to the PowerShell Gallery is needed when PSWindowsUpdate must be installed.
 
 ### Logging
@@ -154,9 +154,9 @@ remediate-Invoke-WindowsUpdateScan.ps1
 ---
 
 # 🛡 Operational Notes
-* `$AutoRebootAfterInstall` stays `$false`: installed updates wait for a normal restart cycle — plan reboot enforcement separately.
+* `$AutoRebootAfterInstall` stays `$false`: installed updates wait for a normal restart cycle; plan reboot enforcement separately.
 * A successful remediation means the install run finished cleanly; updates can still be pending application until the device reboots.
-* Both scripts share the selection arrays — keep them identical so detection and remediation always agree on scope.
+* Both scripts share the selection arrays; keep them identical so detection and remediation always agree on scope.
 * The update scan can take several minutes on devices with large backlogs; schedule accordingly.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

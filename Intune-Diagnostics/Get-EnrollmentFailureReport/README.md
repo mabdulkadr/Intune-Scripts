@@ -4,7 +4,7 @@
 
 **Reports enrollment and Autopilot failures with plain-language explanations.**
 
-Reads `troubleshootingEvents` and `autopilotEvents` to group failures by category and translate codes into fixes — no portal click-through.
+Reads `troubleshootingEvents` and `autopilotEvents` to group failures by category and translate codes into fixes without portal click-through.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -97,8 +97,8 @@ Reports the last 7 days including Autopilot deployment events (`deploymentState`
 
 # 🛡 Operational Notes
 
-* **Retention / timeout:** troubleshooting events are retained by Intune for a limited period — older failures may no longer be available; the script filters with `eventDateTime ge <cutoff>` where cutoff is `Now - DaysBack` (1-180, default 30).
-* **Autopilot drift:** add `-IncludeAutopilotEvents "true"` to also list `autopilotEvents` within the same window, showing `deploymentState` / `enrollmentState` per serial; outputs are grouped by `failureCategory` with explanations.
+* Retention / timeout: troubleshooting events are retained by Intune for a limited period, so older failures may no longer be available; the script filters with `eventDateTime ge <cutoff>` where cutoff is `Now - DaysBack` (1-180, default 30).
+* Autopilot drift: add `-IncludeAutopilotEvents "true"` to also list `autopilotEvents` within the same window, showing `deploymentState` / `enrollmentState` per serial; outputs are grouped by `failureCategory` with explanations.
 * User principal names are resolved from `userId` on the event whenever possible; missing users show as ID.
 * Beta Graph endpoints are used for troubleshooting and Autopilot events; paging handles `429` with 60s backoff.
 * `-OutputPath` defaults to the script directory (Law 12); logs via `Initialize-Log` / `Write-Banner`; test in staging before production.

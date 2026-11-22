@@ -94,7 +94,7 @@ Shows exactly which Intune managed-device records would be deleted, without dele
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.ReadWrite.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.ReadWrite.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\cleanup-duplicate-device-records\Logs`
@@ -103,7 +103,7 @@ Shows exactly which Intune managed-device records would be deleted, without dele
 
 # 🛡️ Operational Notes
 
-* **Duplicate purge — keeper selection is deterministic.** `Remove-DuplicateDeviceRecords.ps1` keeps the record with the most recent `lastSyncDateTime` (falling back to `enrolledDateTime`) per trimmed serial number and marks all older records stale. Placeholder serials (`""`, `"Defaultstring"`, `"ToBeFilledByOEM"`, `"SystemSerialNumber"`, `"0"`, `"none"`, `"unknown"`) are excluded. Default is report-only; deletion requires `-Remove "true"` (supports `-WhatIf`). Deleting an Intune record does not wipe the device — it only removes the stale management object; Entra device objects and Autopilot registrations are never touched.
+* Keeper selection for the duplicate purge is deterministic. `Remove-DuplicateDeviceRecords.ps1` keeps the record with the most recent `lastSyncDateTime` (falling back to `enrolledDateTime`) per trimmed serial number and marks all older records stale. Placeholder serials (`""`, `"Defaultstring"`, `"ToBeFilledByOEM"`, `"SystemSerialNumber"`, `"0"`, `"none"`, `"unknown"`) are excluded. Default is report-only; deletion requires `-Remove "true"` (supports `-WhatIf`). Deleting an Intune record does not wipe the device; it only removes the stale management object. Entra device objects and Autopilot registrations are never touched.
 * Run with `-WhatIf` first, export the report, and review keeper logic before destructive runs.
 * Graph throttling (429) is honored with back-off.
 

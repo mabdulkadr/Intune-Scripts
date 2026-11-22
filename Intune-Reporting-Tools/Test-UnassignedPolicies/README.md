@@ -22,7 +22,7 @@ This script connects to Microsoft Graph and retrieves all device configuration p
 
 **Check Unassigned Policies** is a PowerShell reporting script that This script connects to Microsoft Graph and retrieves all device configuration policies configured in Intune, then checks which policies have no assignments to users, groups, or devices. Unassigned policies represent potential configuration drift, unused resources, or incomplete policy deployment. The script generat...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -112,9 +112,9 @@ Generates report for policies created in the last 7 days
 ---
 
 # 🛡 Operational Notes
-* Graph beta endpoints are used — most Intune reporting surfaces are not exposed on `v1.0`; ensure permissions are consented before scheduling.
+* Graph beta endpoints are used because most Intune reporting surfaces are not exposed on `v1.0`; ensure permissions are consented before scheduling.
 * Use `-OutputPath` anchored beside the script to locate reports reliably regardless of caller working directory.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

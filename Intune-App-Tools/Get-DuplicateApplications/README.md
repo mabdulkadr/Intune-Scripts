@@ -4,7 +4,7 @@
 
 **Identifies and reports duplicate applications across all managed applications in Intune.**
 
-Scans every app uploaded to Intune, normalizes names, and flags duplicates — same name with different publishers, name variations, or different app types — exporting CSV and HTML to drive catalog hygiene.
+Scans every app uploaded to Intune, normalizes names, and flags duplicates with the same name but different publishers, name variations, or different app types. It exports CSV and HTML to drive catalog hygiene.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Scans every app uploaded to Intune, normalizes names, and flags duplicates — s
 
 **Get-DuplicateApplications** is a PowerShell script that finds duplicate applications in the Intune app catalog.
 
-It pages all mobile apps via Microsoft Graph beta with selective fields, normalizes display names (stripping architecture suffixes, collapsing whitespace, lowercasing), groups by normalized name, and classifies duplicates into three types: multiple publishers for the same normalized name, multiple original name variations (case, spacing), and multiple app types for the same name. Results are surfaced as detailed per-app CSV rows and a grouped HTML report with badges and summary counts. Supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
+It pages all mobile apps via Microsoft Graph beta with selective fields, normalizes display names (stripping architecture suffixes, collapsing whitespace, lowercasing), groups by normalized name, and classifies duplicates into three types: multiple publishers for the same normalized name, multiple original name variations (case, spacing), and multiple app types for the same name. Results are surfaced as detailed per-app CSV rows and a grouped HTML report with badges and summary counts. The script supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
 
 ---
 
@@ -109,7 +109,7 @@ Forces module installation without prompting and generates the report.
 
 # 🛡 Operational Notes
 
-* Read-only reporting — analyzes the Intune app catalog only and creates no tenant objects.
+* Read-only reporting that analyzes the Intune app catalog only and creates no tenant objects.
 * Analyzes applications uploaded to Intune, not device-installed application instances.
 * Duplicate detection uses normalized names; review the grouped HTML view before any catalog merges.
 * Uses beta Graph endpoints; paging honors HTTP 429 with a 60-second pause and preserves single-element arrays.

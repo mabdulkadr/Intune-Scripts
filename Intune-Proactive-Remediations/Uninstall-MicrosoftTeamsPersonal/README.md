@@ -22,7 +22,7 @@ Detection enumerates AppX packages for all users looking for `MicrosoftTeams` an
 
 **Uninstall Microsoft Teams Personal** is an Intune remediation package that removes the Store/AppX form of the Teams personal client across managed devices.
 
-Organizations that standardize on enterprise messaging clients frequently want the consumer Teams preview gone from user-facing devices. The detection script runs `Get-AppxPackage -Name MicrosoftTeams -AllUsers` read-only; when any instance exists, Intune runs the paired remediation, which removes each discovered package — preferring the `-AllUsers` parameter when the cmdlet supports it — and then verifies no instance remains. The new Teams client (`MSTeams`) is not evaluated or touched by this pair.
+Organizations that standardize on enterprise messaging clients frequently want the consumer Teams preview gone from user-facing devices. The detection script runs `Get-AppxPackage -Name MicrosoftTeams -AllUsers` read-only; when any instance exists, Intune runs the paired remediation, which removes each discovered package, preferring the `-AllUsers` parameter when the cmdlet supports it, and then verifies no instance remains. The new Teams client (`MSTeams`) is not evaluated or touched by this pair.
 
 ---
 
@@ -113,7 +113,7 @@ Removes every discovered MicrosoftTeams AppX instance, using a pre-check → fix
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * `-AllUsers` queries require an elevated (SYSTEM/Administrator) context.
 
 ### Logging
@@ -151,7 +151,7 @@ remediate-Uninstall-MicrosoftTeamsPersonal.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * Targets the Store/AppX Teams client only; the new Teams client (`MSTeams`) and the machine-wide installer are intentionally out of scope.
 * Windows may reprovision removed Store apps on feature updates; keep the remediation assigned to recur.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

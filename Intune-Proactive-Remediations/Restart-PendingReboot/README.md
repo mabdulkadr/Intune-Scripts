@@ -42,7 +42,7 @@ Signals inspected:
 ### 🔹 Verified Remediation
 * Schedules restart with user notification (pre-check → schedule → post-verify)
 * Emits structured JSON result
-* Idempotent — already-compliant or recently-rebooted devices exit `0`
+* Idempotent: already-compliant or recently-rebooted devices exit `0`
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines
@@ -120,7 +120,7 @@ Schedules a system restart with user warning when detection flagged an actionabl
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Restart-PendingReboot\`
@@ -158,9 +158,9 @@ remediate-Restart-PendingReboot.ps1
 ---
 
 # 🛡 Operational Notes
-* `$MinimumUptimeDays` avoids flagging devices that just rebooted but picked up a new pending flag — keep it in sync between both scripts.
+* `$MinimumUptimeDays` avoids flagging devices that just rebooted but picked up a new pending flag; keep it in sync between both scripts.
 * `PendingFileRenameOperations` is common after installs; uptime gating prevents noise.
-* Remediation uses a timed `shutdown` — user sees a notification; no forced immediate reboot.
+* Remediation uses a timed `shutdown`, so the user sees a notification; there is no forced immediate reboot.
 * Detection errors exit `2` so a crash is never treated as non-compliance.
 * Test on a pilot group to tune the uptime threshold for your fleet.
 

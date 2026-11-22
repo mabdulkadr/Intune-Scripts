@@ -36,7 +36,7 @@ The detection script resolves the Winget executable (App Installer package, Wind
 ### 🔹 Verified Remediation
 * Silent full upgrade (`--all --force --silent`) with package and source agreements accepted
 * Full output capture to the log plus pre-check → fix → post-verify flow with JSON result output
-* Idempotent — no pending upgrades means nothing to do
+* Idempotent: no pending upgrades means nothing to do
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -116,7 +116,7 @@ Upgrades all packages that Winget considers eligible, using a pre-check → fix 
 * The **Winget client (App Installer)** must be present on the device; both scripts treat its absence as "nothing to do".
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Update-WingetPackages\`
@@ -153,9 +153,9 @@ remediate-Update-WingetPackages.ps1
 ---
 
 # 🛡 Operational Notes
-* **Winget upgrades can restart or interrupt running applications** — schedule remediations outside business hours where possible.
+* Winget upgrades can restart or interrupt running applications; schedule remediations outside business hours where possible.
 * Some packages never appear in `winget upgrade` (portable EXEs with unknown versions, MS Store-managed apps); those stay on whatever update channel they use natively.
-* A non-zero Winget exit code fails the run even though some packages may have upgraded successfully — check the log for the failing package.
+* A non-zero Winget exit code fails the run even though some packages may have upgraded successfully; check the log for the failing package.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

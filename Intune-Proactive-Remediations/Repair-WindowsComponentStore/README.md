@@ -30,14 +30,14 @@ The detection script checks the three Windows pending-reboot indicators (Compone
 
 ### 🔹 Read-Only Detection
 * Checks CBS `RebootPending`, Windows Update `RebootRequired`, and pending file rename operations
-* Runs `DISM /CheckHealth` (flag inspection only — never modifies the store)
+* Runs `DISM /CheckHealth` (flag inspection only; never modifies the store)
 * Reports every unmet condition before triggering remediation
 
 ### 🔹 Verified Remediation
 * Runs `DISM /Online /Cleanup-Image /RestoreHealth` with the original no-timeout wait
 * Runs `SFC /scannow` and classifies its output (no violations / repaired / unable to fix)
 * Emits structured JSON result output for Intune diagnostics; preserves legacy exit code `3010` when a reboot is pending
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -115,7 +115,7 @@ Repairs the component store and system files with `DISM /RestoreHealth` and `SFC
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Repair-WindowsComponentStore\`
@@ -152,7 +152,7 @@ remediate-Repair-WindowsComponentStore.ps1
 ---
 
 # 🛡 Operational Notes
-* Component store repairs can take 15+ minutes — schedule remediations accordingly.
+* Component store repairs can take 15+ minutes; schedule remediations accordingly.
 * A reboot may be required after repairs; exit code `3010` signals this without failing the remediation.
 * If SFC reports it could not fix some files, review `CBS.log` on the device.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

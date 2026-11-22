@@ -22,7 +22,7 @@ This script connects to Microsoft Graph API, retrieves all macOS devices from In
 
 **Check File Vault Keys** is a PowerShell reporting script that This script connects to Microsoft Graph API, retrieves all macOS devices from Intune, and checks if each device has FileVault recovery keys stored in Intune. The script provides detailed reporting on compliance status, identifies devices without stored keys, and exports comprehensive results to CSV format for furthe...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -114,8 +114,8 @@ Includes last sync information and exports results in JSON format as well
 ---
 
 # 🛡 Operational Notes
-* Per-device key checks are paced at 100 ms with 429 retry and 60 s backoff; large estates (thousands of devices) will take several minutes — use `-OnlyShowMissing` and `-ShowProgress` to reduce noise.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Per-device key checks are paced at 100 ms with 429 retry and 60 s backoff; large estates (thousands of devices) will take several minutes. Use `-OnlyShowMissing` and `-ShowProgress` to reduce noise.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

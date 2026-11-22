@@ -20,7 +20,7 @@ Reads XProtect bundle versions via PlistBuddy and queries `csrutil`, `spctl`, an
 
 # 📖 Overview
 
-**Check XProtect and Security Status** is a bash shell script for Intune-managed macOS. This script inventories macOS platform security: it reads `CFBundleShortVersionString` from `XProtect.bundle`, `XProtect.app`, and `MRT.app` via `/usr/libexec/PlistBuddy`, then checks `csrutil status` (SIP), `spctl --status` (Gatekeeper), and `fdesetup status` (FileVault). Output is `macOS: X | XProtect: vY | XProtect Remediator: vZ | MRT: vW | Security: SIP:Enabled,GK:Enabled,FV:Enabled` — one line for Intune custom attributes.
+**Check XProtect and Security Status** is a bash shell script for Intune-managed macOS. This script inventories macOS platform security: it reads `CFBundleShortVersionString` from `XProtect.bundle`, `XProtect.app`, and `MRT.app` via `/usr/libexec/PlistBuddy`, then checks `csrutil status` (SIP), `spctl --status` (Gatekeeper), and `fdesetup status` (FileVault). Output is `macOS: X | XProtect: vY | XProtect Remediator: vZ | MRT: vW | Security: SIP:Enabled,GK:Enabled,FV:Enabled`, one line for Intune custom attributes.
 
 Designed as an **Intune custom attribute** (single-line stdout) and as an **Intune macOS shell script profile**; it is read-only and exits 0 via `output_result` for reliable inventory.
 
@@ -28,9 +28,9 @@ Designed as an **Intune custom attribute** (single-line stdout) and as an **Intu
 
 # ✨ Features
 
-* **Bundle version reads** — `get_plist_value` helper wraps PlistBuddy with `Print :CFBundleShortVersionString` and fallback to `Unknown`.
-* **OS security checks** — parses `csrutil status`, `spctl --status`, and `fdesetup status` into compact `SIP/GK/FV` tokens.
-* **Root-guarded** — `check_root` fails fast with `Error: Root access required` when not running as root (required for `csrutil`/`fdesetup`).
+* The `get_plist_value` helper wraps PlistBuddy with `Print :CFBundleShortVersionString` and falls back to `Unknown`.
+* Parses `csrutil status`, `spctl --status`, and `fdesetup status` into compact `SIP/GK/FV` tokens.
+* `check_root` fails fast with `Error: Root access required` when not running as root (required for `csrutil`/`fdesetup`).
 
 Additional details:
 
@@ -99,7 +99,7 @@ for s in ./*.sh; do echo "== $s =="; chmod +x "$s"; "$s"; echo; done
 
 # ⚙️ Parameters
 
-This script has **no parameters** — it is a read-only check with no configuration flags.
+This script has no parameters. It is a read-only check with no configuration flags.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -122,7 +122,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Shell
 
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities
 
 ### Intune
 
@@ -135,11 +135,11 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Dependencies
 
-* No external modules — uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted
+* Uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted. No external modules.
 
 ### Logging
 
-* Not applicable — read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty
+* Not applicable. This is a read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty.
 
 ---
 
@@ -147,7 +147,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 * Apple Silicon vs Intel: runs identically; `csrutil`/`spctl`/`fdesetup` are universal.
 * Rosetta: not required.
-* FileVault: reported as `FV:Enabled/Disabled` — script does not modify FileVault state.
+* FileVault: reported as `FV:Enabled/Disabled`; the script does not modify FileVault state.
 * Single-line contract: `macOS: ... | XProtect: ... | Security: ...`.
 * Idempotent & read-only: rerunning never modifies system state.
 * Test in staging: validate on both Intel and Apple Silicon devices in a pilot group before tenant-wide assignment.

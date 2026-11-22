@@ -118,11 +118,11 @@ Flags tokens expiring within 14 days and writes the CSV to a specific directory.
 
 # 🛡 Operational Notes
 
-* Read-only reporting — creates no tenant objects and purchases no licenses.
+* Read-only reporting that creates no tenant objects and purchases no licenses.
 * Tenants without Apple VPP (Apps and Books) configured will report zero tokens and zero VPP apps, which is expected.
 * License counts come from `iosVppApp` and `macOsVppApp` usedLicenseCount and totalLicenseCount properties.
 * Uses beta Graph endpoints because VPP license properties are exposed there; honors HTTP 429 with a 60-second pause.
-* An expired VPP token silently breaks app installs — treat token warnings as high priority and renew in Apple Business Manager.
+* An expired VPP token silently breaks app installs. Treat token warnings as high priority and renew in Apple Business Manager.
 
 ---
 

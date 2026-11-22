@@ -36,7 +36,7 @@ Detection is strictly read-only; remediation performs the deletions and verifies
 ### 🔹 Verified Remediation
 * Clears Windows Temp, user Temps, and empties Recycle Bin (pre-check → fix → post-verify)
 * Emits structured JSON result
-* Idempotent — safe on every run
+* Idempotent: safe on every run
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines
@@ -113,7 +113,7 @@ Clears temp folders and Recycle Bin when detection flagged excess space.
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required. SYSTEM can enumerate all user temp folders.
+* Runs in local SYSTEM context via Intune with no Graph permissions required. SYSTEM can enumerate all user temp folders.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Invoke-DiskCleanup\` (and legacy `disk-cleanup`)
@@ -150,7 +150,7 @@ remediate-Invoke-DiskCleanup.ps1
 ---
 
 # 🛡 Operational Notes
-* Threshold is `1GB` — adjust `$threshold` in both scripts if a different limit is needed (keep them in sync).
+* Threshold is `1GB`. Adjust `$threshold` in both scripts if a different limit is needed (keep them in sync).
 * Remediation deletes temp files aggressively; test on a pilot group first.
 * Detection handles unreadable paths as 0 bytes and continues.
 * Detection errors exit `2` so Intune never treats a crash as non-compliance.

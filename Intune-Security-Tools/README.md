@@ -20,9 +20,9 @@
 
 **Intune Security Tools** is a focused collection of workstation-run auditing and rotation scripts for encryption and endpoint protection in Microsoft Intune.
 
-The category covers BitLocker and FileVault key lifecycle, Windows LAPS escrow, Microsoft Defender health, and endpoint security policy coverage (Firewall, Attack Surface Reduction, Antivirus, Disk Encryption, EDR, Account Protection). Every script runs **LocalOnly from an admin workstation** via Microsoft Graph — interactive delegated sign-in (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId` / `-ClientId` / `-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation dependency.
+The category covers BitLocker and FileVault key lifecycle, Windows LAPS escrow, Microsoft Defender health, and endpoint security policy coverage (Firewall, Attack Surface Reduction, Antivirus, Disk Encryption, EDR, Account Protection). Every script runs LocalOnly from an admin workstation through Microsoft Graph, using interactive delegated sign-in (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId` / `-ClientId` / `-ClientSecret` or `-CertificateThumbprint`), with no Azure Automation dependency.
 
-> **Vault-destination note:** `Backup-BitLockerKeysToKeyVault.ps1` legitimately touches **Azure Key Vault** (`https://vault.azure.net`) as a **RESOURCE** — a vault-destination for escrowed BitLocker secrets — not as an Automation runbook. See Operational Notes.
+> Vault-destination note: `Backup-BitLockerKeysToKeyVault.ps1` writes to Azure Key Vault (`https://vault.azure.net`) as a resource and destination for escrowed BitLocker secrets, not as an Automation runbook. See Operational Notes.
 
 ---
 
@@ -84,7 +84,7 @@ Intune-Security-Tools
 
 ### Modules
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
-* No `Az` modules required — Key Vault is accessed via REST
+* No `Az` modules required; Key Vault is accessed via REST
 
 ### Permissions
 * Per-script Graph permissions as listed above (least-privilege; consent on first interactive sign-in or pre-consent via Entra Enterprise Applications)
@@ -92,19 +92,19 @@ Intune-Security-Tools
 * Intune Administrator or equivalent role for LAPS credential metadata
 
 ### Run Context
-* **LocalOnly** — run from an admin workstation, not from an Intune device context or Azure Automation runbook
+* LocalOnly: run from an admin workstation, not from an Intune device context or Azure Automation runbook
 
 ---
 
 # 🛡 Operational Notes
 
-* **BitLocker rotation — `DryRun` / `Force`:** `Rotate-BitLockerRecoveryKeys.ps1` defaults to an interactive confirmation gate. Use `-DryRun "true"` to list the Windows devices that *would* be targeted without rotating any keys. Use `-Force "true"` to skip the prompt for unattended / scripted runs (still workstation-run, not Automation). Rotation is throttled with one automatic retry after 60s on `429`.
-* **macOS FileVault rotation — `TestMode` / `Force`:** `Rotate-MacOsFileVaultPasswords.ps1` supports `-TestMode "true"` (no rotation, reports intent) and `-DeviceLimit` for controlled rollouts. `-Force "true"` skips the confirmation prompt. Personal (`ownerType == personal`) devices are skipped — LAPS rotation is not supported on personal devices. Throttling is retried once after 60s.
-* **Windows LAPS audit — `azureADDeviceId` cross-reference:** `Get-WindowsLapsAudit.ps1` indexes Entra `deviceLocalCredentials` by `id` (which is the Entra device ID) and joins to Intune `managedDevices` via `azureADDeviceId`. Devices without escrow, stale passwords (`-MaxPasswordAgeDays`, default 60), and `EscrowedNoTimestamp` are reported separately. Status buckets: `Healthy` / `Stale` / `NotEscrowed` / `EscrowedNoTimestamp`.
-* **Azure Key Vault — audience warning:** `Backup-BitLockerKeysToKeyVault.ps1` acquires **two separate tokens with different audiences**: a device-code token for `https://vault.azure.net/user_impersonation` (Key Vault) and a browser token for Graph (`DeviceManagementManagedDevices.Read.All`, `BitlockerKey.Read.All`). One token cannot serve both resources. The script switches `MgGraphCommunity` sessions per call (`Select-MgGraphCommunityContext`) and restores the Graph session after each Key Vault `PUT`. Secret names are sanitized (`[^a-zA-Z0-9-] → -`) and carry a stable `-{VolumeType}` suffix; `-OverwriteExisting` honors existing secret versions.
-* **Defender report — per-device cost:** `Get-DefenderStatusReport.ps1` issues one `windowsProtectionState` request per Windows device; large tenants take minutes and may hit throttling. `-OnlyIssues "true"` filters to actionable rows.
-* **Firewall/ASR — coverage semantics:** `Get-FirewallAsrStatus.ps1` reports *assigned policy existence* per discipline, not per-device applicability. A `GAP` means no assigned policy for that discipline — devices run on local defaults.
-* **Common:** All scripts disconnect (`Disconnect-MgGraph` / `Disconnect-MgGraphCommunity`) and write structured logs. Test in a staging tenant/device group before production.
+* BitLocker rotation (`DryRun` / `Force`): `Rotate-BitLockerRecoveryKeys.ps1` defaults to an interactive confirmation gate. Use `-DryRun "true"` to list the Windows devices that *would* be targeted without rotating any keys. Use `-Force "true"` to skip the prompt for unattended / scripted runs (still workstation-run, not Automation). Rotation is throttled with one automatic retry after 60s on `429`.
+* macOS FileVault rotation (`TestMode` / `Force`): `Rotate-MacOsFileVaultPasswords.ps1` supports `-TestMode "true"` (no rotation, reports intent) and `-DeviceLimit` for controlled rollouts. `-Force "true"` skips the confirmation prompt. Personal (`ownerType == personal`) devices are skipped. LAPS rotation is not supported on personal devices. Throttling is retried once after 60s.
+* Windows LAPS audit (`azureADDeviceId` cross-reference): `Get-WindowsLapsAudit.ps1` indexes Entra `deviceLocalCredentials` by `id` (which is the Entra device ID) and joins to Intune `managedDevices` via `azureADDeviceId`. Devices without escrow, stale passwords (`-MaxPasswordAgeDays`, default 60), and `EscrowedNoTimestamp` are reported separately. Status buckets: `Healthy` / `Stale` / `NotEscrowed` / `EscrowedNoTimestamp`.
+* Azure Key Vault audience warning: `Backup-BitLockerKeysToKeyVault.ps1` acquires **two separate tokens with different audiences**: a device-code token for `https://vault.azure.net/user_impersonation` (Key Vault) and a browser token for Graph (`DeviceManagementManagedDevices.Read.All`, `BitlockerKey.Read.All`). One token cannot serve both resources. The script switches `MgGraphCommunity` sessions per call (`Select-MgGraphCommunityContext`) and restores the Graph session after each Key Vault `PUT`. Secret names are sanitized (`[^a-zA-Z0-9-] → -`) and carry a stable `-{VolumeType}` suffix; `-OverwriteExisting` honors existing secret versions.
+* Defender report per-device cost: `Get-DefenderStatusReport.ps1` issues one `windowsProtectionState` request per Windows device; large tenants take minutes and may hit throttling. `-OnlyIssues "true"` filters to actionable rows.
+* Firewall/ASR coverage semantics: `Get-FirewallAsrStatus.ps1` reports *assigned policy existence* per discipline, not per-device applicability. A `GAP` means no assigned policy for that discipline, so devices run on local defaults.
+* Common: All scripts disconnect (`Disconnect-MgGraph` / `Disconnect-MgGraphCommunity`) and write structured logs. Test in a staging tenant/device group before production.
 
 ---
 

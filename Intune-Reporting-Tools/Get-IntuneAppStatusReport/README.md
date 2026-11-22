@@ -22,7 +22,7 @@ This script queries Microsoft Graph to retrieve app installation status across m
 
 **Get Intune App Status Report** is a PowerShell reporting script that Queries Microsoft Graph to retrieve app installation status across managed devices. Shows which apps succeeded, failed, or are pending installation, including error codes, failure reasons, and install state details. Supports filtering by a single app, a single device, or all assigned apps. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -106,7 +106,7 @@ All app statuses for a single device
 # 🛡 Operational Notes
 * App install states are reported per assigned app; unassigned apps do not appear in results.
 * Large tenants with many apps may take several minutes; per-app deviceStatus calls are throttled with short delays.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

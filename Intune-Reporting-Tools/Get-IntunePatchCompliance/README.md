@@ -22,7 +22,7 @@ Pulls OS version data from all Windows managed devices and produces a patch comp
 
 **Get Intune Patch Compliance** is a PowerShell reporting script that pulls OS version data from all Windows managed devices and produces a patch compliance report showing: OS build distribution, devices on each build, how many builds behind each device is, devices stuck on old versions, and a breakdown by Windows version (21H2, 22H2, 23H2, 24H2, 25H2).
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -100,7 +100,7 @@ Reports Windows patch compliance across all Intune managed devices.
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

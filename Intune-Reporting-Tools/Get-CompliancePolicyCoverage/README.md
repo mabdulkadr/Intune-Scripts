@@ -22,7 +22,7 @@ This script compares the platforms of all enrolled Intune devices against the pl
 
 **Get Compliance Policy Coverage** is a PowerShell reporting script that This script compares the platforms of all enrolled Intune devices against the platforms targeted by assigned compliance policies. Platforms with enrolled devices but no assigned compliance policy are a real gap: those devices report as compliant by default (or fall to the built-in policy) and can slip through Condit...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -105,8 +105,8 @@ Exports the coverage report to a timestamped CSV file
 ---
 
 # 🛡 Operational Notes
-* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as” — uncovered platforms may silently pass Conditional Access when set to Compliant.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as”. Uncovered platforms may silently pass Conditional Access when set to Compliant.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

@@ -22,21 +22,21 @@ Detection scans the current user's uninstall registry entries for `Google Chrome
 
 **Uninstall Chrome Per User** is an Intune remediation package that cleans unwanted per-user Chrome installs off managed devices.
 
-Chrome installed without elevation lands in `HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall`, outside the reach of machine-wide MSI deployments, and often conflicts with managed browser baselines. The detection script enumerates those entries read-only, matching `DisplayName` or `DisplayName_Localized` against the blacklist; when a match exists, Intune runs the paired remediation, which parses the uninstall string and launches it silently — MSI product codes via `msiexec /x <code> /qn /norestart`, everything else via `cmd.exe` with Chrome's silent flags — then verifies the entry is gone.
+Chrome installed without elevation lands in `HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall`, outside the reach of machine-wide MSI deployments, and often conflicts with managed browser baselines. The detection script enumerates those entries read-only, matching `DisplayName` or `DisplayName_Localized` against the blacklist; when a match exists, Intune runs the paired remediation, which parses the uninstall string and launches it silently, using `msiexec /x <code> /qn /norestart` for MSI product codes and `cmd.exe` with Chrome's silent flags for everything else, then verifies the entry is gone.
 
 ---
 
 # ✨ Core Features
 
 ### 🔹 Read-Only Detection
-* Enumerates `HKCU:\...\Uninstall` subkeys — never modifies the system during detection
+* Enumerates `HKCU:\...\Uninstall` subkeys; never modifies the system during detection
 * Normalizes the application name from `DisplayName` or `DisplayName_Localized`
 * Reports every matching blacklist entry before triggering remediation
 
 ### 🔹 Verified Remediation
 * Original uninstall-string logic preserved: MSI GUIDs via `msiexec.exe`, non-MSI via `cmd.exe` with `--uninstall --force-uninstall --system-level --multi-install --chrome --silent`
 * Pre-check → fix → post-verify flow with structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -92,8 +92,8 @@ Silently uninstalls every matched per-user Chrome entry, using a pre-check → f
 
 ### Logic
 1. Pre-check: confirm the HKCU uninstall key exists
-2. Fix: parse each uninstall string — MSI product code via `msiexec.exe /x ... /qn /norestart`, otherwise `cmd.exe /c "<string> --uninstall --force-uninstall --system-level --multi-install --chrome --silent"` — and require exit code `0`
-3. Post-verify: re-scan the uninstall entries — compliant only when no blacklist entry remains
+2. Fix: parse each uninstall string, using `msiexec.exe /x ... /qn /norestart` for MSI product codes and `cmd.exe /c "<string> --uninstall --force-uninstall --system-level --multi-install --chrome --silent"` otherwise, and require exit code `0`
+3. Post-verify: re-scan the uninstall entries; compliant only when no blacklist entry remains
 
 ### Exit Codes
 | Code | Status |
@@ -113,10 +113,10 @@ Silently uninstalls every matched per-user Chrome entry, using a pre-check → f
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logged-On User
-* Required — `HKCU` must point at the target profile, so deploy with "Run this script using logged-on credentials: Yes" to inspect and remove the signed-in user's installation.
+* Required: `HKCU` must point at the target profile, so deploy with "Run this script using logged-on credentials: Yes" to inspect and remove the signed-in user's installation.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Uninstall-ChromePerUser\`
@@ -153,7 +153,7 @@ remediate-Uninstall-ChromePerUser.ps1
 ---
 
 # 🛡 Operational Notes
-* **Warning:** the uninstall affects the signed-in user's Chrome profile data — communicate the change before wide deployment.
+* Warning: the uninstall affects the signed-in user's Chrome profile data; communicate the change before wide deployment.
 * Extend `$BlacklistApps` if additional per-user applications should be removed with the same flow.
 * A running Chrome instance can make the uninstaller return a non-zero exit code; schedule remediations outside active hours.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

@@ -4,7 +4,7 @@
 
 **Audits assignment filters and flags unused or duplicated rules.**
 
-Cross-references every assignment surface for filter references to report unused and duplicate filters — built for Intune filter hygiene.
+Cross-references every assignment surface for filter references to report unused and duplicate filters.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,7 +20,7 @@ Cross-references every assignment surface for filter references to report unused
 
 # 📖 Overview
 
-**Get Assignment Filter Audit** is a PowerShell script that retrieves all Intune assignment filters and cross-references them against every assignment surface that can carry a filter — configuration profiles, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications — reporting which filters are unused and which duplicate each other (same platform + whitespace-normalized rule) so stale filters can be cleaned safely.
+**Get Assignment Filter Audit** is a PowerShell script that retrieves all Intune assignment filters and cross-references them against every assignment surface that can carry a filter: configuration profiles, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications. It reports which filters are unused and which duplicate each other (same platform + whitespace-normalized rule) so stale filters can be cleaned safely.
 
 ---
 
@@ -29,7 +29,7 @@ Cross-references every assignment surface for filter references to report unused
 * Scans seven assignment surfaces for `deviceAndAppManagementAssignmentFilterId` / `Type` references (include and exclude modes)
 * Duplicate detection compares platform plus whitespace-normalized rule text
 * Reports unused filters (zero references) and duplicate filter groups in one run
-* Cached group-name resolution is not needed — focus is pure filter-to-assignment mapping
+* Cached group-name resolution is not needed; the focus is filter-to-assignment mapping
 * Optional CSV export and workstation dual-mode auth with throttling-aware pagination
 
 ---
@@ -51,7 +51,7 @@ Get-AssignmentFilterAudit
 ```powershell
 .\Get-AssignmentFilterAudit.ps1
 ```
-Shows the filter audit in the console — counts of used, unused, and duplicate filters.
+Shows the filter audit in the console: counts of used, unused, and duplicate filters.
 
 ### With Parameters
 ```powershell
@@ -99,11 +99,11 @@ Exports the filter audit to a timestamped CSV beside the script; add `-TenantId`
 
 # 🛡 Operational Notes
 
-* Filters are counted as used when at least one assignment references them in include or exclude mode; the script only reports — deleting filters remains a manual decision.
+* Filters are counted as used when at least one assignment references them in include or exclude mode; the script only reports. Deleting filters remains a manual decision.
 * Duplicate detection is platform + rule exact after whitespace normalization; rule edits that change semantics are not flagged as duplicates.
 * **Backup depth 25 note (tenant-wide):** filter audit complements backup/restore governance; backup exports use `ConvertTo-Json -Depth 25` so filter references survive round-tripping.
 * All queries run on beta Graph endpoints; pagination via `Get-MgGraphAllPages` with 429/503 retry honoring `Retry-After`.
-* RBAC sensitivity: filter audit output reveals assignment targeting logic — treat CSV as sensitive.
+* RBAC sensitivity: filter audit output reveals assignment targeting logic; treat the CSV as sensitive.
 
 ---
 

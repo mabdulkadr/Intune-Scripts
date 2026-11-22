@@ -38,7 +38,7 @@ The detection script reads `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\KFMSilent
 ### 🔹 Verified Remediation
 * Writes the KFM policy keys for the expected tenant (pre-check → fix → post-verify)
 * Emits structured JSON result output
-* Idempotent — safe to run repeatedly
+* Idempotent: safe to run repeatedly
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR`)
@@ -115,7 +115,7 @@ Writes the KFM silent opt-in policy keys for the expected tenant with pre-check 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune; no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Enable-OneDriveKFM\`
@@ -153,7 +153,7 @@ remediate-Enable-OneDriveKFM.ps1
 ---
 
 # 🛡 Operational Notes
-* Set `$ExpectedTenantId` in **both** scripts before upload — default placeholder will exit `2`.
+* Set `$ExpectedTenantId` in both scripts before upload; the default placeholder will exit `2`.
 * Test on a pilot group; KFM moves user folders and should be validated with representative profiles.
 * Devices without OneDrive are treated as compliant (nothing to enforce).
 * Detection errors exit `2` so Intune never treats a crash as non-compliance.

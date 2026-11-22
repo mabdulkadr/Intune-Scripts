@@ -95,7 +95,7 @@ Creates a template CSV file at the specified path with system default delimiter
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `Group.ReadWrite.All,DeviceManagementManagedDevices.Read.All,Directory.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `Group.ReadWrite.All,DeviceManagementManagedDevices.Read.All,Directory.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\add-devices-to-groups-from-csv\Logs`
@@ -104,7 +104,7 @@ Creates a template CSV file at the specified path with system default delimiter
 
 # 🛡️ Operational Notes
 
-* Remote bulk operations support `-DryRun` / `-WhatIf` previews — use them before any write or destructive action.
+* Remote bulk operations support `-DryRun` / `-WhatIf` previews. Use them before any write or destructive action.
 * Graph scripts honor HTTP 429 throttling with 60-second back-off and support pagination via `Get-MgGraphAllPages`.
 * CSV bulk operations are idempotent; re-running the same CSV without changes is a no-op.
 * Test in a staging tenant or on a pilot Entra group before production; export reports for change control.

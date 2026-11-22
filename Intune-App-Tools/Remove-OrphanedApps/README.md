@@ -4,7 +4,7 @@
 
 **Finds Intune apps that have no assignments or are superseded by newer versions, and optionally deletes them.**
 
-Scans the entire Intune app catalog for cleanup candidates — unassigned apps and superseded Win32 apps — and reports them by default, requiring an explicit switch and confirmation to delete, so administrators can prune abandoned test apps and old installer versions safely.
+Scans the entire Intune app catalog for cleanup candidates: unassigned apps and superseded Win32 apps. It reports them by default; deletion requires an explicit switch and confirmation, so administrators can prune abandoned test apps and old installer versions safely.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Scans the entire Intune app catalog for cleanup candidates — unassigned apps a
 
 **Remove-OrphanedApps** is a PowerShell script that identifies orphaned and superseded apps in the Intune app catalog and, when requested, removes them.
 
-It pages all mobile apps with expanded assignments via Microsoft Graph beta, filters to candidates older than a cutoff (default 30 days), and classifies each as Unassigned, Superseded, or Unassigned + Superseded — using `supersedingAppCount` for Win32 supersedence. By default the script is report-only; deletion requires `-Remove "true"`, honors `-WhatIf` preview, and prompts per app via `ShouldProcess`. Deleting an Intune app does not uninstall it from devices that already have it, but it permanently removes the deployment object. Supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
+It pages all mobile apps with expanded assignments via Microsoft Graph beta, filters to candidates older than a cutoff (default 30 days), and classifies each as Unassigned, Superseded, or Unassigned + Superseded using `supersedingAppCount` for Win32 supersedence. By default the script is report-only; deletion requires `-Remove "true"`, honors `-WhatIf` preview, and prompts per app via `ShouldProcess`. Deleting an Intune app does not uninstall it from devices that already have it, but it permanently removes the deployment object. The script supports workstation dual-mode authentication: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
 
 ---
 
@@ -122,7 +122,7 @@ Deletes confirmed cleanup candidates and exports the report to a timestamped CSV
 * **Always preview first:** run report-only (default) or with `-Remove "true" -WhatIf` and review the grouped output before any real deletion.
 * **Recently created apps are excluded by default** (`-OlderThanDays 30`) to avoid flagging work in progress; lower the value only when targeting specific recent test apps.
 * Superseded means another Win32 app declares a supersedence relationship to the app (`supersedingAppCount` greater than 0); this property is only exposed on the beta endpoint.
-* Deletion prompts per app via `ShouldProcess` — respond `A` to confirm all or run unattended only after a clean preview.
+* Deletion prompts per app via `ShouldProcess`: respond `A` to confirm all or run unattended only after a clean preview.
 * Test against a staging tenant before running with `-Remove` in production and keep a CSV export for audit.
 
 ---

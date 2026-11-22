@@ -20,9 +20,9 @@ Inventory, assignment health, install status, duplicate detection, license track
 
 # 📖 Overview
 
-**Intune App Tools** is the app-lifecycle category for Microsoft Intune — six Graph-powered reporting and hygiene scripts plus one standalone deployment tool.
+**Intune App Tools** is the app-lifecycle category for Microsoft Intune: six Graph-powered reporting and hygiene scripts plus one standalone deployment tool.
 
-The reporting scripts surface fleet-wide application inventory, per-device install status, assignment conflicts, duplicate catalog entries, and Apple VPP license utilization entirely from Microsoft Graph. The hygiene script reports and optionally removes orphaned and superseded apps. The flagship **Invoke-Win32AppAutoDeployer** builds Entra groups, IntuneWin packages, Win32 apps, and auto-update remediations end-to-end from Winget. Every Graph tool runs from an admin workstation in interactive or app-only mode; nothing in this category is deployed to endpoints by Intune itself except the artifacts AutoDeployer creates.
+The reporting scripts surface fleet-wide application inventory, per-device install status, assignment conflicts, duplicate catalog entries, and Apple VPP license utilization entirely from Microsoft Graph. The hygiene script reports and optionally removes orphaned and superseded apps. The Invoke-Win32AppAutoDeployer tool builds Entra groups, IntuneWin packages, Win32 apps, and auto-update remediations end to end from Winget. Every Graph tool runs from an admin workstation in interactive or app-only mode; nothing in this category is deployed to endpoints by Intune itself except the artifacts AutoDeployer creates.
 
 ---
 
@@ -31,7 +31,7 @@ The reporting scripts surface fleet-wide application inventory, per-device insta
 ### 🔹 Fleet-Wide App Reporting
 * Application inventory across all managed devices (CSV + HTML) with publisher/platform/size enrichment
 * Installation status via the `deviceManagement/reports` endpoint with success/failure/pending breakdowns
-* Assignment conflict detection — required vs. uninstall, include vs. exclude, and mixed intents per group
+* Assignment conflict detection: required vs. uninstall, include vs. exclude, and mixed intents per group
 
 ### 🔹 Catalog Hygiene
 * Duplicate detection by normalized name, publisher, and app type
@@ -39,7 +39,7 @@ The reporting scripts surface fleet-wide application inventory, per-device insta
 * VPP license utilization and token-expiry tracking for Apple Apps and Books
 
 ### 🔹 Deployment
-* Winget-to-Win32 end-to-end automation — groups, scripts, IntuneWin packaging, upload, and assignment
+* Winget-to-Win32 end-to-end automation: groups, scripts, IntuneWin packaging, upload, and assignment
 * Proactive Remediation auto-update enforcement for deployed Win32 apps
 
 ### 🔹 Enterprise-Ready Execution
@@ -87,11 +87,11 @@ Intune-App-Tools
 * Windows 10 / Windows 11
 
 ### PowerShell
-* PowerShell **5.1 or later** — the Invoke-Win32AppAutoDeployer auto-relaunches under 5.1 when invoked from PowerShell 7
+* PowerShell **5.1 or later**. The Invoke-Win32AppAutoDeployer auto-relaunches under 5.1 when invoked from PowerShell 7
 
 ### Modules
-* `Microsoft.Graph.Authentication` — required for every script; auto-installed when missing (prompt or `-ForceModuleInstall`)
-* `MgGraphCommunity` — auto-installed when available to provide WAM-free interactive sign-in on Windows
+* `Microsoft.Graph.Authentication`: required for every script; auto-installed when missing (prompt or `-ForceModuleInstall`)
+* `MgGraphCommunity`: auto-installed when available to provide WAM-free interactive sign-in on Windows
 
 ```powershell
 Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
@@ -102,7 +102,7 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 * Entra role: **Intune Administrator** for reporting/hygiene scripts; **Intune Service Administrator** (or equivalent) for Invoke-Win32AppAutoDeployer
 
 ### Logging
-* Graph tools: `C:\ProgramData\<SolutionName>\Logs\` — e.g. `C:\ProgramData\get-application-inventory-report\Logs\`, `C:\ProgramData\cleanup-orphaned-apps\Logs\`
+* Graph tools: `C:\ProgramData\<SolutionName>\Logs\`, for example `C:\ProgramData\get-application-inventory-report\Logs\` and `C:\ProgramData\cleanup-orphaned-apps\Logs\`
 * Invoke-Win32AppAutoDeployer: `C:\ProgramData\Invoke-Win32AppAutoDeployer\Logs\`
 * Working files for Invoke-Win32AppAutoDeployer are staged under `C:\Temp\<random>-<timestamp>\`
 
@@ -110,11 +110,11 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 
 # 🛡 Operational Notes
 
-* **Destructive — orphan removal:** `Remove-OrphanedApps.ps1` deletes Intune deployment objects when run with `-Remove`. Deleting an app does not uninstall it from devices, but it is irreversible in the catalog. Always preview first (default report-only, or `-Remove "true" -WhatIf`) and test against a staging tenant.
-* **Mutates the tenant — AutoDeployer:** `Invoke-Win32AppAutoDeployer.ps1` creates Entra security groups, Win32 LOB apps, assignments, and Proactive Remediations. Never run against production without testing. Staging group names under `C:\Temp\<random>-<timestamp>\` are cleaned periodically after large batches.
-* **Read-only by default:** All other scripts are reporting-only and create no tenant objects.
-* **Throttling:** Every Graph tool pages with `Get-MgGraphAllPages` and retries on HTTP 429/503 (honoring `Retry-After` where exposed). Large tenants will pause automatically; do not abort on the first throttling message.
-* **Interactive vs. unattended:** Leave `-TenantId`/`-ClientId` unset for interactive delegated sign-in; supply them plus `-ClientSecret` or `-CertificateThumbprint` for unattended app-only runs.
+* Destructive orphan removal: `Remove-OrphanedApps.ps1` deletes Intune deployment objects when run with `-Remove`. Deleting an app does not uninstall it from devices, but it is irreversible in the catalog. Always preview first (default report-only, or `-Remove "true" -WhatIf`) and test against a staging tenant.
+* Mutates the tenant (AutoDeployer): `Invoke-Win32AppAutoDeployer.ps1` creates Entra security groups, Win32 LOB apps, assignments, and Proactive Remediations. Never run against production without testing. Staging group names under `C:\Temp\<random>-<timestamp>\` are cleaned periodically after large batches.
+* Read-only by default: All other scripts are reporting-only and create no tenant objects.
+* Throttling: Every Graph tool pages with `Get-MgGraphAllPages` and retries on HTTP 429/503 (honoring `Retry-After` where exposed). Large tenants will pause automatically; do not abort on the first throttling message.
+* Interactive vs. unattended: Leave `-TenantId`/`-ClientId` unset for interactive delegated sign-in; supply them plus `-ClientSecret` or `-CertificateThumbprint` for unattended app-only runs.
 
 ---
 

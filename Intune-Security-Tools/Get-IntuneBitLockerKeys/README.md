@@ -20,9 +20,9 @@ This script operates in lookup mode for helpdesk key recovery and audit mode to 
 
 # 📖 Overview
 
-**Get Intune BitLocker Keys** is a PowerShell reporting script that Operates in two modes: 1. LOOKUP - Retrieve BitLocker recovery key(s) for a specific device by name, serial number, or Entra device ID. Designed for helpdesk key recovery. 2. AUDIT - Scan all Windows managed devices and report which ones have recovery keys escrowed to Entra ID and which are missing. Designed for security compliance auditing. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
+**Get Intune BitLocker Keys** is a PowerShell reporting script that operates in two modes: 1. LOOKUP - Retrieve BitLocker recovery key(s) for a specific device by name, serial number, or Entra device ID. Designed for helpdesk key recovery. 2. AUDIT - Scan all Windows managed devices and report which ones have recovery keys escrowed to Entra ID and which are missing. Designed for security compliance auditing. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Security Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Security Tools** category and runs from a workstation. No agent deployment is required.
 
 ---
 
@@ -106,8 +106,8 @@ Audit all Windows devices for escrowed keys
 ---
 
 # 🛡 Operational Notes
-* Key retrieval is audited in Entra ID; BitlockerKey.Read.All grants sensitive access — restrict to helpdesk admins.
-* Encrypted devices with KEY MISSING are unrecoverable if TPM/OS fails — prioritize remediation.
+* Key retrieval is audited in Entra ID; BitlockerKey.Read.All grants sensitive access, so restrict it to helpdesk admins.
+* Encrypted devices with KEY MISSING are unrecoverable if TPM/OS fails; prioritize remediation.
 * CSV exports contain full recovery keys; store securely and encrypt at rest.
 
 ---

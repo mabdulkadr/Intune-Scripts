@@ -22,7 +22,7 @@ This script pulls enrollment info, compliance evaluations, configuration states,
 
 **Get Intune Device Timeline** is a PowerShell reporting script that Pulls all available data for one device: enrollment info, compliance evaluations, configuration profile states, app installation status, script execution results, detected apps, and hardware details. Presents as a chronological timeline for troubleshooting what changed on this device. It runs from a workstation via Microsoft Graph and writes structured logs for every operation.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required.
 
 ---
 
@@ -90,9 +90,9 @@ Get-IntuneDeviceTimeline
 ---
 
 # 🛡 Operational Notes
-* Timeline aggregates multiple Graph endpoints; single endpoint failure does not abort the report — check warnings.
+* Timeline aggregates multiple Graph endpoints. A single endpoint failure does not abort the report, so check the warnings.
 * Hardware and Defender data may be unavailable for recently enrolled or non-Windows devices.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra consent for the listed scopes.
 
 ---
 

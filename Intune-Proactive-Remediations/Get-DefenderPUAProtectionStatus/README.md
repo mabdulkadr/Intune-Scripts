@@ -22,7 +22,7 @@ Detection verifies `PUAProtection = 1`, and remediation applies `Set-MpPreferenc
 
 **Get Defender PUA Protection Status** is an Intune remediation package that keeps Microsoft Defender PUA protection enabled across managed devices.
 
-Potentially unwanted applications — adware, bundleware, coin-miners disguised as legitimate tools — slip past classic malware signatures but degrade security posture and user experience. The detection script reads Defender preferences read-only and treats the device as compliant when `PUAProtection` equals `1` (block mode). When it differs, Intune runs the paired remediation that enables the feature and verifies the result.
+Potentially unwanted applications such as adware, bundleware, and coin-miners disguised as legitimate tools slip past classic malware signatures but degrade security posture and user experience. The detection script reads Defender preferences read-only and treats the device as compliant when `PUAProtection` equals `1` (block mode). When it differs, Intune runs the paired remediation that enables the feature and verifies the result.
 
 ---
 
@@ -36,7 +36,7 @@ Potentially unwanted applications — adware, bundleware, coin-miners disguised 
 ### 🔹 Verified Remediation
 * Runs `Set-MpPreference -PUAProtection Enabled` with a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables PUA protection by setting `PUAProtection` to `Enabled`, using a pre-chec
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DefenderPUAProtectionStatus\`
@@ -150,8 +150,8 @@ remediate-Get-DefenderPUAProtectionStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* **Impact warning:** block mode quarantines software Defender classifies as potentially unwanted; development teams and power users may hit false positives on tools such as hacktools or keygens — review Defender detection events before exempting anything.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Impact warning: block mode quarantines software Defender classifies as potentially unwanted; development teams and power users may hit false positives on tools such as hacktools or keygens. Review Defender detection events before exempting anything.
 * Third-party antivirus products can make `Get-MpPreference` unavailable; such environments will report detection errors as exit `2`.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

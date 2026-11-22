@@ -109,7 +109,7 @@ Exports devices in a group with detected app counts.
 
 # 🛡 Operational Notes
 * Read-only; never modifies devices or groups.
-* Detected apps mode issues one Graph call per device — slower on large tenants.
+* Detected apps mode issues one Graph call per device, which is slower on large tenants.
 * Verify group names exactly; missing groups exit gracefully with an ERROR log.
 
 ---

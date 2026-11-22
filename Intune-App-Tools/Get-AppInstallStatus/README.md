@@ -4,7 +4,7 @@
 
 **Generates a comprehensive application installation status report for all managed applications in Intune.**
 
-Retrieves every managed app and its per-device install state via the deviceManagement reports endpoint, producing CSV and HTML reports with success, failure, and pending breakdowns — built for Intune administrators troubleshooting deployments.
+Retrieves every managed app and its per-device install state via the deviceManagement reports endpoint, producing CSV and HTML reports with success, failure, and pending breakdowns.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,7 +22,7 @@ Retrieves every managed app and its per-device install state via the deviceManag
 
 **Get-AppInstallStatus** is a PowerShell script that builds a fleet-wide application installation status report from Microsoft Intune.
 
-It authenticates to Microsoft Graph, enumerates mobile apps with selectable filters, and pulls per-device install status rows (installed, failed, pending, not applicable, and related states) through the `deviceManagement/reports/retrieveDeviceAppInstallationStatusReport` beta endpoint — preserving single-row results and handling paged app enumeration. Results are aggregated into summary statistics (success and failure rates, top failed apps, status by platform) and exported as timestamped CSV and styled HTML. Supports workstation dual-mode: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
+It authenticates to Microsoft Graph, enumerates mobile apps with selectable filters, and pulls per-device install status rows (installed, failed, pending, not applicable, and related states) through the `deviceManagement/reports/retrieveDeviceAppInstallationStatusReport` beta endpoint, preserving single-row results and handling paged app enumeration. Results are aggregated into summary statistics (success and failure rates, top failed apps, status by platform) and exported as timestamped CSV and styled HTML. The script supports workstation dual-mode: interactive sign-in (WAM-free via MgGraphCommunity) or app-only with tenant, client ID, and secret or certificate.
 
 ---
 
@@ -120,7 +120,7 @@ Generates a report filtered by application name and opens the HTML report automa
 
 # 🛡 Operational Notes
 
-* Read-only reporting — creates no tenant objects and performs no device actions.
+* Read-only reporting that creates no tenant objects and performs no device actions.
 * Large tenants may take considerable time due to API rate limits; throttling pauses are automatic and honor Retry-After where exposed.
 * Reports are saved in both CSV and HTML formats in the directory specified by `-OutputPath`.
 * Uses the beta endpoint for comprehensive installation status data; the older mobileApps deviceStatuses endpoint is retired.

@@ -4,7 +4,7 @@
 
 **Compares a baseline backup against live tenant state to surface configuration drift.**
 
-Detects added, modified, or deleted settings catalog, configuration, and compliance policies by normalized JSON comparison — built for tenant change control.
+Detects added, modified, or deleted settings catalog, configuration, and compliance policies by normalized JSON comparison.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -26,7 +26,7 @@ Detects added, modified, or deleted settings catalog, configuration, and complia
 
 # ✨ Features
 
-* ID-matched comparison via `manifest.json` — a deleted-then-recreated policy appears as one deletion plus one addition
+* ID-matched comparison via `manifest.json`: a deleted-then-recreated policy appears as one deletion plus one addition
 * Normalized JSON diff excludes timestamps, version counters, and assignment state so only configuration content counts as drift
 * Covers settings catalog (full setting bodies), classic device configuration profiles, and compliance policies
 * Optional CSV export (`-ExportToCsv "true"`) with timestamped file beside the script
@@ -101,7 +101,7 @@ Exports the drift report to a timestamped CSV beside the script; add `-TenantId`
 # 🛡 Operational Notes
 
 * **Baseline requirement:** baseline must be a folder created by `Backup-IntuneConfiguration`; objects are matched by ID so renames are not treated as modifications.
-* Volatile properties (`lastModifiedDateTime`, `version`, `assignments`) are stripped before comparison — only configuration content triggers `Modified`.
+* Volatile properties (`lastModifiedDateTime`, `version`, `assignments`) are stripped before comparison; only configuration content triggers `Modified`.
 * RBAC and assignment state are not considered drift; use Assignment Matrix / Filter Audit for assignment visibility.
 * Large tenants page with `Get-MgGraphAllPages` and retry on 429/503 (`Retry-After` up to 60s); do not abort on throttling messages.
 * Export CSV is timestamped and written beside the script; test comparison in a staging tenant when validating change windows.

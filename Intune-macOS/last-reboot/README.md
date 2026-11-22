@@ -20,7 +20,7 @@ Queries `sysctl kern.boottime`, formats the epoch as `YYYY-MM-DD HH:MM:SS` local
 
 # 📖 Overview
 
-**Get Last Reboot Time** is a bash shell script for Intune-managed macOS. Uptime is a proxy for patch compliance and pending restarts. This script reads `sysctl -n kern.boottime`, extracts the `sec` field with `awk`, validates it is numeric, converts it with `date -r "<epoch>" "+%Y-%m-%d %H:%M:%S"`, then computes `current_time - timestamp` to show `(Xd Yh ago)` or `(Xh ago)`. Output is `Last Reboot: 2025-06-04 09:12:03 (3d 4h ago)` — one line for Intune.
+**Get Last Reboot Time** is a bash shell script for Intune-managed macOS. Uptime is a proxy for patch compliance and pending restarts. This script reads `sysctl -n kern.boottime`, extracts the `sec` field with `awk`, validates it is numeric, converts it with `date -r "<epoch>" "+%Y-%m-%d %H:%M:%S"`, then computes `current_time - timestamp` to show `(Xd Yh ago)` or `(Xh ago)`. Output is `Last Reboot: 2025-06-04 09:12:03 (3d 4h ago)`, one line for Intune.
 
 Designed as an **Intune custom attribute** (single-line stdout) and as an **Intune macOS shell script profile**; it is read-only and exits 0 via `output_result` for reliable inventory.
 
@@ -28,9 +28,9 @@ Designed as an **Intune custom attribute** (single-line stdout) and as an **Intu
 
 # ✨ Features
 
-* **Kernel boot time** — `sysctl -n kern.boottime` is authoritative; no `last`/`who` parsing.
-* **Validated epoch** — regex `^[0-9]+$` guard and `date -r` error handling with `output_result` on failure.
-* **Uptime context** — computes days/hours from `date +%s` for quick Intune triage.
+* Uses `sysctl -n kern.boottime` as the source; no `last`/`who` parsing.
+* Guards the epoch with regex `^[0-9]+$` and handles `date -r` errors through `output_result`.
+* Computes days/hours from `date +%s` for quick Intune triage.
 
 Additional details:
 
@@ -99,7 +99,7 @@ for s in ./*.sh; do echo "== $s =="; chmod +x "$s"; "$s"; echo; done
 
 # ⚙️ Parameters
 
-This script has **no parameters** — it is a read-only check with no configuration flags.
+This script has no parameters. It is a read-only check with no configuration flags.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -122,7 +122,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Shell
 
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities
 
 ### Intune
 
@@ -135,11 +135,11 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Dependencies
 
-* No external modules — uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted
+* Uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted. No external modules.
 
 ### Logging
 
-* Not applicable — read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty
+* Not applicable. This is a read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty.
 
 ---
 

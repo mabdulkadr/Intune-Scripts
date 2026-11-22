@@ -22,7 +22,7 @@ Queries Microsoft Graph to find every policy (configuration profiles, compliance
 
 **Get Intune User Policies** is a PowerShell reporting script that queries Microsoft Graph to find every policy (configuration profiles, compliance, Settings Catalog, endpoint security, update rings, scripts, app config, app protection, etc.) assigned to a user via their transitive group memberships, "All Users", or "All Licensed Users". Also shows the user's Intune-managed devices and their compliance state.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -100,7 +100,7 @@ Retrieves all Intune policies and apps assigned to a specific user.
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

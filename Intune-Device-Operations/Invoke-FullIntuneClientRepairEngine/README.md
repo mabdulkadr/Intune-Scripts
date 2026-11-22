@@ -24,12 +24,12 @@ The Intune Client Repair Engine is a single-file PowerShell tool that performs a
 
 The engine runs six logical stages:
 
-1. **Restart Intune/MDM core services** — `IntuneManagementExtension`, `dmwappushservice`, and the enrollment service (varies by build).
-2. **Restart notification services** — `WpnService`.
-3. **MDM policy/compliance sync** — starts every enabled `EnterpriseMgmt` scheduled task and (optionally) runs `deviceenroller.exe /o <guid> /c /b`.
-4. **IME app/script/remediation kick** — restarts the IME service and (optionally) the process so Win32 apps, PowerShell scripts, and proactive remediations retry.
-5. **(Deep mode) Repair download/update pipeline** — restarts `BITS`, `DoSvc`, `UsoSvc`, `wuauserv`.
-6. **(Deep mode) IME cache cleanup + final kick** — clears the `Content` folder (and optionally `Logs`) under `Program Files (x86)\Microsoft Intune Management Extension`, then flushes the task channel and re-kicks IME.
+1. Restart Intune/MDM core services: `IntuneManagementExtension`, `dmwappushservice`, and the enrollment service (varies by build).
+2. Restart notification services: `WpnService`.
+3. MDM policy/compliance sync: starts every enabled `EnterpriseMgmt` scheduled task and (optionally) runs `deviceenroller.exe /o <guid> /c /b`.
+4. IME app/script/remediation kick: restarts the IME service and (optionally) the process so Win32 apps, PowerShell scripts, and proactive remediations retry.
+5. (Deep mode) Repair download/update pipeline: restarts `BITS`, `DoSvc`, `UsoSvc`, `wuauserv`.
+6. (Deep mode) IME cache cleanup and final kick: clears the `Content` folder (and optionally `Logs`) under `Program Files (x86)\Microsoft Intune Management Extension`, then flushes the task channel and re-kicks IME.
 
 It is **best-effort**: behavior varies by Windows build and enrollment state. It does **NOT** unenroll or re-enroll the device.
 
@@ -148,7 +148,7 @@ Deep pass that also clears the IME Logs folder (usually retained for diagnostics
 * PowerShell **5.1 or later** (`#Requires -Version 5.1`)
 
 ### Modules
-* No Graph modules required — local execution only.
+* No Graph modules required; the script runs locally.
 
 ### Permissions
 * Local **Administrator** rights (auto-elevation via `Start-Process -Verb RunAs` when missing).
@@ -161,7 +161,7 @@ Deep pass that also clears the IME Logs folder (usually retained for diagnostics
 
 # 🛡️ Operational Notes
 
-* Run from an elevated console — the script self-elevates and waits for the elevated instance to finish before returning.
+* Run from an elevated console. The script self-elevates and waits for the elevated instance to finish before returning.
 * Deep mode removes the IME `Content` folder; Win32 content will re-download on the next sync. Pass `-ClearImeLogs` only when logs are no longer needed for diagnostics.
 * All service and task operations are best-effort. Failures at a single stage are logged as `WARNING` and the engine continues with the remaining stages.
 * Does **NOT** unenroll or re-enroll the device; does not delete the IME enrollment GUID.

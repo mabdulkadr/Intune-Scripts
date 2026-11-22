@@ -22,7 +22,7 @@ This script inventories all certificate-related configuration profiles (SCEP, PK
 
 **Check Certificate Profile Expiry** is a PowerShell reporting script that This script inventories all certificate-related configuration profiles (SCEP, PKCS, and trusted certificate profiles) across platforms, reports their validity period settings and assignment state, and pulls per-profile deployment status to surface devices in which certificate delivery is failing. For trusted certifi...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -106,8 +106,8 @@ Uses a 180-day warning window for embedded root certificates and exports to CSV
 ---
 
 # 🛡 Operational Notes
-* Certificates and Apple tokens expire after one year; default warning window is 30 days (`-ExpirationWarningDays` / `-ExpiryWarningDays`) — tune for renewal lead time.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Certificates and Apple tokens expire after one year; default warning window is 30 days (`-ExpirationWarningDays` / `-ExpiryWarningDays`). Tune for renewal lead time.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

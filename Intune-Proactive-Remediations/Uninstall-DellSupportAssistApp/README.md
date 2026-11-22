@@ -36,7 +36,7 @@ Dell SupportAssist frequently ships pre-installed on consumer and commercial dev
 ### 🔹 Verified Remediation
 * Resolves the supported silent uninstall command from the uninstall string (MSI GUID or SupportAssist uninstaller) with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — a device without the application exits successfully without changes
+* Idempotent: a device without the application exits successfully without changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Uninstalls Dell SupportAssist using the removal method advertised in its registr
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Uninstall-DellSupportAssistApp\`
@@ -150,8 +150,8 @@ remediate-Uninstall-DellSupportAssistApp.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
-* Dell SupportAssist is OEM-supported software — removing it may affect Dell warranty checks, driver update prompts, and diagnostic tooling; make sure removal aligns with your OEM support strategy.
+* Idempotent by design: devices already compliant exit `0` without changes.
+* Dell SupportAssist is OEM-supported software; removing it may affect Dell warranty checks, driver update prompts, and diagnostic tooling. Make sure removal aligns with your OEM support strategy.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 * Uninstallers can return non-zero codes for transient reasons (pending reboot, running processes); review the log file before re-running.
 

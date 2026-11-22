@@ -151,7 +151,7 @@ remediate-Repair-IntunePrimaryUser.ps1
 ---
 
 # 🛡 Operational Notes
-* Changing the primary user affects user-device affiliation in Intune — application/user targeting, Self-service portal grouping, and user-affinity reporting will follow the new owner.
+* Changing the primary user affects user-device affiliation in Intune. Application/user targeting, Self-service portal grouping, and user-affinity reporting will follow the new owner.
 * Fill in `TenantId`, `ClientId`, `ClientSecret`, and (in remediation) `DefaultUpnSuffix` before deployment; empty credentials intentionally fail fast with exit `2`.
 * The SAM-to-UPN mapping assumes a single uniform UPN suffix; hybrid environments with multiple suffixes need directory-based resolution instead.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

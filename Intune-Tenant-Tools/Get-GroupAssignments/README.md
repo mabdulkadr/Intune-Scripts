@@ -4,7 +4,7 @@
 
 **Lists everything Intune assigns to a single Entra ID group.**
 
-Answers `what does this group get` across all Intune surfaces — profiles, policies, scripts, and apps with exclusion and tenant-wide context.
+Answers `what does this group get` across all Intune surfaces: profiles, policies, scripts, and apps with exclusion and tenant-wide context.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,7 +20,7 @@ Answers `what does this group get` across all Intune surfaces — profiles, poli
 
 # 📖 Overview
 
-**Get Group Assignments** is a PowerShell script that takes an Entra ID group by display name or object ID (exact match required) and scans all major Intune assignment surfaces to show exactly what that group receives — configuration profiles, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications with install intents — flagging exclusions and optionally including tenant-wide All Users / All Devices assignments.
+**Get Group Assignments** is a PowerShell script that takes an Entra ID group by display name or object ID (exact match required) and scans all major Intune assignment surfaces to show exactly what that group receives: configuration profiles, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications with install intents. It flags exclusions and can include tenant-wide All Users / All Devices assignments.
 
 ---
 
@@ -29,7 +29,7 @@ Answers `what does this group get` across all Intune surfaces — profiles, poli
 * Single-group focus: exact-match lookup by `-GroupName` or `-GroupId` (use ID when names are ambiguous)
 * Covers 7 surfaces with `Included` / `Excluded` / `All Users` / `All Devices` classification and filter mode per assignment
 * Optional `-IncludeTenantWide` to show effective surface including tenant-wide assignments
-* Nested group inheritance is not evaluated — only direct assignments to the given group are shown
+* Nested group inheritance is not evaluated; only direct assignments to the given group are shown
 * Optional CSV export and dual-mode workstation auth
 
 ---
@@ -103,9 +103,9 @@ Lists assignments for the group by ID including tenant-wide assignments and expo
 # 🛡 Operational Notes
 
 * Group name lookup must match exactly one group; use `-GroupId` when names are ambiguous or duplicated.
-* Nested group inheritance is not evaluated; only direct assignments to the given group are shown — combine with Assignment Matrix for transitive analysis.
+* Nested group inheritance is not evaluated; only direct assignments to the given group are shown. Combine with Assignment Matrix for transitive analysis.
 * Beta Graph endpoints are used for assignment surfaces; pagination and retry honor `Retry-After`.
-* **RBAC sensitivity (tenant governance):** group-assignment output maps blast radius of a group — treat as sensitive; companion RBAC audit uses `DeviceManagementRBAC.Read.All` for access reviews.
+* **RBAC sensitivity (tenant governance):** group-assignment output maps a group's blast radius; treat it as sensitive. The companion RBAC audit uses `DeviceManagementRBAC.Read.All` for access reviews.
 * Relative `-OutputPath` values resolve beside the script; test queries in a staging tenant before exporting production data.
 
 ---

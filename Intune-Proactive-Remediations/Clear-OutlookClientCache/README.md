@@ -70,7 +70,7 @@ Verifies whether Outlook is installed at the expected Office16 path. Strictly re
 
 ### Logic
 1. Test for `C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE`
-2. Compliant when the executable is absent — there is no client cache to clean
+2. Compliant when the executable is absent; there is no client cache to clean
 3. Non-compliant when Outlook is found and the cleanup should run
 
 ### Exit Codes
@@ -113,7 +113,7 @@ Clears the Outlook autocomplete cache by starting Outlook with `/cleanautocomple
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * Assign in user context so Outlook opens interactively for the signed-in user.
 
 ### Logging
@@ -153,7 +153,7 @@ remediate-Clear-OutlookClientCache.ps1
 # 🛡 Operational Notes
 * The autocomplete cache clear removes cached suggestion entries; users will re-accumulate suggestions as they address mail.
 * `/recycle` keeps Outlook open after cleanup; an already-exited process at verification time still indicates the command ran.
-* Idempotent — repeating the cleanup switches is safe.
+* Idempotent: repeating the cleanup switches is safe.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
 ---

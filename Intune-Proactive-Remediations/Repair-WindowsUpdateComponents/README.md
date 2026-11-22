@@ -114,7 +114,7 @@ Repairs and resets Windows Update components using a pre-check → fix → post-
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * Internet access to the PowerShell Gallery is required when `PSWindowsUpdate` or `FU.WhyAmIBlocked` are not already installed.
 
 ### Logging
@@ -152,7 +152,7 @@ remediate-Repair-WindowsUpdateComponents.ps1
 ---
 
 # 🛡 Operational Notes
-* Long-running steps (troubleshooter, RestoreHealth, update install) keep the original no-timeout wait — expect extended runtimes on slow links.
+* Long-running steps (troubleshooter, RestoreHealth, update install) keep the original no-timeout wait; expect extended runtimes on slow links.
 * `Reset-WUComponents` destroys Windows Update history as part of the reset; treat this as a destructive maintenance action.
 * A missing troubleshooter or `Reset-WUComponents` command logs a warning without failing the run; a missing `Get-WindowsUpdate` command does fail the run (preserved legacy asymmetry).
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

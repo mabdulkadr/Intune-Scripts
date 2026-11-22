@@ -22,9 +22,9 @@ Packages the Office Deployment Tool with a silent 64-bit/32-bit Project volume c
 
 The bundle contains three layers:
 
-- **Configuration**: two XML variants — `Install-ProjectPro2024-x64.xml` and `Install-ProjectPro2024-x86.xml`, both in the OS language (`MatchOS`, Project + ProofingTools). `Uninstall-ProjectPro2024.xml` describes what to remove.
-- **PowerShell scripts**: `Install-ProjectPro2024.ps1` / `Uninstall-ProjectPro2024.ps1` auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, install in the OS language (`MatchOS` resolved by ODT), anchor every path to their own folder (dot-source safe), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\ProjectPro2024\`, and forward the true ODT exit code.
-- **Detection**: `Detect-ProjectPro2024.ps1` is the Intune Win32 custom detection rule that marks the app *Installed* only when the Click-to-Run configuration truly reports `ProjectPro2024Volume` with a version, and `WINPROJ.EXE` exists on disk.
+- Configuration: two XML variants, `Install-ProjectPro2024-x64.xml` and `Install-ProjectPro2024-x86.xml`, both in the OS language (`MatchOS`, Project + ProofingTools). `Uninstall-ProjectPro2024.xml` describes what to remove.
+- PowerShell scripts: `Install-ProjectPro2024.ps1` / `Uninstall-ProjectPro2024.ps1` auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, install in the OS language (`MatchOS` resolved by ODT), anchor every path to their own folder (dot-source safe), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\ProjectPro2024\`, and forward the true ODT exit code.
+- Detection: `Detect-ProjectPro2024.ps1` is the Intune Win32 custom detection rule that marks the app *Installed* only when the Click-to-Run configuration truly reports `ProjectPro2024Volume` with a version, and `WINPROJ.EXE` exists on disk.
 
 A Win32 app uploaded from this folder installs completely silently (no UI, EULA auto-accepted) under the local SYSTEM account.
 
@@ -33,14 +33,14 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 # ✨ Core Features
 
 ### 🔹 Silent Volume Deployment
-* `Display Level="None" AcceptEULA="TRUE"` — no UI, no prompts, EULA auto-accepted; safe for Task Scheduler and Intune.
-* `Channel="PerpetualVL2024"` — the correct channel for Office 2024 volume licenses.
-* KMS GVLK activation via `PIDKEY` + `AUTOACTIVATE=1`. Replace the placeholder key with your organization's KMS GVLK — see [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
+* `Display Level="None" AcceptEULA="TRUE"`: no UI, no prompts, EULA auto-accepted; safe for Task Scheduler and Intune.
+* `Channel="PerpetualVL2024"` is the correct channel for Office 2024 volume licenses.
+* KMS GVLK activation via `PIDKEY` + `AUTOACTIVATE=1`. Replace the placeholder key with your organization's KMS GVLK. See [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
 
 ### 🔹 Auto-Detect Architecture, OS Language
 * `Install-ProjectPro2024.ps1` reads the installed Office Click-to-Run `Platform` registry value to select `Install-ProjectPro2024-x64-*.xml` or `Install-ProjectPro2024-x86-*.xml` automatically.
 * `-Architecture x64|x86` override for fresh machines with no prior Office install (defaults to x64).
-* Language is `MatchOS` inside the XML — ODT installs Project + ProofingTools in the OS language, no parameter needed.
+* Language is `MatchOS` inside the XML; ODT installs Project + ProofingTools in the OS language, no parameter needed.
 
 ### 🔹 PowerShell Install / Uninstall Scripts
 * Every reference is absolute (`$PSScriptRoot` fallback), independent of the caller's working directory and dot-source safe.
@@ -51,7 +51,7 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 ### 🔹 Intune-Ready Detection
 * Registry-driven (`HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration`) with disk-level hardening (`WINPROJ.EXE`).
 * Canonical exit contract: `0` installed / `1` not installed / `2` script error.
-* No Graph permissions and no network dependency — pure local SYSTEM check.
+* No Graph permissions and no network dependency. It is a local SYSTEM check only.
 
 ---
 
@@ -70,7 +70,7 @@ microsoft-project-2024-intune-deploy
 └── README.md
 ```
 
-> **Legacy file:** `Install_MS_project.intunewin` is the original `.intunewin` package from a prior build and was removed. This folder contains no `.intunewin` yet — package it fresh with [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) or `IntuneWinAppUtil.exe` before deployment.
+> **Legacy file:** `Install_MS_project.intunewin` is the original `.intunewin` package from a prior build and was removed. This folder contains no `.intunewin` yet. Package it fresh with [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) or `IntuneWinAppUtil.exe` before deployment.
 
 ---
 
@@ -89,7 +89,7 @@ Reads the authoritative Click-to-Run registry and reports whether Project Profes
 ### Logic
 1. Reads `HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration` (exit `2` if missing/failed).
 2. Confirms `ProductReleaseIds` contains `ProjectPro2024Volume` (exit `1` if not).
-3. Confirms `VersionToReport` is populated (exit `1` if empty — partial install).
+3. Confirms `VersionToReport` is populated (exit `1` if empty, partial install).
 4. Confirms `WINPROJ.EXE` exists under `InstallPath\root\Office16\` (exit `1` if missing).
 
 ### Exit Codes
@@ -120,9 +120,9 @@ Uninstall-ProjectPro2024.ps1    →  & setup.exe /configure Uninstall-ProjectPro
 
 ### Install Behavior
 1. Fails fast if `setup.exe` or the matching `.xml` is missing next to the script.
-2. Enforces elevation (`Test-IsElevated`) — passes automatically under the Intune SYSTEM context.
+2. Enforces elevation (`Test-IsElevated`), which passes automatically under the Intune SYSTEM context.
 3. Reads the installed Office architecture from the ClickToRun registry (x64/x86); defaults to x64 for fresh installs or when `-Architecture` is specified.
-4. Installs in the OS language — `MatchOS` is resolved by ODT itself, no language parameter.
+4. Installs in the OS language; `MatchOS` is resolved by ODT itself, no language parameter.
 5. Invokes ODT synchronously and exits with ODT's real return code (`0` = success).
 6. Logs the full run (banner + every step + result) to `C:\IntuneLogs\ProjectPro2024\`.
 
@@ -137,7 +137,7 @@ Uninstall-ProjectPro2024.ps1    →  & setup.exe /configure Uninstall-ProjectPro
 | AppSettings | default save formats | Excel `.xlsx`, PowerPoint `.pptx`, Word default |
 
 ### Uninstall-ProjectPro2024.xml
-Removes `ProjectPro2024Volume` only — leaves other Office products untouched.
+Removes `ProjectPro2024Volume` only; leaves other Office products untouched.
 
 ---
 
@@ -147,13 +147,13 @@ Removes `ProjectPro2024Volume` only — leaves other Office products untouched.
 * Windows 10 / Windows 11
 
 ### Architecture
-* Supports both 64-bit and 32-bit Office — install script auto-detects from registry.
+* Supports both 64-bit and 32-bit Office; the install script auto-detects from registry.
 
 ### PowerShell
 * Windows PowerShell **5.1 or later** (detection script runs under the Intune Management Extension)
 
 ### Permissions
-* Runs in the local **SYSTEM** context via Intune — no Graph scopes, no Entra ID permission.
+* Runs in the local **SYSTEM** context via Intune; no Graph scopes or Entra ID permission.
 * Local administrator rights required for manual runs (checked by the PowerShell scripts).
 
 ### Logging
@@ -166,7 +166,7 @@ Removes `ProjectPro2024Volume` only — leaves other Office products untouched.
 # 🧭 Intune Deployment
 
 ### Win32 Packaging
-Download [IntuneWinAppUtil](https://learn.microsoft.com/en-us/mem/intune/apps/apps-win32-app-management) — or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) — and run:
+Download [IntuneWinAppUtil](https://learn.microsoft.com/en-us/mem/intune/apps/apps-win32-app-management) or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility), then run:
 
 ```powershell
 IntuneWinAppUtil.exe -c "C:\microsoft-project-2024-intune-deploy" -s setup.exe -o "C:\intune-output"
@@ -232,7 +232,7 @@ Upload `Detect-ProjectPro2024.ps1` as a **custom detection script**:
 # ❓ FAQ
 
 **Can I install Project alongside Office LTSC 2024?**
-Yes — Project 2024 volume installs independently alongside other Office products. All products share the same Click-to-Run configuration, but each has its own `ProductReleaseIds` entry.
+Yes. Project 2024 volume installs independently alongside other Office products. All products share the same Click-to-Run configuration, but each has its own `ProductReleaseIds` entry.
 
 **Can I use this with Microsoft 365 Apps?**
 No. This configuration is Project 2024-only (`ProjectPro2024Volume`, `PerpetualVL2024`). For Project Plan 5/3 (M365), generate a retail config via [config.office.com](https://config.office.com).
@@ -244,9 +244,9 @@ Office products on a device must share one architecture (32-bit or 64-bit). The 
 
 # 🛡 Operational Notes
 * **GVLK placeholder:** the XML files ship with a placeholder PIDKEY (`XXXXX-XXXXX-XXXXX-XXXXX-XXXXX`). Replace it with your organization's KMS GVLK before deployment. Refer to [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys) for the correct key for Project Professional 2024.
-* **Offline first-install:** the packaged folder contains only `setup.exe` — the first `/configure` streams the payload from the Office CDN. For a self-contained package, run `setup.exe /download Install-ProjectPro2024-x64.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
+* **Offline first-install:** the packaged folder contains only `setup.exe`; the first `/configure` streams the payload from the Office CDN. For a self-contained package, run `setup.exe /download Install-ProjectPro2024-x64.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
 * **Channel is a hard contract:** `PerpetualVL2024` is the only correct channel for Office 2024 volume licenses. Using `MonthlyEnterprise` or `Current` installs Microsoft 365 Apps instead.
-* **No legacy `.intunewin` in this folder:** the previous `Install_MS_project.intunewin` was removed — package this folder fresh with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) before any production deployment.
+* **No legacy `.intunewin` in this folder:** the previous `Install_MS_project.intunewin` was removed. Package this folder fresh with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) before any production deployment.
 * **Architecture selection:** if no prior Office Click-to-Run product is installed, the script defaults to `x64`. Override with `-Architecture x86` in the Intune install command if needed.
 
 ---

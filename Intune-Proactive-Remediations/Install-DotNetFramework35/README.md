@@ -36,7 +36,7 @@ Many legacy applications still require .NET 3.5, which Windows ships disabled by
 ### 🔹 Verified Remediation
 * Runs `Enable-WindowsOptionalFeature -Online -FeatureName NetFx3 -All -NoRestart` with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables .NET Framework 3.5, using a pre-check → fix → post-verify flow with 
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Install-DotNetFramework35\`
@@ -150,7 +150,7 @@ remediate-Install-DotNetFramework35.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * The feature payload may be downloaded from Windows Update or Windows Server Update Services; ensure devices have access to a source or provide one via policy (`UseWUServer` considerations).
 * No restart is forced by the scripts; some installations may still mark a pending reboot.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

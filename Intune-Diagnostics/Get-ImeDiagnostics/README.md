@@ -20,7 +20,7 @@ Troubleshoot Win32App, ESP, and Remediation failures without CMTrace. Reads Intu
 
 # 🔍 Overview
 
-**Get-ImeDiagnostics** Troubleshoot Win32App, ESP, and Remediation failures without CMTrace. Reads IntuneManagementExtension.log + AgentExecutor.log, exports Carbon Dark HTML.
+Get-ImeDiagnostics is a PowerShell script that parses Intune Management Extension logs into a Carbon Dark timeline. It reads IntuneManagementExtension.log and AgentExecutor.log to help troubleshoot Win32App, ESP, and Remediation failures without CMTrace, then exports a Carbon Dark HTML report.
 
 ---
 

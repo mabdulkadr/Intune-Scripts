@@ -22,7 +22,7 @@ This script connects to Microsoft Graph and retrieves all Apple Device Enrollmen
 
 **Check Apple Token Validity** is a PowerShell reporting script that This script connects to Microsoft Graph and retrieves all Apple Device Enrollment Program (DEP) tokens and Apple Push Notification Certificates configured in Intune. It checks their validity status, expiration dates, and sync status to help administrators proactively manage Apple Business Manager integrations. The s...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -115,8 +115,8 @@ Shows only problematic tokens and certificates and sends email alerts for critic
 ---
 
 # 🛡 Operational Notes
-* Certificates and Apple tokens expire after one year; default warning window is 30 days (`-ExpirationWarningDays` / `-ExpiryWarningDays`) — tune for renewal lead time.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Certificates and Apple tokens expire after one year; default warning window is 30 days (`-ExpirationWarningDays` / `-ExpiryWarningDays`). Tune for renewal lead time.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

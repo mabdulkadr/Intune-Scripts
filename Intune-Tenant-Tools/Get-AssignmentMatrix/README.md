@@ -4,7 +4,7 @@
 
 **Builds a who-gets-what matrix of every policy, profile, script, and app.**
 
-Flattens every Intune assignment into a single `Surface / Name / TargetType / GroupName / Intent / FilterName / FilterMode` row — answers what any group actually gets.
+Flattens every Intune assignment into a single `Surface / Name / TargetType / GroupName / Intent / FilterName / FilterMode` row and answers what any group actually gets.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,7 +20,7 @@ Flattens every Intune assignment into a single `Surface / Name / TargetType / Gr
 
 # 📖 Overview
 
-**Get Assignment Matrix** is a PowerShell script that collects assignments across seven Intune surfaces — device configurations, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications — and flattens each assignment into one row showing target (group, all users/devices, or exclusion), resolved group name (cached), assignment filter with mode, and app install intent.
+**Get Assignment Matrix** is a PowerShell script that collects assignments across seven Intune surfaces: device configurations, settings catalog, compliance, ADMX, platform scripts, remediation scripts, and applications. It flattens each assignment into one row showing target (group, all users/devices, or exclusion), resolved group name (cached), assignment filter with mode, and app install intent.
 
 ---
 
@@ -101,11 +101,11 @@ Reports only apps and compliance policies including unassigned objects and expor
 
 # 🛡 Operational Notes
 
-* Apps without assignments are skipped unless `-IncludeUnassigned` is used — the app catalog contains many built-in unassigned entries.
+* Apps without assignments are skipped unless `-IncludeUnassigned` is used; the app catalog contains many built-in unassigned entries.
 * Group names are resolved once and cached; deleted groups appear as their object ID.
 * Beta Graph endpoints are used for assignment surfaces not yet on `v1.0`; all collections page fully and retry on 429/503.
 * **Restore ShouldProcess note (tenant governance):** companion restore script gates every create with `ShouldProcess`; matrix output helps validate what assignments would be restored with `-RestoreAssignments`.
-* RBAC sensitivity: matrix CSV reveals who gets what — treat as sensitive and restrict distribution.
+* RBAC sensitivity: matrix CSV reveals who gets what; treat it as sensitive and restrict distribution.
 
 ---
 

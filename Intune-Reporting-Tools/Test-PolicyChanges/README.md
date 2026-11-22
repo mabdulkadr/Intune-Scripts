@@ -22,7 +22,7 @@ This script connects to Microsoft Graph and retrieves recent changes to Policies
 
 **Check Policy Changes** is a PowerShell reporting script that This script connects to Microsoft Graph and retrieves recent changes to Policies configured in Intune. It checks audit logs for policy modifications, creations, deletions, and assignments within a specified time period. The script generates detailed reports in CSV format, highlighting policy changes with details abo...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -117,7 +117,7 @@ Shows only modified policies and sends email alerts for changes
 
 # 🛡 Operational Notes
 * Intune audit events (`deviceManagement/auditEvents`) are retained for **30 days**; older changes must be archived externally.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

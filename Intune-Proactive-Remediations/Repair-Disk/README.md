@@ -29,7 +29,7 @@ The detection script intentionally does not evaluate device state: it reports no
 # ✨ Core Features
 
 ### 🔹 Always-Trigger Detection
-* Preserved legacy intent — never evaluates device state
+* Preserved legacy intent: never evaluates device state
 * Exits `1` on every run so the paired remediation always executes
 
 ### 🔹 Verified Remediation
@@ -113,7 +113,7 @@ Scans the system drive file system with `Repair-Volume -Scan` and verifies the o
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Repair-Disk\`
@@ -150,7 +150,7 @@ remediate-Repair-Disk.ps1
 ---
 
 # 🛡 Operational Notes
-* The always-trigger detection is deliberate legacy behavior — every device is scanned on every remediation cycle.
+* The always-trigger detection is deliberate legacy behavior: every device is scanned on every remediation cycle.
 * Online volume scans can take several minutes on large drives; plan remediation schedules accordingly.
 * Scan failures surface as exit `1` so operators see them as device health failures.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

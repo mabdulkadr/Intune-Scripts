@@ -29,7 +29,7 @@ This package intentionally has no real compliance condition: the detection scrip
 # ✨ Core Features
 
 ### 🔹 Always-Trigger Detection
-* Deliberately evaluates nothing — exits `1` on every run by design
+* Deliberately evaluates nothing: it exits `1` on every run by design
 * Documents its always-run intent in output and logs for operators
 * Keeps the pair predictable: every detection cycle ends in a refresh
 
@@ -67,7 +67,7 @@ detect-Invoke-GPUpdate.ps1
 ```
 
 ### Purpose
-Always triggers the paired remediation. Strictly read-only — it performs no system evaluation.
+Always triggers the paired remediation. Strictly read-only: it performs no system evaluation.
 
 ### Logic
 1. Report one fixed condition: "a Group Policy refresh is requested"
@@ -113,7 +113,7 @@ Forces a Group Policy refresh via `gpupdate /force`, using a pre-check → fix �
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Invoke-GPUpdate\`
@@ -150,7 +150,7 @@ remediate-Invoke-GPUpdate.ps1
 ---
 
 # 🛡 Operational Notes
-* Every detection cycle triggers a remediation run — scope assignments deliberately to avoid excessive Group Policy churn.
+* Every detection cycle triggers a remediation run; scope assignments deliberately to avoid excessive Group Policy churn.
 * A `gpupdate` exit code of `0` confirms the refresh was initiated; actual policy application is asynchronous.
 * User-targeted policy only applies when the script runs in the interactive user context; machine policy applies in SYSTEM context.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.

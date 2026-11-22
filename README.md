@@ -20,34 +20,34 @@ Production-grade collection of detection/remediation pairs, compliance checks, t
 
 # 📖 Overview
 
-**Intune Scripts — Enterprise Library** is a production-ready, **Azure-free** repository of **PowerShell 5.1 and macOS shell automation for Microsoft Intune and Microsoft Graph**.
+Intune Scripts Enterprise Library is a production-ready, Azure-free repository of PowerShell 5.1 and macOS shell automation for Microsoft Intune and Microsoft Graph.
 
-The repository consolidates the original remediation catalog into a single functional taxonomy. Every script runs in exactly two contexts: **deployed by Intune** (proactive remediations, custom compliance, shell script profiles) or **standalone from an admin workstation** via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed.
+The repository consolidates the original remediation catalog into a single functional taxonomy. Every script runs in exactly two contexts: deployed by Intune (proactive remediations, custom compliance, shell script profiles) or standalone from an admin workstation via interactive or app-only Graph sign-in. All Azure Automation runbooks, Managed Identity branches, and deployment templates have been removed.
 
-Designed for enterprise scale: standardized headers, structured logging, deterministic exit codes, and a README per solution folder so each package is deployable independently.
+The library uses standardized headers, structured logging, deterministic exit codes, and a README per solution folder so each package can be deployed independently.
 
 ---
 
 # ✨ Core Features
 
 ### 🔹 Unified Intune Automation Library
-* **Proactive remediations** — paired `detect-` / `remediate-` packages for cleanup, repair, hardening, and notifications
-* **Custom compliance** — JSON-emitting discovery scripts for Intune custom compliance policies
-* **Tenant & reporting tools** — backup/restore, assignment auditing, compliance and update reporting, and governance
-* **Device operations** — bulk group management, Autopilot cleanup, sync/restart/wipe, and readiness reporting
-* **Security tools** — BitLocker/LAPS/Defender/Firewall posture and rotation
-* **macOS hygiene** — 7 bash checks for FileVault, XProtect, MAU, and privileged access
+* Proactive remediations: paired `detect-` / `remediate-` packages for cleanup, repair, hardening, and notifications
+* Custom compliance: JSON-emitting discovery scripts for Intune custom compliance policies
+* Tenant & reporting tools: backup/restore, assignment auditing, compliance and update reporting, and governance
+* Device operations: bulk group management, Autopilot cleanup, sync/restart/wipe, and readiness reporting
+* Security tools: BitLocker/LAPS/Defender/Firewall posture and rotation
+* macOS hygiene: 7 bash checks for FileVault, XProtect, MAU, and privileged access
 
 ### 🔹 Production Focus
-* PowerShell **5.1 contract** — no aliases, typed exceptions, no empty catches
+* PowerShell 5.1 contract: no aliases, typed exceptions, no empty catches
 * Canonical rich header (`.SYNOPSIS` → `.NOTES`, `.REMEDIATIONTYPE` / `.PAIRSCRIPT` on pairs, real `.PERMISSIONS`)
 * Verbatim logging block (`Initialize-Log` / `Write-Banner` / `Write-Log` / `Finish-Script`) to `<SystemDrive>\IntuneLogs\<Solution>\` or `C:\ProgramData\<ScriptName>\Logs`
 * Exit-code contract: detection `0` compliant / `1` non-compliant / `2` error; remediation `0` success / `1` failure / `2` error with pre-check → fix → post-verify → JSON output
 
 ### 🔹 Azure-Free, Workstation-First
 * No Azure Automation, no Managed Identity, no ARM templates
-* Graph tools support **interactive sign-in** (with `Microsoft.Graph` / `MgGraphCommunity` WAM-free fallback) and **app-only** (`-TenantId` + `-ClientId` + `-ClientSecret` or `-CertificateThumbprint`)
-* Scopes, URIs, and business logic preserved from upstream — only the auth shell was unified
+* Graph tools support interactive sign-in (with `Microsoft.Graph` / `MgGraphCommunity` WAM-free fallback) and app-only (`-TenantId` + `-ClientId` + `-ClientSecret` or `-CertificateThumbprint`)
+* Scopes, URIs, and business logic are preserved from upstream; only the auth shell was unified
 
 ---
 
@@ -152,7 +152,7 @@ Intune-Scripts-main/
 
 For any folder under `Intune-Proactive-Remediations/` (e.g., `Disable-FastStartup`):
 
-1. Open the package's own `README.md` — it is the authoritative deployment guide.
+1. Open the package's own `README.md`; it is the authoritative deployment guide.
 2. In Intune: **Devices > Scripts and remediations > Create > Proactive remediations**.
 3. Upload **Detection script**: `detect-<Solution>.ps1`.
 4. Upload **Remediation script**: `remediate-<Solution>.ps1`.
@@ -200,7 +200,7 @@ On PowerShell 5.1 the tools fall back to `MgGraphCommunity` for WAM-free sign-in
   -CertificateThumbprint "ABCDEF1234567890ABCDEF1234567890ABCDEF12"
 ```
 
-App-only uses the `.default` scope and works on any machine where the certificate/secret is available — ideal for scheduled tasks.
+App-only uses the `.default` scope and works on any machine where the certificate/secret is available, which suits scheduled tasks.
 
 **macOS variant:**
 
@@ -217,7 +217,7 @@ shellcheck ./Intune-macOS/*.sh
 ### Environment
 * Windows PowerShell **5.1 or later** (PowerShell 7 supported for workstation tools where noted)
 * **Administrator privileges** on the admin workstation for Graph tools; **SYSTEM context** when deployed via Intune
-* Microsoft Intune tenant — no Azure subscription or Automation account required
+* Microsoft Intune tenant; no Azure subscription or Automation account required
 * macOS **10.15+** with `bash 3.2+` or `zsh` for `Intune-macOS` checks
 
 ### Modules (workstation tools only)
@@ -232,7 +232,7 @@ Optional per script (declared in each header's `.PERMISSIONS`):
 Install-Module Microsoft.Graph.Authentication  # fallback handled automatically
 ```
 
-Intune-deployed remediation and compliance scripts require **no Graph modules** — they run in SYSTEM context with local logging only.
+Intune-deployed remediation and compliance scripts require no Graph modules. They run in SYSTEM context with local logging only.
 
 ### Permissions
 * Each script's header lists the exact Graph scopes or local privileges required (e.g., `DeviceManagementManagedDevices.Read.All`, `DeviceManagementConfiguration.Read.All`, `AuditLog.Read.All`, or local `SYSTEM`).
@@ -242,13 +242,13 @@ Intune-deployed remediation and compliance scripts require **no Graph modules** 
 
 # 🛡 Operational Notes
 
-* Use each package's own `README.md` as the authoritative deployment guide — it documents exit codes, logging paths, and Intune assignment settings.
+* Use each package's own `README.md` as the authoritative deployment guide. It documents exit codes, logging paths, and Intune assignment settings.
 * Test every script in a **staging device group** before tenant-wide assignment.
 * Detection errors exit with code `2` so Intune never evaluates a crashed script as non-compliance; remediation verifies with pre-check → fix → post-verify and structured JSON output.
 * Logs: endpoint pairs under `<SystemDrive>\IntuneLogs\<Solution>\`; workstation tools under `C:\ProgramData\<ScriptName>\Logs` (see each script's header).
-* Destructive tools (`Invoke-DeviceWipe`, `Remove-StaleAutopilotDevices`, `Remove-DuplicateDeviceRecords`, `Remove-OrphanedApps`) are flagged with ⚠ in their READMEs — confirm scope and backup before use.
-* **Apple Silicon vs Intel / Rosetta (macOS):** All `Intune-macOS` checks use universal tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on both architectures; no Rosetta dependency. MAU checks invoke the native `msupdate` binary for the host arch.
-* No Azure dependencies remain — if a script still references Managed Identity or Automation variables, treat it as a bug and report it.
+* Destructive tools (`Invoke-DeviceWipe`, `Remove-StaleAutopilotDevices`, `Remove-DuplicateDeviceRecords`, `Remove-OrphanedApps`) are flagged with ⚠ in their READMEs; confirm scope and back up before use.
+* Apple Silicon vs Intel / Rosetta (macOS): All `Intune-macOS` checks use universal tooling (`sysctl`, `dscl`, `sw_vers`, `nc`, `csrutil`, `spctl`, `fdesetup`) and run identically on both architectures; no Rosetta dependency. MAU checks invoke the native `msupdate` binary for the host arch.
+* No Azure dependencies remain. If a script still references Managed Identity or Automation variables, treat it as a bug and report it.
 
 ---
 

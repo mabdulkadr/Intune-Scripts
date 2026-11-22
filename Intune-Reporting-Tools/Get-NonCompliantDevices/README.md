@@ -22,7 +22,7 @@ This script connects to Microsoft Graph, retrieves every managed device whose co
 
 **Get Non Compliant Devices** is a PowerShell reporting script that This script connects to Microsoft Graph, retrieves every managed device whose compliance state is non-compliant (and optionally error / in grace period), then drills into each device's compliance policy states and the underlying setting states to surface the exact reason a device is non-compliant. For every failing ...
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -111,8 +111,8 @@ Saves the reports to the specified directory and opens the HTML report when fini
 ---
 
 # 🛡 Operational Notes
-* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as” — uncovered platforms may silently pass Conditional Access when set to Compliant.
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Compliance evaluation is tenant-specific; verify the tenant setting “Mark devices with no compliance policy assigned as”. Uncovered platforms may silently pass Conditional Access when set to Compliant.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 
 ---
 

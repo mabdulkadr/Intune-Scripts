@@ -22,7 +22,7 @@ Detection compares installed display names against a configurable blacklist arra
 
 **Uninstall Installed Application** is an Intune remediation package that removes unwanted applications across managed devices based on a configurable blacklist.
 
-The scripts query the standard 64-bit and 32-bit HKLM uninstall registry locations and compare discovered display names (falling back to the localized name when empty) against the `$BlacklistApps` array. Detection is strictly read-only; when one or more blacklist entries are found, Intune runs the paired remediation, which launches the matching silent uninstall for each application — `msiexec.exe /x {GUID} /qn /norestart` for MSI products, or the vendor command wrapped in `cmd.exe` with `/S` appended — then verifies no blacklisted entry remains.
+The scripts query the standard 64-bit and 32-bit HKLM uninstall registry locations and compare discovered display names (falling back to the localized name when empty) against the `$BlacklistApps` array. Detection is strictly read-only; when one or more blacklist entries are found, Intune runs the paired remediation, which launches the matching silent uninstall for each application, using `msiexec.exe /x {GUID} /qn /norestart` for MSI products and the vendor command wrapped in `cmd.exe` with `/S` appended, then verifies no blacklisted entry remains.
 
 ---
 
@@ -36,7 +36,7 @@ The scripts query the standard 64-bit and 32-bit HKLM uninstall registry locatio
 ### 🔹 Verified Remediation
 * Per-application uninstall with failure tracking and pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — a device without blacklisted applications exits successfully without changes
+* Idempotent: a device without blacklisted applications exits successfully without changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Silently uninstalls every detected blacklisted application, using a pre-check �
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Uninstall-InstalledApplication\`
@@ -151,7 +151,7 @@ remediate-Uninstall-InstalledApplication.ps1
 
 # 🛡 Operational Notes
 * Edit `$BlacklistApps` in both scripts to control which display names are targeted; matching is exact and case-insensitive.
-* Vendor uninstallers vary in quality — some exit `0` before finishing asynchronously; review logs when verification reports leftovers.
+* Vendor uninstallers vary in quality: some exit `0` before finishing asynchronously. Review logs when verification reports leftovers.
 * Non-MSI applications are invoked via `cmd.exe /c "<command> /S"`, which assumes the vendor installer supports the `/S` silent flag.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

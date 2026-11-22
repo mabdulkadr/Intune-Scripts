@@ -28,9 +28,9 @@ Designed as an **Intune custom attribute** (single-line stdout) and as an **Intu
 
 # ✨ Features
 
-* **User-context execution** — resolves `loggedInUser` with `stat`/`id -u` and uses `launchctl asuser` + `sudo -u` so MAU reports user-specific updates.
-* **MAU health checks** — validates `msupdate` exists and is executable before probing; surfaces `Microsoft AutoUpdate not installed` clearly.
-* **Collapsed single-line reporting** — `grep`/`tr`/`sed` pipeline turns multi-line `msupdate --list` into a space-delimited list for Intune.
+* Resolves `loggedInUser` with `stat`/`id -u` and uses `launchctl asuser` + `sudo -u` so MAU reports user-specific updates.
+* Validates `msupdate` exists and is executable before probing; surfaces `Microsoft AutoUpdate not installed` clearly.
+* Uses a `grep`/`tr`/`sed` pipeline to turn multi-line `msupdate --list` into a space-delimited list for Intune.
 
 Additional details:
 
@@ -99,7 +99,7 @@ for s in ./*.sh; do echo "== $s =="; chmod +x "$s"; "$s"; echo; done
 
 # ⚙️ Parameters
 
-This script has **no parameters** — it is a read-only check with no configuration flags.
+This script has no parameters. It is a read-only check with no configuration flags.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
@@ -122,7 +122,7 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Shell
 
-* `bash` **3.2+** (system bash) or `zsh` — all scripts use POSIX-compatible syntax and standard macOS utilities
+* `bash` **3.2+** (system bash) or `zsh`. All scripts use POSIX-compatible syntax and standard macOS utilities
 
 ### Intune
 
@@ -135,11 +135,11 @@ This script has **no parameters** — it is a read-only check with no configurat
 
 ### Dependencies
 
-* No external modules — uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted
+* Uses only macOS system tools (`sw_vers`, `defaults`, `dscl`, `sysctl`, `nc`, `PlistBuddy`, `csrutil`, `spctl`, `fdesetup`) and `msupdate` where noted. No external modules.
 
 ### Logging
 
-* Not applicable — read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty
+* Not applicable. This is a read-only check with single-line stdout for Intune; `trap ERR` routes failures to `output_result` so inventory is never empty.
 
 ---
 

@@ -22,7 +22,7 @@ Cross-references every Windows device's actual OS build against: update ring ass
 
 **Get Intune Update Compliance Report** is a PowerShell reporting script that cross-references every Windows device's actual OS build against: update ring assignments and their deferral/deadline settings, feature update profile assignments and target versions, quality update (expedited) profile assignments, and driver update profile assignments. Reports per-ring compliance rates, devices stuck on old builds, devices assigned to multiple rings (conflict), paused rings still affecting devices, feature update vs ring deferral conflicts, Windows 10 EOL devices, and devices not in any ring.
 
-It is part of the **Intune Reporting Tools** category and runs from a workstation — no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
+It is part of the **Intune Reporting Tools** category and runs from a workstation, with no agent deployment required. The script supports interactive sign-in (via `MgGraphCommunity` for WAM-free flow) and unattended app-only authentication via `-TenantId` / `-ClientId` with certificate or secret.
 
 ---
 
@@ -100,7 +100,7 @@ Comprehensive Windows Update compliance report - the single source of truth for 
 ---
 
 # 🛡 Operational Notes
-* Test in a staging tenant first; Graph permission errors surface as 403 — check Entra ID consent for the listed scopes.
+* Test in a staging tenant first. Graph permission errors surface as 403, so check Entra ID consent for the listed scopes.
 * Respect Graph throttling: the script includes built-in delays and 429 retry handling, but large tenants may still take several minutes.
 
 ---

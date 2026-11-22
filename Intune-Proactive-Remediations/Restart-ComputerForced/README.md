@@ -22,7 +22,7 @@ Detection checks common pending-reboot indicators and remediation forces the res
 
 **Forced Restart** is an Intune remediation package that clears pending-reboot state across managed devices by forcing the restart Windows is already waiting for.
 
-The detection script evaluates four indicators — Windows Update `RebootRequired`, Component Based Servicing `RebootPending`, `PendingFileRenameOperations`, and a pending computer rename — and writes its verdict to `C:\Intune\RestartStatus.txt`. Both remediations pair with this one detector: **remediate-Restart-ComputerForced.ps1** reads that verdict, warns the user twice with balloon tips, waits 30 minutes plus a final minute, and only then forces the restart; **remediate-Restart-ComputerForcedNow.ps1** skips every warning, delay, and status-file dependency and issues an immediate forced restart for aggressive maintenance windows.
+The detection script evaluates four indicators: Windows Update `RebootRequired`, Component Based Servicing `RebootPending`, `PendingFileRenameOperations`, and a pending computer rename. It writes its verdict to `C:\Intune\RestartStatus.txt`. Both remediations pair with this one detector: remediate-Restart-ComputerForced.ps1 reads that verdict, warns the user twice with balloon tips, waits 30 minutes plus a final minute, and only then forces the restart; remediate-Restart-ComputerForcedNow.ps1 skips every warning, delay, and status-file dependency and issues an immediate forced restart for aggressive maintenance windows.
 
 ---
 
@@ -83,7 +83,7 @@ Detects whether Windows is waiting for a restart. Read-only apart from the statu
 
 ## 🛠 Remediation Script
 
-Both remediation scripts below pair with the single detector above — assign exactly **one** of them per Intune remediation profile.
+Both remediation scripts below pair with the single detector above. Assign exactly one of them per Intune remediation profile.
 
 **File (delayed flavor)**
 ```powershell
@@ -113,7 +113,7 @@ remediate-Restart-ComputerForcedNow.ps1
 ```
 
 ### Purpose
-Forces an immediate restart with no warnings — the aggressive maintenance-window flavor.
+Forces an immediate restart with no warnings. This is the aggressive maintenance-window flavor.
 
 ### Logic
 1. Pre-check: confirm the `Restart-Computer` cmdlet is available
@@ -138,7 +138,7 @@ Forces an immediate restart with no warnings — the aggressive maintenance-wind
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * Forcing restarts requires elevated (SYSTEM/Administrator) context.
 
 ### Logging
@@ -180,7 +180,7 @@ remediate-Restart-ComputerForcedNow.ps1
 ---
 
 # 🛡 Operational Notes
-* **A forced restart discards all unsaved user work.** The immediate variant gives no warning at all — assign it only to maintenance scopes, kiosks, or lab devices.
+* A forced restart discards all unsaved user work. The immediate variant gives no warning at all; assign it only to maintenance scopes, kiosks, or lab devices.
 * Balloon tips require an interactive session; on headless SYSTEM-context runs the delayed flavor logs a warning and continues without visible notifications.
 * The delayed flavor depends on `C:\Intune\RestartStatus.txt`; if the detection script has never run, the remediation aborts without rebooting.
 * Edit `$DelaySeconds` in the delayed remediation to change the warning period.

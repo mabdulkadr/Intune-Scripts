@@ -22,7 +22,7 @@ Three escalating modes verify policy health: Analyze finds Conflict/Error settin
 
 **Find-IntunePolicyConflict** is a PowerShell reporting script that three escalating modes verify policy health: Analyze finds Conflict/Error settings and overlapping CSP paths; Investigate X-rays every setting for a Windows feature area via dependency maps; Isolate guides a binary search with temporary assignment removals and restores all assignments at the end.
 
-It is designed for helpdesk troubleshooting — Analyze for actual conflicts, Investigate for hardening side effects (e.g., Hello broken after baseline), and Isolate for brute-force binary search when nothing else surfaces the culprit. Analyze and Investigate are read-only; Isolate makes temporary changes and always restores.
+It is designed for helpdesk troubleshooting. Analyze looks for actual conflicts, Investigate checks hardening side effects (e.g., Hello broken after baseline), and Isolate runs a brute-force binary search when nothing else surfaces the culprit. Analyze and Investigate are read-only; Isolate makes temporary changes and always restores.
 
 ---
 
@@ -30,7 +30,7 @@ It is designed for helpdesk troubleshooting — Analyze for actual conflicts, In
 
 * Analyze: finds Conflict/Error states and overlapping CSP settings
 * Investigate: X-rays every setting for a feature via Windows dependency maps (Hello, BitLocker, Defender, etc.)
-* Isolate: guided binary search removing half the policies per round — O(log n) with auto-restore
+* Isolate: guided binary search removing half the policies per round, O(log n) with auto-restore
 * Resolves Entra group IDs and device/user transitive membership for accurate targeting
 * Exports CSV beside the script for overlapping settings and feature analysis
 

@@ -38,7 +38,7 @@ Detection is read-only via ADSI (handles orphaned SIDs that break `Get-LocalGrou
 ### 🔹 Verified Remediation
 * `Remove-LocalGroupMember` for unauthorized members only (pre-check → fix → post-verify)
 * Emits structured JSON result
-* Idempotent — already-compliant devices exit `0` without changes
+* Idempotent: already-compliant devices exit `0` without changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines
@@ -115,7 +115,7 @@ Removes unauthorized members from the local Administrators group.
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Repair-LocalAdminDrift\`
@@ -152,7 +152,7 @@ remediate-Repair-LocalAdminDrift.ps1
 ---
 
 # 🛡 Operational Notes
-* Keep `$AllowedNames` identical in both scripts — add your LAPS-managed admin account name there.
+* Keep `$AllowedNames` identical in both scripts; add your LAPS-managed admin account name there.
 * Built-in Administrator (RID 500) and Entra device admin role SIDs are always allowed.
 * Uses ADSI because `Get-LocalGroupMember` fails on orphaned SIDs.
 * Test on a pilot group; removing the wrong account can lock out local support.

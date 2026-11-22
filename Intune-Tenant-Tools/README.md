@@ -4,7 +4,7 @@
 
 **Tenant configuration governance: backup, audits, groups, and RBAC**
 
-Nine Graph-powered workstation tools for configuration lifecycle, assignment visibility, and role governance — backup and restore with manifest-tracked JSON, drift and filter audits, assignment matrix and per-group analysis, RBAC review, plus bulk remediation and driver approval.
+Nine Graph-powered workstation tools for configuration lifecycle, assignment visibility, and role governance: backup and restore with manifest-tracked JSON, drift and filter audits, assignment matrix and per-group analysis, RBAC review, plus bulk remediation and driver approval.
 
 [![Intune](https://img.shields.io/badge/Intune-Tenant%20Tools-10B981?style=for-the-badge)](#-overview)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,30 +20,30 @@ Nine Graph-powered workstation tools for configuration lifecycle, assignment vis
 
 # 📖 Overview
 
-**Intune Tenant Tools** is the tenant governance category for Microsoft Intune — seven root scripts plus two subfolder tools covering the full configuration lifecycle.
+**Intune Tenant Tools** is the tenant governance category for Microsoft Intune: seven root scripts plus two subfolder tools covering the full configuration lifecycle.
 
-The suite exports and restores device configuration profiles, settings catalog policies, compliance policies, ADMX templates, and platform scripts as versionable JSON; audits assignment filters, builds assignment matrices, answers "what does this group get," surfaces role assignments for access reviews, compares tenant state against a baseline to flag drift, and provides on-demand remediation triggers and bulk driver approvals. Every tool runs **from an admin workstation** via Microsoft Graph — interactive delegated sign-in (WAM-free via `MgGraphCommunity` when available) or app-only (`-TenantId` / `-ClientId` + `-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation or endpoint deployment dependency.
+The suite exports and restores device configuration profiles, settings catalog policies, compliance policies, ADMX templates, and platform scripts as versionable JSON. It also audits assignment filters, builds assignment matrices, answers "what does this group get," surfaces role assignments for access reviews, compares tenant state against a baseline to flag drift, and provides on-demand remediation triggers and bulk driver approvals. Every tool runs from an admin workstation via Microsoft Graph, using interactive delegated sign-in (WAM-free via `MgGraphCommunity` when available) or app-only (`-TenantId` / `-ClientId` + `-ClientSecret` or `-CertificateThumbprint`), with no Azure Automation or endpoint deployment dependency.
 
 ---
 
 # ✨ Core Features
 
 ### 🔹 Backup / Restore with JSON Handling
-* `Backup-IntuneConfiguration.ps1` exports DeviceConfigurations, SettingsCatalog (with per-policy `settings` expansion), CompliancePolicies (`scheduledActionsForRule` expansion), AdmxPolicies (`definitionValues` + `presentationValues` expansion), and PlatformScripts (Windows + macOS) — each object as one JSON file including `assignments`, plus `manifest.json`. Uses `ConvertTo-Json -Depth 25` and beta Graph endpoints; secrets are never exported.
+* `Backup-IntuneConfiguration.ps1` exports DeviceConfigurations, SettingsCatalog (with per-policy `settings` expansion), CompliancePolicies (`scheduledActionsForRule` expansion), AdmxPolicies (`definitionValues` + `presentationValues` expansion), and PlatformScripts (Windows + macOS). Each object is one JSON file including `assignments`, plus `manifest.json`. Uses `ConvertTo-Json -Depth 25` and beta Graph endpoints; secrets are never exported.
 * `Restore-IntuneConfiguration.ps1` recreates objects as **new entries** from a backup folder, strips read-only properties (`id`, timestamps, `assignments`, `@odata.*`), supports `-WhatIf` preview via `SupportsShouldProcess`, and optionally restores assignments (`-RestoreAssignments`) when source group IDs exist in the target tenant. Handles `scheduledActionsForRule` fallbacks and ADMX `definition@odata.bind` creation.
 
 ### 🔹 Assignment Audits & Group Visibility
-* **Assignment Filter Audit** — scans every assignment surface (configuration, settings catalog, compliance, ADMX, PowerShell/shell scripts, remediation scripts, apps) for `deviceAndAppManagementAssignmentFilterId` / `Type` references; reports unused filters and duplicate filters (same platform + whitespace-normalized rule).
-* **Assignment Matrix** — flattens every assignment into `Surface / Name / TargetType / GroupName / Intent / FilterName / FilterMode` rows with cached group-name resolution and optional `-IncludeUnassigned`; answers "what targets this population" in one CSV.
-* **Group Assignments** — given a single Entra group by name or ID (exact match required), lists everything directly assigned to it across all surfaces with `Included` / `Excluded` / `All Users` / `All Devices` classification and filter mode, plus optional tenant-wide inclusion.
+* Assignment Filter Audit: scans every assignment surface (configuration, settings catalog, compliance, ADMX, PowerShell/shell scripts, remediation scripts, apps) for `deviceAndAppManagementAssignmentFilterId` / `Type` references; reports unused filters and duplicate filters (same platform + whitespace-normalized rule).
+* Assignment Matrix: flattens every assignment into `Surface / Name / TargetType / GroupName / Intent / FilterName / FilterMode` rows with cached group-name resolution and optional `-IncludeUnassigned`; answers "what targets this population" in one CSV.
+* Group Assignments: given a single Entra group by name or ID (exact match required), lists everything directly assigned to it across all surfaces with `Included` / `Excluded` / `All Users` / `All Devices` classification and filter mode, plus optional tenant-wide inclusion.
 
 ### 🔹 Drift Comparison
 * `Compare-PolicyDrift.ps1` compares a baseline backup folder (by ID-matched `manifest.json`) against live tenant state for settings catalog, configuration profiles, and compliance policies using normalized JSON (volatile `lastModifiedDateTime`, `version`, `assignments` etc. removed). Classifies each object as `Added` / `Modified` / `Deleted` and supports CSV export.
 
 ### 🔹 RBAC & Bulk Operations
-* **RBAC Audit** — enumerates `roleDefinitions` and `roleAssignments` (per-assignment `$expand=roleDefinition`), resolves user/group principals with 429 retry, groups by role (built-in vs. custom), shows scopes and members, and optionally lists empty roles; CSV export flattens members per assignment.
-* **Bulk Remediation** — triggers `initiateOnDemandProactiveRemediation` for a chosen `deviceHealthScript` across selected `managedDevices` (beta endpoints) with GridView pickers or fully parameterized `-RemediationId`/`-DeviceId` for headless runs; preserves legacy payload shape including trailing comma.
-* **Driver Approval** — approves every driver with `category eq 'other' and approvalStatus eq 'needsreview'` across all `windowsDriverUpdateProfiles` via `microsoft.graph.executeAction` with an ISO 8601 `deploymentDate`; fully paginated inventories with retry-aware Graph calls.
+* RBAC Audit: enumerates `roleDefinitions` and `roleAssignments` (per-assignment `$expand=roleDefinition`), resolves user/group principals with 429 retry, groups by role (built-in vs. custom), shows scopes and members, and optionally lists empty roles; CSV export flattens members per assignment.
+* Bulk Remediation: triggers `initiateOnDemandProactiveRemediation` for a chosen `deviceHealthScript` across selected `managedDevices` (beta endpoints) with GridView pickers or fully parameterized `-RemediationId`/`-DeviceId` for headless runs; preserves legacy payload shape including trailing comma.
+* Driver Approval: approves every driver with `category eq 'other' and approvalStatus eq 'needsreview'` across all `windowsDriverUpdateProfiles` via `microsoft.graph.executeAction` with an ISO 8601 `deploymentDate`; fully paginated inventories with retry-aware Graph calls.
 
 ### 🔹 Enterprise-Ready Execution
 * Workstation dual-mode auth for every audit/backup script; interactive scopes are requested via `MgGraphCommunity` (WAM-free) with fallback to `Microsoft.Graph.Authentication`.
@@ -100,9 +100,9 @@ Intune-Tenant-Tools
 * PowerShell **5.1 or later**
 
 ### Modules
-* `Microsoft.Graph.Authentication` — required for all 9 tools; auto-installed when missing (prompt or `-ForceModuleInstall`)
-* `MgGraphCommunity` — auto-installed when available to provide WAM-free interactive sign-in on Windows (all tools except BulkRemediation/DriverApproval which use `Microsoft.Graph.Authentication` directly)
-* `Microsoft.Graph.Beta.DeviceManagement.Actions` — required for `Approve-IntuneDriverUpdates.ps1` (auto-installed per-user)
+* `Microsoft.Graph.Authentication`: required for all 9 tools; auto-installed when missing (prompt or `-ForceModuleInstall`)
+* `MgGraphCommunity`: auto-installed when available to provide WAM-free interactive sign-in on Windows (all tools except BulkRemediation/DriverApproval which use `Microsoft.Graph.Authentication` directly)
+* `Microsoft.Graph.Beta.DeviceManagement.Actions`: required for `Approve-IntuneDriverUpdates.ps1` (auto-installed per-user)
 
 ```powershell
 Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
@@ -114,21 +114,21 @@ Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
 * Bulk remediation app-only registrations must have the listed application permissions with admin consent; driver approval needs `DeviceManagementConfiguration.ReadWrite.All` with admin consent.
 
 ### Logging
-* `C:\ProgramData\<SolutionName>\Logs\` — e.g. `C:\ProgramData\backup-intune-configuration\Logs\`, `C:\ProgramData\get-assignment-filter-audit\Logs\`, `C:\ProgramData\Invoke-BulkRemediation\Logs\`, `C:\ProgramData\Approve-IntuneDriverUpdates\Logs\`
+* `C:\ProgramData\<SolutionName>\Logs\`, for example `C:\ProgramData\backup-intune-configuration\Logs\`, `C:\ProgramData\get-assignment-filter-audit\Logs\`, `C:\ProgramData\Invoke-BulkRemediation\Logs\`, `C:\ProgramData\Approve-IntuneDriverUpdates\Logs\`
 * Relative `-OutputPath` / `-BackupPath` values resolve beside the script, not the caller's working directory.
 
 ---
 
 # 🛡 Operational Notes
 
-* **Backup JSON depth 25:** `Backup-IntuneConfiguration.ps1` writes each object with `ConvertTo-Json -Depth 25` (manifest uses depth 5) so nested settings catalog and ADMX presentation values survive round-tripping. Restore uses `-Depth 25` (settings catalog: 30) on create payloads. Graph never returns secret values (encrypted OMA-URI, passwords, certificates) — those appear as secret references and must be re-entered manually after restore.
-* **Restore supports ShouldProcess / WhatIf:** `Restore-IntuneConfiguration.ps1` is declared with `[CmdletBinding(SupportsShouldProcess = $true)]` — every `deviceConfigurations`, `configurationPolicies`, `deviceCompliancePolicies`, `groupPolicyConfigurations`, and `deviceManagementScripts` create is gated by `$PSCmdlet.ShouldProcess`. Run with `-WhatIf` to preview all creates without writing to the tenant. Objects are always created as new entries; re-running with the same backup creates duplicates. Assignment restore (`-RestoreAssignments`) requires source group IDs to exist in the target tenant and is reported per object.
-* **RBAC export sensitivity:** `Get-IntuneRoleAssignments.ps1` resolves and exports Intune role membership (users, groups, scopes) — treat the CSV as sensitive. Per-assignment `$expand=roleDefinition` is fetched individually because the list endpoint does not link assignments to roles; throttled principal lookups retry once after 60s. Use `-ShowEmptyRoles` only for completeness reviews.
-* **BulkRemediation device-targeting:** `Invoke-BulkRemediation.ps1` targets `devicemanagement/managedDevices` and posts to `managedDevices('<id>')/initiateOnDemandProactiveRemediation` (beta) with the legacy body `{"ScriptPolicyId":"<id>",}` (trailing comma preserved). Interactive mode opens `Out-GridView` pickers for remediation and devices — on headless hosts always pass `-RemediationId` and `-DeviceId`; when raw IDs are passed the display-name lookup is skipped. All calls use `Invoke-MgGraphRequestWithRetry` (429/503 honoring `Retry-After`, max 5 attempts) and `Get-MgGraphAllPages`.
-* **Driver approval is immediate and irreversible:** `Approve-IntuneDriverUpdates.ps1` approves every driver currently in `needsreview` with deployment date `now` (ISO 8601). The profile list is read from the first page only (legacy behavior); driver inventories are fully paginated and filtered to `category eq 'other' and approvalStatus eq 'needsreview'`. Test in a staging tenant and never hardcode client secrets — inject from a secret store at runtime.
-* **Beta endpoints:** All tools intentionally remain on `https://graph.microsoft.com/beta` because the full Intune configuration surface (settings catalog bodies, ADMX, assignment filters, driver inventories, role assignments) is not exposed on `v1.0`.
-* **Throttling:** Every Graph tool pages with `Get-MgGraphAllPages` and retries on 429/503. Large tenants will pause automatically; do not abort on the first throttling message.
-* **Common:** All scripts disconnect (`Disconnect-MgGraph`) and write structured logs. Test in a staging tenant before production.
+* Backup JSON depth 25: `Backup-IntuneConfiguration.ps1` writes each object with `ConvertTo-Json -Depth 25` (manifest uses depth 5) so nested settings catalog and ADMX presentation values survive round-tripping. Restore uses `-Depth 25` (settings catalog: 30) on create payloads. Graph never returns secret values (encrypted OMA-URI, passwords, certificates); those appear as secret references and must be re-entered manually after restore.
+* Restore supports ShouldProcess / WhatIf: `Restore-IntuneConfiguration.ps1` is declared with `[CmdletBinding(SupportsShouldProcess = $true)]`, so every `deviceConfigurations`, `configurationPolicies`, `deviceCompliancePolicies`, `groupPolicyConfigurations`, and `deviceManagementScripts` create is gated by `$PSCmdlet.ShouldProcess`. Run with `-WhatIf` to preview all creates without writing to the tenant. Objects are always created as new entries; re-running with the same backup creates duplicates. Assignment restore (`-RestoreAssignments`) requires source group IDs to exist in the target tenant and is reported per object.
+* RBAC export sensitivity: `Get-IntuneRoleAssignments.ps1` resolves and exports Intune role membership (users, groups, scopes); treat the CSV as sensitive. Per-assignment `$expand=roleDefinition` is fetched individually because the list endpoint does not link assignments to roles; throttled principal lookups retry once after 60s. Use `-ShowEmptyRoles` only for completeness reviews.
+* BulkRemediation device-targeting: `Invoke-BulkRemediation.ps1` targets `devicemanagement/managedDevices` and posts to `managedDevices('<id>')/initiateOnDemandProactiveRemediation` (beta) with the legacy body `{"ScriptPolicyId":"<id>",}` (trailing comma preserved). Interactive mode opens `Out-GridView` pickers for remediation and devices. On headless hosts always pass `-RemediationId` and `-DeviceId`; when raw IDs are passed the display-name lookup is skipped. All calls use `Invoke-MgGraphRequestWithRetry` (429/503 honoring `Retry-After`, max 5 attempts) and `Get-MgGraphAllPages`.
+* Driver approval is immediate and irreversible: `Approve-IntuneDriverUpdates.ps1` approves every driver currently in `needsreview` with deployment date `now` (ISO 8601). The profile list is read from the first page only (legacy behavior); driver inventories are fully paginated and filtered to `category eq 'other' and approvalStatus eq 'needsreview'`. Test in a staging tenant and never hardcode client secrets; inject them from a secret store at runtime.
+* Beta endpoints: All tools intentionally remain on `https://graph.microsoft.com/beta` because the full Intune configuration surface (settings catalog bodies, ADMX, assignment filters, driver inventories, role assignments) is not exposed on `v1.0`.
+* Throttling: Every Graph tool pages with `Get-MgGraphAllPages` and retries on 429/503. Large tenants will pause automatically; do not abort on the first throttling message.
+* Common: All scripts disconnect (`Disconnect-MgGraph`) and write structured logs. Test in a staging tenant before production.
 
 ---
 

@@ -24,8 +24,8 @@ Checks two independent executable-presence signals (program-folder markers and r
 
 It checks for the presence of the Trend Micro agent executable using two independent signals:
 
-1. **Folder markers** — The program folder exists and contains a known marker executable (`PccNt.exe` / `PccNTMon.exe`).
-2. **Processes** — Any of the Trend Micro agent processes active in memory (`ntrtscan`, `PccNTMon`, `TmListen`).
+1. Folder markers: The program folder exists and contains a known marker executable (`PccNt.exe` / `PccNTMon.exe`).
+2. Processes: Any of the Trend Micro agent processes active in memory (`ntrtscan`, `PccNTMon`, `TmListen`).
 
 Any single positive signal marks the agent as installed. The script emits a compact JSON property bag that Intune's custom compliance engine evaluates against the rule file.
 
@@ -34,16 +34,16 @@ Any single positive signal marks the agent as installed. The script emits a comp
 # ✨ Features
 
 ### 🔹 Multi-Signal Executable Detection
-* Robust across varied install layouts — folder-marker and process signals
+* Works across varied install layouts using folder-marker and process signals
 * Any one positive signal marks the agent as installed
 
 ### 🔹 Optimized for Intune
 * SysWOW64 (IME) PowerShell 5.1 compatible
-* No slow `Win32_Product` / WMI enumeration — only fast metadata reads
+* Avoids slow `Win32_Product` / WMI enumeration and reads only fast metadata
 * Runs to completion in seconds, well under the compliance script timeout
 
 ### 🔹 Enterprise Standards
-* Structured logging (file-only), typed error handling — read-only executable-presence checks
+* Structured logging (file-only) and typed error handling for read-only executable-presence checks
 * Read-only: never modifies the filesystem, registry, services, or processes
 * stdout carries **only** the single-line JSON (Error 65009); even failures emit valid JSON + `exit 0`
 
@@ -98,7 +98,7 @@ The discovery script takes **no parameters**. Intune Custom Compliance invokes `
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `C:\IntuneLogs\TrendMicroAgentCompliance\TrendMicroAgentCompliance-Compliance.txt`
@@ -121,10 +121,10 @@ The discovery script takes **no parameters**. Intune Custom Compliance invokes `
 ---
 
 # 🛡 Operational Notes
-* The rule file `SettingName` (`Trend Micro Apex One Security Agent`) and the JSON key emitted by the script must match 1:1 — renaming one requires updating the other.
+* The rule file `SettingName` (`Trend Micro Apex One Security Agent`) and the JSON key emitted by the script must match 1:1. Renaming one requires updating the other.
 * Detection signals are markers only and are tuned to avoid false positives from unrelated Trend products.
-* The script is read-only: it discovers, it never remediates. Use a separate remediation plan or app deployment to install the agent when `false` is reported.
-* `65009 (Invalid json)` means stdout was polluted — verify locally with `& .\Get-TrendMicroAgentCompliance.ps1 *>&1` (expect 1 line, valid JSON, exit 0) and re-upload the fixed script.
+* The script is read-only and never remediates. Use a separate remediation plan or app deployment to install the agent when `false` is reported.
+* `65009 (Invalid json)` means stdout was polluted. Verify locally with `& .\Get-TrendMicroAgentCompliance.ps1 *>&1` (expect 1 line, valid JSON, exit 0) and re-upload the fixed script.
 
 ---
 

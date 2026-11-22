@@ -21,9 +21,9 @@ This script connects to Microsoft Graph API to retrieve BitLocker recovery keys 
 
 # 📖 Overview
 
-**BitLocker Keys Backup to Azure Key Vault** is a PowerShell script that This script connects to Microsoft Graph API to retrieve BitLocker recovery keys for Windows devices, then stores them securely in Azure Key Vault using REST API. Each key is stored as a secret with device information (name and serial number) included in tags. Authentication uses the MgGraphCommunity module (WAM-free) and acquires two separate tokens with the correct audiences: a device code sign-in for Azure Key Vault (https://vault.azure.net) and an interactive browser sign-in for Microsoft Graph. No Az modules are needed. On first run, you will be prompted to consent to the required permissions including Key Vault access. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
+**BitLocker Keys Backup to Azure Key Vault** is a PowerShell script that connects to Microsoft Graph API to retrieve BitLocker recovery keys for Windows devices, then stores them securely in Azure Key Vault using REST API. Each key is stored as a secret with device information (name and serial number) included in tags. Authentication uses the MgGraphCommunity module (WAM-free) and acquires two separate tokens with the correct audiences: a device code sign-in for Azure Key Vault (https://vault.azure.net) and an interactive browser sign-in for Microsoft Graph. No Az modules are needed. On first run, you will be prompted to consent to the required permissions including Key Vault access. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
 
-This script connects to Microsoft Graph API to retrieve BitLocker recovery keys for Windows devices, then stores them securely in Azure Key Vault using REST API. Each key is stored as a secret with device information (name and serial number) included in tags. Authentication uses the MgGraphCommunity module (WAM-free) and acquires two separate tokens with the correct audiences: a device code sign-in for Azure Key Vault (https://vault.azure.net) and an interactive browser sign-in for Microsoft Graph. No Az modules are needed. On first run, you will be prompted to consent to the required permissions including Key Vault access. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency. It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
+It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
 
 ---
 
@@ -91,10 +91,10 @@ Backs up keys with overwrite option and progress display
 
 ### Modules
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
-* No `Az` modules required — Key Vault is accessed via REST
+* No `Az` modules required; Key Vault is accessed via REST
 
 ### Permissions
-* `DeviceManagementManagedDevices.Read.All,BitlockerKey.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.Read.All,BitlockerKey.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 * Key Vault RBAC: **Key Vault Secrets Officer** or **Key Vault Administrator** on the target vault
 
 ### Logging
@@ -104,10 +104,10 @@ Backs up keys with overwrite option and progress display
 
 # 🛡️ Operational Notes
 
-* **Vault-destination note:** `Backup-BitLockerKeysToKeyVault.ps1` legitimately touches **Azure Key Vault** (`https://vault.azure.net`) as a **RESOURCE** — a vault-destination for escrowed BitLocker secrets — not as an Automation runbook. Requires `-VaultUri https://<vault>.vault.azure.net` and Key Vault **Secrets Officer** (ABAC) or Administrator on the target vault.
+* **Vault-destination note:** `Backup-BitLockerKeysToKeyVault.ps1` touches **Azure Key Vault** (`https://vault.azure.net`) as a **RESOURCE** for escrowed BitLocker secrets, not as an Automation runbook. Requires `-VaultUri https://<vault>.vault.azure.net` and Key Vault **Secrets Officer** (ABAC) or Administrator on the target vault.
 * Acquires **two separate tokens with different audiences**: device-code for `https://vault.azure.net/user_impersonation` and browser for Graph (`DeviceManagementManagedDevices.Read.All`, `BitlockerKey.Read.All`). One token cannot serve both resources; the script switches `MgGraphCommunity` sessions per call and restores Graph after each Key Vault PUT.
 * Secret names are sanitized (`[^a-zA-Z0-9-] -> -`) and carry stable `-{VolumeType}` suffix; `-OverwriteExisting` honors existing versions.
-* No `Az` modules required — Key Vault is accessed via REST (`Invoke-MgGraphCommunityRequest`).
+* No `Az` modules required; Key Vault is accessed via REST (`Invoke-MgGraphCommunityRequest`).
 
 ---
 

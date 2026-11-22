@@ -4,7 +4,7 @@
 
 **Single-page integrated tenant health report (Intune + Entra ID + 365).**
 
-Pulls data from 17 Microsoft Graph endpoints in one pass and renders a self-contained HTML report with 12 KPI tiles, 4 donut charts, 2 bar charts, and 8 detail tables — covering compliance, security, inventory, licensing, service health, connectors, and Windows 365. The 2.0 release merges the former Get-DailyTenantReport into this single integrated dashboard.
+Pulls data from 17 Microsoft Graph endpoints in one pass and renders a self-contained HTML report with 12 KPI tiles, 4 donut charts, 2 bar charts, and 8 detail tables. The report covers compliance, security, inventory, licensing, service health, connectors, and Windows 365. The 2.0 release merges the former Get-DailyTenantReport into this single integrated dashboard.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -22,26 +22,26 @@ Pulls data from 17 Microsoft Graph endpoints in one pass and renders a self-cont
 
 **Export-IntuneDashboard** is the consolidated tenant health report for Intune, Entra ID, and Windows 365. It replaces both the original dashboard script and `Get-DailyTenantReport.ps1` (now removed) with a single integrated report that covers everything operators need in one page.
 
-The 2.0 release adds 6 new KPI tiles, 8 new detail sections, and 4 new Graph endpoint categories — all rendered in the same Carbon-themed dark HTML report. Output is a self-contained HTML file with zero external dependencies: open it in any browser, share it with your team, or print to PDF.
+The 2.0 release adds 6 new KPI tiles, 8 new detail sections, and 4 new Graph endpoint categories, all rendered in the same Carbon-themed dark HTML report. Output is a self-contained HTML file with zero external dependencies: open it in any browser, share it with your team, or print to PDF.
 
 ---
 
 # ✨ Features
 
-* **12 KPI tiles** — Managed Devices, Compliance, Stale, Risky Users, CA Policies, Not Encrypted, M365 Secure Score, Intune Service Health, Apple Certs (soonest), Failed Sign-ins (24h), Cloud PCs (365), Connectors
-* **Compliance & Device Overview** — Compliance donut with grade card, OS distribution bar chart
-* **Encryption & Sync Health** — Encryption donut with %, Sync Health donut (active/warn/stale)
-* **License utilisation** table with progress bars sorted by usage %
-* **M365 Secure Score** gauge with posture color (Strong/Moderate/Weak)
-* **Apple Certificates & Tokens** — APNs, VPP, DEP expiry with severity badges (red < 30d, yellow < 90d)
-* **Intune Service Health** — operational status + active issues
-* **Tenant Connectors** — MTD, NDES, ServiceNow, Zebra FOTA, Remote Assist, Compliance Partner with heartbeat monitoring
-* **Windows Update Reports** — feature/quality/driver alerts summary
-* **Identity & Application Security** — Failed Entra sign-ins (24h) + Expiring app registrations (90d)
-* **Windows 365 Cloud PCs** — total, provisioned, failed
-* **Self-contained HTML** with donut charts, bar charts, severity badges, and print-optimized CSS
-* **Footer with** Print, Copy Path, Top, Disclaimer modal, Text Summary export
-* **Graph pagination** via `Get-MgGraphAllPages` with structured logging to `C:\ProgramData\Export-IntuneDashboard\Logs\`
+* 12 KPI tiles: Managed Devices, Compliance, Stale, Risky Users, CA Policies, Not Encrypted, M365 Secure Score, Intune Service Health, Apple Certs (soonest), Failed Sign-ins (24h), Cloud PCs (365), Connectors
+* Compliance and Device Overview: compliance donut with grade card, OS distribution bar chart
+* Encryption and Sync Health: encryption donut with %, Sync Health donut (active/warn/stale)
+* License utilisation table with progress bars sorted by usage %
+* M365 Secure Score gauge with posture color (Strong/Moderate/Weak)
+* Apple Certificates and Tokens: APNs, VPP, DEP expiry with severity badges (red < 30d, yellow < 90d)
+* Intune Service Health: operational status and active issues
+* Tenant Connectors: MTD, NDES, ServiceNow, Zebra FOTA, Remote Assist, Compliance Partner with heartbeat monitoring
+* Windows Update Reports: feature/quality/driver alerts summary
+* Identity and Application Security: Failed Entra sign-ins (24h) and expiring app registrations (90d)
+* Windows 365 Cloud PCs: total, provisioned, failed
+* Self-contained HTML with donut charts, bar charts, severity badges, and print-optimized CSS
+* Footer with Print, Copy Path, Top, Disclaimer modal, and Text Summary export
+* Graph pagination via `Get-MgGraphAllPages` with structured logging to `C:\ProgramData\Export-IntuneDashboard\Logs\`
 
 ---
 

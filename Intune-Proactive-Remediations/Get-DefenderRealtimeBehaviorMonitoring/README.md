@@ -36,7 +36,7 @@ Behavior monitoring is a core layer of Defender real-time protection that observ
 ### 🔹 Verified Remediation
 * Runs `Set-MpPreference -DisableBehaviorMonitoring $false` with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Enables behavior monitoring by running `Set-MpPreference -DisableBehaviorMonitor
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-DefenderRealtimeBehaviorMonitoring\`
@@ -150,7 +150,7 @@ remediate-Get-DefenderRealtimeBehaviorMonitoring.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * If tamper protection blocks the preference change, verification fails and the script exits `1`; investigate protection policies rather than rerunning blindly.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

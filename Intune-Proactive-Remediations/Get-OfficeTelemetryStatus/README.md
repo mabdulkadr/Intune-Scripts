@@ -36,7 +36,7 @@ Office apps can send diagnostic and usage telemetry to Microsoft. Enterprise pri
 ### 🔹 Verified Remediation
 * Creates the policy key if absent and writes `DisableTelemetry = 1` (DWORD) with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Creates the Office policy key when needed and writes `DisableTelemetry = 1`, usi
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Get-OfficeTelemetryStatus\`
@@ -150,7 +150,7 @@ remediate-Get-OfficeTelemetryStatus.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * The pair targets HKCU. When run in SYSTEM context the policy applies to profiles as loaded at runtime; assign in user context if you need per-user coverage on shared devices.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

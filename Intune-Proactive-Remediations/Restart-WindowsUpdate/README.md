@@ -36,7 +36,7 @@ The Windows Update service (`wuauserv`) is a common casualty of broken update st
 ### 🔹 Verified Remediation
 * Restarts `wuauserv` with `Restart-Service -Force` using a pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — safe to run repeatedly on the same device
+* Idempotent: safe to run repeatedly on the same device
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -70,7 +70,7 @@ Verifies that the Windows Update service exists. Strictly read-only.
 
 ### Logic
 1. Query `wuauserv` via `Get-Service`
-2. Compliant when the service exists (running or stopped — permissive legacy rule)
+2. Compliant when the service exists (running or stopped, permissive legacy rule)
 3. Non-compliant when the service cannot be found
 
 ### Exit Codes
@@ -113,7 +113,7 @@ Restarts the Windows Update service so it returns to `Running`, using a pre-chec
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Restart-WindowsUpdate\`
@@ -150,7 +150,7 @@ remediate-Restart-WindowsUpdate.ps1
 ---
 
 # 🛡 Operational Notes
-* Idempotent by design — devices already compliant exit `0` without changes.
+* Idempotent by design: devices already compliant exit `0` without changes.
 * A present-but-stopped service is intentionally treated as compliant (legacy behavior preserved); the state is logged as a warning for troubleshooting.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 * `Restart-Service -Force` also restarts dependent services if any exist.

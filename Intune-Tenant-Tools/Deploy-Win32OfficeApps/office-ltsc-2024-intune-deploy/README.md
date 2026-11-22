@@ -22,9 +22,9 @@ Packages the Office Deployment Tool with silent OS-language 64-bit and 32-bit co
 
 The bundle contains three layers:
 
-- **Configuration**: two XML variants — `Install-ProPlus2024-x64.xml` and `Install-ProPlus2024-x86.xml`, both in the OS language (`MatchOS`, Office + ProofingTools). `Uninstall-ProPlus2024.xml` describes what to remove.
-- **PowerShell scripts**: `Install-OfficeLTSC2024.ps1` / `Uninstall-OfficeLTSC2024.ps1` anchor every path to their own folder (dot-source safe), auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, install in the OS language (`MatchOS` resolved by ODT), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\OfficeLTSC2024\`, and forward the true ODT exit code.
-- **Detection**: `Detect-OfficeLTSC2024.ps1` is the Intune Win32 custom detection rule that marks the app *Installed* only when the Click-to-Run configuration truly reports `ProPlus2024Volume` with a version, and a core binary exists on disk.
+- Configuration: two XML variants, `Install-ProPlus2024-x64.xml` and `Install-ProPlus2024-x86.xml`, both in the OS language (`MatchOS`, Office + ProofingTools). `Uninstall-ProPlus2024.xml` describes what to remove.
+- PowerShell scripts: `Install-OfficeLTSC2024.ps1` / `Uninstall-OfficeLTSC2024.ps1` anchor every path to their own folder (dot-source safe), auto-detect the installed Office architecture (x64/x86) with an `-Architecture` override, install in the OS language (`MatchOS` resolved by ODT), verify an elevated context, write a dedicated transcript to `<SystemDrive>\IntuneLogs\OfficeLTSC2024\`, and forward the true ODT exit code.
+- Detection: `Detect-OfficeLTSC2024.ps1` is the Intune Win32 custom detection rule that marks the app *Installed* only when the Click-to-Run configuration truly reports `ProPlus2024Volume` with a version, and a core binary exists on disk.
 
 A Win32 app uploaded from this folder installs completely silently (no UI, EULA auto-accepted) under the local SYSTEM account.
 
@@ -33,15 +33,15 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 # ✨ Core Features
 
 ### 🔹 Silent Volume Deployment
-* `Display Level="None" AcceptEULA="TRUE"` — no UI, no prompts, EULA auto-accepted; safe for Task Scheduler and Intune.
-* `Channel="PerpetualVL2024"` — the only correct channel for Office LTSC 2024 volume licenses.
+* `Display Level="None" AcceptEULA="TRUE"`: no UI, no prompts, EULA auto-accepted; safe for Task Scheduler and Intune.
+* `Channel="PerpetualVL2024"` is the only correct channel for Office LTSC 2024 volume licenses.
 * KMS GVLK activation via `PIDKEY` + `AUTOACTIVATE=1` (placeholder key replaced by your organization's GVLK before deployment).
 * `ProofingTools` with `MatchOS` included for spell-check in the OS language.
 
 ### 🔹 PowerShell Install / Uninstall Scripts
 * Every reference is absolute (`$PSScriptRoot` fallback), independent of the caller's working directory and dot-source safe.
 * Auto-detects architecture from the ClickToRun registry and selects the matching XML; `-Architecture x64/x86` override.
-* Language is `MatchOS` inside the XML — ODT installs Office + ProofingTools in the OS language, no parameter needed.
+* Language is `MatchOS` inside the XML; ODT installs Office + ProofingTools in the OS language, no parameter needed.
 * Elevation check fails fast with a clear message if not running as administrator/SYSTEM.
 * Dedicated transcript log per operation under `C:\IntuneLogs\OfficeLTSC2024\`.
 * Propagates the real `setup.exe` exit code instead of swallowing it.
@@ -49,7 +49,7 @@ A Win32 app uploaded from this folder installs completely silently (no UI, EULA 
 ### 🔹 Intune-Ready Detection
 * Registry-driven (`HKLM\SOFTWARE\Microsoft\Office\ClickToRun\Configuration`) with disk-level hardening (`WINWORD.EXE`).
 * Canonical exit contract: `0` installed / `1` not installed / `2` script error.
-* No Graph permissions and no network dependency — pure local SYSTEM check.
+* No Graph permissions and no network dependency. It is a local SYSTEM check only.
 
 ---
 
@@ -80,12 +80,12 @@ Detect-OfficeLTSC2024.ps1
 ```
 
 ### Purpose
-Reads the authoritative Click-to-Run registry and reports whether Office LTSC Professional Plus 2024 is genuinely present. Read-only — never modifies the system.
+Reads the authoritative Click-to-Run registry and reports whether Office LTSC Professional Plus 2024 is genuinely present. It is read-only and never modifies the system.
 
 ### Logic
 1. Reads `HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration` (`ErrorAction Stop` → exit `2` if missing/failed).
 2. Confirms `ProductReleaseIds` contains `ProPlus2024Volume` (exit `1` if not).
-3. Confirms `VersionToReport` is populated (exit `1` if empty — partial install).
+3. Confirms `VersionToReport` is populated (exit `1` if empty, partial install).
 4. Confirms `WINWORD.EXE` exists under `InstallPath\root\Office16\` (exit `1` if missing).
 
 ### Exit Codes
@@ -116,9 +116,9 @@ Uninstall-OfficeLTSC2024.ps1 →  & setup.exe /configure Uninstall-ProPlus2024.x
 
 ### Install Behavior
 1. Fails fast if `setup.exe` or the matching `.xml` is missing next to the script.
-2. Enforces elevation (`Test-IsElevated`) — passes automatically under the Intune SYSTEM context.
+2. Enforces elevation (`Test-IsElevated`), which passes automatically under the Intune SYSTEM context.
 3. Reads the installed Office architecture from the ClickToRun registry (x64/x86); defaults to x64 for fresh installs or when `-Architecture` is specified.
-4. Installs in the OS language — `MatchOS` is resolved by ODT itself, no language parameter.
+4. Installs in the OS language; `MatchOS` is resolved by ODT itself, no language parameter.
 5. Invokes ODT synchronously and exits with ODT's real return code (`0` = success).
 6. Logs the full run (banner + every step + result) to `C:\IntuneLogs\OfficeLTSC2024\`.
 
@@ -139,13 +139,13 @@ Uninstall-OfficeLTSC2024.ps1 →  & setup.exe /configure Uninstall-ProPlus2024.x
 * Windows 10 / Windows 11 (see Operational Notes for the official support matrix nuance)
 
 ### Architecture
-* Supports both 64-bit and 32-bit Office — the install script auto-detects from registry and selects the matching XML.
+* Supports both 64-bit and 32-bit Office; the install script auto-detects from registry and selects the matching XML.
 
 ### PowerShell
 * Windows PowerShell **5.1 or later** (detection script runs under the Intune Management Extension)
 
 ### Permissions
-* Runs in the local **SYSTEM** context via Intune — no Graph scopes, no Entra ID permission.
+* Runs in the local **SYSTEM** context via Intune; no Graph scopes or Entra ID permission.
 * Local administrator rights required for manual runs (checked by the PowerShell scripts).
 
 ### Logging
@@ -158,7 +158,7 @@ Uninstall-OfficeLTSC2024.ps1 →  & setup.exe /configure Uninstall-ProPlus2024.x
 # 🧭 Intune Deployment
 
 ### Win32 Packaging
-Download [IntuneWinAppUtil](https://learn.microsoft.com/en-us/mem/intune/apps/apps-win32-app-management) — or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility) — and run:
+Download [IntuneWinAppUtil](https://learn.microsoft.com/en-us/mem/intune/apps/apps-win32-app-management) or use the GUI-friendly [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility), then run:
 
 ```powershell
 IntuneWinAppUtil.exe -c "C:\office-ltsc-2024-intune-deploy" -s setup.exe -o "C:\intune-output"
@@ -228,7 +228,7 @@ Upload `Detect-OfficeLTSC2024.ps1` as a **custom detection script**:
 # ❓ FAQ
 
 **Is internet access required?**
-Only for the first install — ODT streams the package from the Office CDN unless you pre-download. See Operational Notes for the offline option.
+Only for the first install. ODT streams the package from the Office CDN unless you pre-download. See Operational Notes for the offline option.
 
 **Can I use this with Microsoft 365 Apps?**
 No. This configuration is LTSC-2024-only (`ProPlus2024Volume`). For M365 Apps, generate a retail config, e.g. via [config.office.com](https://config.office.com).
@@ -237,16 +237,16 @@ No. This configuration is LTSC-2024-only (`ProPlus2024Volume`). For M365 Apps, g
 Office products on a device must share one architecture (32-bit or 64-bit). The install script reads the current architecture from the ClickToRun registry to avoid mismatched installs. For fresh devices with no Office, it defaults to x64.
 
 **How do I pick a language?**
-You don't — both configs use `MatchOS`, so ODT installs Office in the OS language automatically. To force a fixed language, replace `MatchOS` with `en-us` / `ar-sa` in the XML before packaging.
+You don't. Both configs use `MatchOS`, so ODT installs Office in the OS language automatically. To force a fixed language, replace `MatchOS` with `en-us` / `ar-sa` in the XML before packaging.
 
 ---
 
 # 🛡 Operational Notes
 * **Update behavior:** `<Updates Enabled="TRUE" />` uses the Office CDN (Microsoft recommended). For offline fleets, add `UpdatePath="\\server\share"` to the Updates element and replicate the payload monthly.
-* **Offline first-install:** the packaged folder contains only `setup.exe` — the first `/configure` streams the payload from the CDN. For a self-contained package, run `setup.exe /download Install-ProPlus2024-x64.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
+* **Offline first-install:** the packaged folder contains only `setup.exe`; the first `/configure` streams the payload from the CDN. For a self-contained package, run `setup.exe /download Install-ProPlus2024-x64.xml` first, then repackage with `IntuneWinAppUtil.exe` or [IntuneWin-Utility](https://github.com/mabdulkadr/IntuneWin-Utility).
 * **Support matrix nuance:** Microsoft officially supports LTSC 2024 on Windows 11, Windows 11 LTSC 2024, Windows 10 LTSC 2021/2019, and Windows Server 2025/2022. Regular Windows 10 21H2+ works in practice; verify against your fleet policy.
 * **Channel is a hard contract:** any config that does not use `PerpetualVL2024` installs Microsoft 365 Apps instead of retail-free LTSC 2024.
-* **GVLK placeholder:** the XML files ship with `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` as PIDKEY. Replace it with your organization's KMS GVLK before deployment — see [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
+* **GVLK placeholder:** the XML files ship with `XXXXX-XXXXX-XXXXX-XXXXX-XXXXX` as PIDKEY. Replace it with your organization's KMS GVLK before deployment. See [Microsoft KMS Client Setup Keys](https://learn.microsoft.com/en-us/windows-server/get-started/kms-client-activation-keys).
 * **AppSettings:** the empty Word `defaultformat` value is Microsoft's own ODT Configurator default and is intentionally kept.
 
 ---

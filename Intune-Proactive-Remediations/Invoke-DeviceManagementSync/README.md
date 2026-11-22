@@ -116,7 +116,7 @@ Starts each matching PushLaunch task to trigger a device management sync attempt
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs via Intune in SYSTEM or user context per assignment — no Graph permissions required.
+* Runs via Intune in SYSTEM or user context per assignment with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Invoke-DeviceManagementSync\`
@@ -153,8 +153,8 @@ remediate-Invoke-DeviceManagementSync.ps1
 ---
 
 # 🛡 Operational Notes
-* An accepted start request is the guaranteed outcome — the sync itself runs asynchronously inside the EnterpriseMgmt task; policy arrival is confirmed by the next detection cycle.
-* Devices with no EnterpriseMgmt tasks report non-compliant but cannot be fixed by remediation — scope assignments to enrolled devices only.
+* An accepted start request is the guaranteed outcome; the sync itself runs asynchronously inside the EnterpriseMgmt task, and policy arrival is confirmed by the next detection cycle.
+* Devices with no EnterpriseMgmt tasks report non-compliant but cannot be fixed by remediation; scope assignments to enrolled devices only.
 * Multiple PushLaunch tasks are common (one per enrollment); all of them receive a start request.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

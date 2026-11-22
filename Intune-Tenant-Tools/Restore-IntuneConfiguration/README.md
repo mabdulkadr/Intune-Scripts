@@ -4,7 +4,7 @@
 
 **Recreates Intune objects from a JSON backup with optional assignment restore.**
 
-Restores profiles, policies, and scripts as new entries from a Backup-IntuneConfiguration folder — supports `-WhatIf` preview and assignment rehydration.
+Restores profiles, policies, and scripts as new entries from a Backup-IntuneConfiguration folder. Supports `-WhatIf` preview and assignment rehydration.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -20,13 +20,13 @@ Restores profiles, policies, and scripts as new entries from a Backup-IntuneConf
 
 # 📖 Overview
 
-**Restore Intune Configuration** is a PowerShell script that reads a backup folder produced by `Backup-IntuneConfiguration` and recreates the exported objects in the target tenant — device configuration profiles, settings catalog policies, compliance policies, ADMX policies with definition values, and platform scripts — always as new entries (no in-place overwrite), stripping read-only properties (`id`, timestamps, `assignments`, `@odata.*`) and optionally restoring assignments when source group IDs exist in the target.
+**Restore Intune Configuration** is a PowerShell script that reads a backup folder produced by `Backup-IntuneConfiguration` and recreates the exported objects in the target tenant: device configuration profiles, settings catalog policies, compliance policies, ADMX policies with definition values, and platform scripts. It always creates new entries (no in-place overwrite), strips read-only properties (`id`, timestamps, `assignments`, `@odata.*`), and optionally restores assignments when source group IDs exist in the target.
 
 ---
 
 # ✨ Features
 
-* Declares `[CmdletBinding(SupportsShouldProcess = $true)]` — every create is gated by `$PSCmdlet.ShouldProcess`; run `-WhatIf` to preview without writing
+* Declares `[CmdletBinding(SupportsShouldProcess = $true)]`; every create is gated by `$PSCmdlet.ShouldProcess`. Run `-WhatIf` to preview without writing
 * Handles `scheduledActionsForRule` fallbacks and ADMX `definition@odata.bind` creation; uses `-Depth 25` (settings catalog 30) on create payloads
 * Optional `-RestoreAssignments` (off by default) rehydrates group assignments; failures are per-object and do not stop the restore
 * Supports `-NamePrefix` and `-Areas` filtering; re-running with the same backup creates duplicates by design
@@ -51,7 +51,7 @@ Restore-IntuneConfiguration
 ```powershell
 .\Restore-IntuneConfiguration.ps1 -BackupPath ".\IntuneConfigBackup_2026-07-20_10-00-00" -WhatIf
 ```
-Previews everything that would be created without writing to the tenant — honors `SupportsShouldProcess`.
+Previews everything that would be created without writing to the tenant. Honors `SupportsShouldProcess`.
 
 ### With Parameters
 ```powershell
@@ -101,8 +101,8 @@ Restores only compliance policies with a name prefix and rehydrates assignments 
 
 # 🛡 Operational Notes
 
-* **Restore supports ShouldProcess / WhatIf:** the script is declared with `[CmdletBinding(SupportsShouldProcess = $true)]` — every `deviceConfigurations`, `configurationPolicies`, `deviceCompliancePolicies`, `groupPolicyConfigurations`, and `deviceManagementScripts` create is gated by `$PSCmdlet.ShouldProcess`; run with `-WhatIf` to preview.
-* Objects are always created as new entries; re-running with the same backup creates duplicates — existing policies with the same name are not touched.
+* **Restore supports ShouldProcess / WhatIf:** the script is declared with `[CmdletBinding(SupportsShouldProcess = $true)]`; every `deviceConfigurations`, `configurationPolicies`, `deviceCompliancePolicies`, `groupPolicyConfigurations`, and `deviceManagementScripts` create is gated by `$PSCmdlet.ShouldProcess`. Run with `-WhatIf` to preview.
+* Objects are always created as new entries; re-running with the same backup creates duplicates. Existing policies with the same name are not touched.
 * Secret values (encrypted OMA-URI, passwords, certificates) are never present in Graph exports; re-enter them manually after restore.
 * **Backup JSON depth 25:** companion backup writes each object with `ConvertTo-Json -Depth 25` (manifest depth 5) so nested values survive round-tripping; restore uses depth 25 (settings catalog 30).
 * **RBAC sensitivity:** assignment restore (`-RestoreAssignments`) requires source group IDs to exist in the target tenant and is reported per object; unresolvable ADMX definitions are skipped with a warning.

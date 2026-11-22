@@ -36,7 +36,7 @@ The scripts automate the same action a user performs by hand: they resolve the S
 ### 🔹 Verified Remediation
 * Invokes the shell unpin verb with pre-check → fix → post-verify flow
 * Emits structured JSON result output for Intune diagnostics
-* Idempotent — devices where nothing is pinned exit successfully without changes
+* Idempotent: devices where nothing is pinned exit successfully without changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Invokes the shell verb that removes Microsoft Store from the taskbar, using a pr
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 * The shell namespace mirrors the interactive user's taskbar; user-context execution gives the most accurate results.
 
 ### Logging

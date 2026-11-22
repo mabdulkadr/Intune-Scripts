@@ -36,7 +36,7 @@ The detection script counts child items under `$env:USERPROFILE\Downloads` and r
 ### 🔹 Verified Remediation
 * Deletes all child content with `Remove-Item -Recurse -Force` when items are present
 * Pre-check → fix → post-verify flow with structured JSON result output
-* Idempotent — missing or already-empty folders exit successfully with no changes
+* Idempotent: missing or already-empty folders exit successfully with no changes
 
 ### 🔹 Enterprise Logging
 * Timestamped, level-colored log lines (`INFO` / `SUCCESS` / `WARNING` / `ERROR` / `DEBUG`)
@@ -113,7 +113,7 @@ Removes all child items from the current user's Downloads folder, using a pre-ch
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in the assigned user context via Intune — no Graph permissions required.
+* Runs in the assigned user context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Clear-DownloadsFolderCurrentUser\`
@@ -150,8 +150,8 @@ remediate-Clear-DownloadsFolderCurrentUser.ps1
 ---
 
 # 🛡 Operational Notes
-* **DESTRUCTIVE:** deleted Downloads content bypasses the Recycle Bin and cannot be restored.
-* Idempotent — a missing or already-empty folder exits `0` without changes.
+* DESTRUCTIVE: deleted Downloads content bypasses the Recycle Bin and cannot be restored.
+* Idempotent: a missing or already-empty folder exits `0` without changes.
 * Runs per user context: assign to users (or devices with user context) so `$env:USERPROFILE` resolves to each target profile.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 

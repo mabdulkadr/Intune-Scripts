@@ -4,7 +4,7 @@
 
 **Buckets devices by sync freshness to surface drifting fleets.**
 
-Analyzes `lastSyncDateTime` to classify devices as Healthy, Drifting, Stale, or Never synced — highlights action window before unmanaged state.
+Analyzes `lastSyncDateTime` to classify devices as Healthy, Drifting, Stale, or Never synced and highlights the window for action before devices become unmanaged.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -97,9 +97,9 @@ Uses tighter thresholds (Healthy <=3d, Stale >21d) and exports the full device l
 
 # 🛡 Operational Notes
 
-* **Drift thresholds:** `-HealthyDays` (1-90, default 7) must be smaller than `-StaleDays` (2-365, default 30); devices with no `lastSyncDateTime` are bucketed as **Never synced**; the **Drifting** bucket (7-30 days by default) is the actionable intervention window before stale.
+* Drift thresholds: `-HealthyDays` (1-90, default 7) must be smaller than `-StaleDays` (2-365, default 30); devices with no `lastSyncDateTime` are bucketed as **Never synced**; the **Drifting** bucket (7-30 days by default) is the actionable intervention window before stale.
 * Export includes `DaysSinceSync`, `HealthBucket`, `OperatingSystem`, and `ComplianceState`; per-platform distribution is shown in console output.
-* Complements plain stale-device reports — this script surfaces the degrading middle band, not just the tail.
+* Complements plain stale-device reports by surfacing the degrading middle band as well as the tail.
 * Beta Graph endpoints are used for consistency; paging handles `429` with 60s backoff; logs via `Initialize-Log` / `Write-Banner`.
 * `-OutputPath` defaults to the script directory (Law 12); test threshold tuning in a staging tenant before production.
 

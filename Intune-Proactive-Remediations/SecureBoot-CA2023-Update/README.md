@@ -35,7 +35,7 @@ The remediation writes `HKLM\SYSTEM\CurrentControlSet\Control\SecureBoot\Availab
 * Validates Secure Boot is enabled before migrating (skips VMs without UEFI)
 
 ### 🔹 Safe & Idempotent
-* Read-only detection — never modifies the system
+* Read-only detection: never modifies the system
 * Remediation verifies the value persists before reporting success
 
 ---
@@ -66,7 +66,7 @@ Checks whether Secure Boot CA 2023 migration is provisioned. Read-only, never mo
 
 ### Logic
 1. Check Secure Boot is enabled via `Confirm-SecureBootUEFI` (skip if undeterminable)
-2. Read `HKLM\...\SecureBoot\AvailableUpdatePolicy` — expect DWORD `5944`
+2. Read `HKLM\...\SecureBoot\AvailableUpdatePolicy`; expect DWORD `5944`
 3. Log `UEFICA2023Status` / `AvailableUpdates` for operator visibility
 
 ### 📊 Exit Codes
@@ -104,7 +104,7 @@ Creates the Secure Boot policy registry value and verifies it persists. The actu
 * PowerShell **5.1 or later**
 
 ### 🔐 Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\SecureBoot-CA2023-Update\`
@@ -144,11 +144,11 @@ remediate-SecureBoot-CA2023-Update.ps1
 ---
 
 # 🛡 Operational Notes
-* **Does not reboot.** Schedule reboots separately or let Windows Update handle them.
-* **Monitor:** Intune admin center → Reports → Secure Boot Status Report
-* **Multiple reboots may be required** — firmware errors may persist in Event Viewer after first reboot; give 2–3 cycles.
-* **BitLocker:** The migration does not require BitLocker suspension — only BIOS-level Secure Boot enablement does.
-* **References:** [Secure the Windows boot process](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/oem-secure-boot) · [KB5095093](https://support.microsoft.com/en-us/topic/june-23-2026-kb5095093-os-builds-26200-8737-and-26100-8737-preview-0e2a20f2-cf9e-46f8-9f08-e6996220882d)
+* Does not reboot. Schedule reboots separately or let Windows Update handle them.
+* Monitor: Intune admin center → Reports → Secure Boot Status Report
+* Multiple reboots may be required: firmware errors may persist in Event Viewer after the first reboot. Give 2–3 cycles.
+* BitLocker: The migration does not require BitLocker suspension; only BIOS-level Secure Boot enablement does.
+* References: [Secure the Windows boot process](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/oem-secure-boot) · [KB5095093](https://support.microsoft.com/en-us/topic/june-23-2026-kb5095093-os-builds-26200-8737-and-26100-8737-preview-0e2a20f2-cf9e-46f8-9f08-e6996220882d)
 
 ---
 

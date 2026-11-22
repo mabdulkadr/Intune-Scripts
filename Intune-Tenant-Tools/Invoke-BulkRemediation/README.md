@@ -4,7 +4,7 @@
 
 **Bulk Run Remediations On Demand**
 
-Triggers an Intune proactive remediation on demand across selected managed devices via Microsoft Graph — built for Intune administrators who need immediate remediation runs outside the assignment schedule.
+Triggers an Intune proactive remediation on demand across selected managed devices via Microsoft Graph, outside the normal assignment schedule.
 
 [![Mode](https://img.shields.io/badge/Mode-CLI-334155?style=for-the-badge)](#-usage)
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/en-us/powershell/)
@@ -59,7 +59,7 @@ Signs in interactively, then opens the remediation and device pickers.
 ```powershell
 .\Invoke-BulkRemediation.ps1 -Tenant "contoso.onmicrosoft.com" -ClientId "<app-client-id>" -ClientSecret "<app-secret>" -RemediationId "<deviceHealthScript-id>" -DeviceId "<managed-device-id-1>","<managed-device-id-2>"
 ```
-App-only authentication targeting explicit devices — ideal for automation and headless sessions.
+App-only authentication targeting explicit devices, suitable for automation and headless sessions.
 
 ---
 
@@ -102,9 +102,9 @@ App-only authentication targeting explicit devices — ideal for automation and 
 # 🛡 Operational Notes
 * All endpoints intentionally remain on the Graph **beta** service, matching the legacy behavior exactly.
 * The on-demand request body keeps its historical payload shape (including its original trailing comma) so tenant-side behavior is unchanged.
-* When devices are passed as raw IDs via `-DeviceId`, the legacy display-name lookup is skipped — the trigger still uses each raw ID directly.
+* When devices are passed as raw IDs via `-DeviceId`, the legacy display-name lookup is skipped; the trigger still uses each raw ID directly.
 * Grid view requires a desktop session; on headless hosts always pass `-RemediationId` and `-DeviceId`.
-* Client secrets are never hardcoded — inject them from Azure Key Vault, SecretManagement, or a PSCredential at runtime.
+* Client secrets are never hardcoded; inject them from Azure Key Vault, SecretManagement, or a PSCredential at runtime.
 
 ---
 

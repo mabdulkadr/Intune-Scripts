@@ -20,19 +20,19 @@ This script connects to Intune via Microsoft Graph API and rotates the LAPS pass
 
 # 📖 Overview
 
-**Rotate macOS LAPS Passwords** is a PowerShell script that This script connects to Intune via Microsoft Graph API and rotates the LAPS passwords for managed macOS devices. The script retrieves all macOS devices from Intune and triggers LAPS password rotation for each device. It provides real-time feedback on the rotation process, handles errors gracefully, and generates detailed reports. The script supports filtering by device groups, individual devices, or processing all macOS devices. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
+**Rotate macOS LAPS Passwords** is a PowerShell script that connects to Intune via Microsoft Graph API and rotates the LAPS passwords for managed macOS devices. The script retrieves all macOS devices from Intune and triggers LAPS password rotation for each device. It provides real-time feedback on the rotation process, handles errors gracefully, and generates detailed reports. The script supports filtering by device groups, individual devices, or processing all macOS devices. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency.
 
-This script connects to Intune via Microsoft Graph API and rotates the LAPS passwords for managed macOS devices. The script retrieves all macOS devices from Intune and triggers LAPS password rotation for each device. It provides real-time feedback on the rotation process, handles errors gracefully, and generates detailed reports. The script supports filtering by device groups, individual devices, or processing all macOS devices. Workstation dual-mode: interactive (delegated, auto-installs MgGraphCommunity when missing) and app-only via -TenantId, -ClientId and -ClientSecret or -CertificateThumbprint. No Azure Automation dependency. It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
+It runs **against Microsoft Graph via workstation authentication (interactive delegated through MgGraphCommunity or app-only with client credentials)** and writes structured logs for every operation.
 
 ---
 
 # ✨ Features
 
 * Rotates macOS LAPS/FileVault local admin passwords via Graph `rotateLocalAdminPassword`
-* Personal devices (`ownerType == personal`) skipped — LAPS not supported
+* Personal devices (`ownerType == personal`) are skipped; LAPS is not supported
 * Supports `-TestMode "true"` (no rotation, reports intent), `-DeviceName`/`-DeviceId`, `-DeviceLimit`, `-ExportReport`
 * `-Force "true"` skips confirmation for automation; throttling retried once after 60s
-* Workstation LocalOnly — interactive or app-only
+* Workstation LocalOnly, interactive or app-only
 
 ---
 
@@ -94,7 +94,7 @@ Rotates LAPS password for a specific device
 * `Microsoft.Graph.Authentication` (auto-installed if missing; `MgGraphCommunity >= 1.4.0` for WAM-free interactive sign-in)
 
 ### Permissions
-* `DeviceManagementManagedDevices.PrivilegedOperations.All,DeviceManagementManagedDevices.ReadWrite.All,DeviceManagementConfiguration.Read.All` — grant exactly the listed delegated or application permissions and consent as admin before running.
+* `DeviceManagementManagedDevices.PrivilegedOperations.All,DeviceManagementManagedDevices.ReadWrite.All,DeviceManagementConfiguration.Read.All`. Grant exactly the listed delegated or application permissions and consent as admin before running.
 
 ### Logging
 * `C:\ProgramData\Rotate-MacOSFileVaultPasswords\Logs`
@@ -103,7 +103,7 @@ Rotates LAPS password for a specific device
 
 # 🛡️ Operational Notes
 
-* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph — interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`) — with no Azure Automation dependency.
+* All Security Tools run **LocalOnly** from an admin workstation via Microsoft Graph. Authentication is interactive delegated (WAM-free via `MgGraphCommunity`) or app-only (`-TenantId`/`-ClientId`/`-ClientSecret` or `-CertificateThumbprint`). No Azure Automation dependency.
 * Per-script least-privilege Graph permissions; consent on first interactive sign-in or pre-consent via Entra Enterprise Applications.
 * Beta Graph endpoints where the surface requires it; paging with 429 throttling and one retry after 60s.
 * Test in a staging tenant/device group before production; all scripts disconnect (`Disconnect-MgGraph` / `Disconnect-MgGraphCommunity`) and write structured logs.

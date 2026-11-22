@@ -30,7 +30,7 @@ This is an always-run maintenance package by design: detection never reports com
 
 ### 🔹 Always-Run Detection
 * Intentionally reports non-compliant so cleanup executes on every schedule cycle
-* Read-only — never modifies the system during detection
+* Read-only; it never modifies the system during detection
 * Detection errors exit `2` so Intune never treats a crash as non-compliance
 
 ### 🔹 Verified Remediation
@@ -66,7 +66,7 @@ detect-Clear-DownloadsFolderAllUsers.ps1
 ```
 
 ### Purpose
-Scheduled-maintenance trigger — intentionally always non-compliant. Strictly read-only.
+Scheduled-maintenance trigger: intentionally always non-compliant. Strictly read-only.
 
 ### Logic
 1. Adds an unconditional "scheduled maintenance cleanup is due" reason on every evaluation
@@ -113,7 +113,7 @@ Deletes all content under every local user profile's Downloads folder, using a p
 * PowerShell **5.1 or later**
 
 ### Permissions
-* Runs in local SYSTEM context via Intune — no Graph permissions required.
+* Runs in local SYSTEM context via Intune with no Graph permissions required.
 
 ### Logging
 * `<SystemDrive>\IntuneLogs\Clear-DownloadsFolderAllUsers\`
@@ -150,8 +150,8 @@ remediate-Clear-DownloadsFolderAllUsers.ps1
 ---
 
 # 🛡 Operational Notes
-* **DESTRUCTIVE:** deleted Downloads content bypasses the Recycle Bin and cannot be restored — validate assignment scope carefully.
-* Always-run design — detection deliberately never exits `0`, so expect remediation to execute on every cycle.
+* DESTRUCTIVE: deleted Downloads content bypasses the Recycle Bin and cannot be restored. Validate assignment scope carefully.
+* Always-run design: detection deliberately never exits `0`, so expect remediation to execute on every cycle.
 * Already-empty folders are skipped, making repeated runs cheap and safe.
 * Detection errors deliberately exit `2` so Intune never treats a crashed detection as non-compliance.
 
